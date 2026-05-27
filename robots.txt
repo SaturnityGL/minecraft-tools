@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+
+Sitemap: https://blockforge.saturnitystools.com/sitemap.xml

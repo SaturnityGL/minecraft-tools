@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Make Minecraft Pixel Art with BlockForge: Full Guide</title>
+  <meta name="description" content="Step-by-step guide to turning any image into a Minecraft block mural with BlockForge. Includes Litematica install and survival-mode placement.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/guide/">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/guide/">
+  <meta property="og:title" content="How to Make Minecraft Pixel Art with BlockForge: Full Guide">
+  <meta property="og:description" content="Step-by-step guide to turning any image into a Minecraft block mural with BlockForge. Includes Litematica install and survival-mode placement.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="Saturnity Minecraft Tools">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Make Minecraft Pixel Art with BlockForge: Full Guide">
+  <meta name="twitter:description" content="Step-by-step guide to turning any image into a Minecraft block mural with BlockForge. Includes Litematica install and survival-mode placement.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Make Minecraft Pixel Art with BlockForge",
+    "description": "Convert an image into a Minecraft block mural using BlockForge and place it in your world with Litematica or WorldEdit.",
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+    "totalTime": "PT30M",
+    "tool": [
+      { "@type": "HowToTool", "name": "BlockForge" },
+      { "@type": "HowToTool", "name": "Litematica or WorldEdit" }
+    ],
+    "step": [
+      { "@type": "HowToStep", "name": "Pick the right image", "url": "https://blockforge.saturnitystools.com/guide/#1" },
+      { "@type": "HowToStep", "name": "Open BlockForge", "url": "https://blockforge.saturnitystools.com/guide/#2" },
+      { "@type": "HowToStep", "name": "Choose a block palette", "url": "https://blockforge.saturnitystools.com/guide/#3" },
+      { "@type": "HowToStep", "name": "Pick the dimensions", "url": "https://blockforge.saturnitystools.com/guide/#4" },
+      { "@type": "HowToStep", "name": "Export the schematic", "url": "https://blockforge.saturnitystools.com/guide/#5" },
+      { "@type": "HowToStep", "name": "Install Litematica or WorldEdit", "url": "https://blockforge.saturnitystools.com/guide/#6" },
+      { "@type": "HowToStep", "name": "Import and place in your world", "url": "https://blockforge.saturnitystools.com/guide/#7" },
+      { "@type": "HowToStep", "name": "Tips for survival mode placement", "url": "https://blockforge.saturnitystools.com/guide/#8" }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">
+    <img src="/favicon.svg" alt="" width="28" height="28">
+    <span>Saturnity Minecraft Tools</span>
+  </a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/app/">BlockForge</a>
+    <a href="/guide/" class="active">Guide</a>
+    <a href="/showcase/">Showcase</a>
+    <a href="/blocks/">Blocks</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
+
+<main>
+  <h1>How to Make Minecraft Pixel Art with BlockForge</h1>
+  <p class="lead">This is the full walkthrough, from picking an image to placing the finished mural in your Minecraft world. If you have used BlockForge before and just want the schematic out the door, the four-step summary on the <a href="/">homepage</a> covers it. This page is for everyone else.</p>
+
+  <div class="guide-step">
+    <h2 id="1">1. Pick the right image</h2>
+    <p>Not every image converts well. BlockForge does its best block-by-block match, but the source image determines how recognizable the result will be at Minecraft resolution. Two things matter most: contrast and detail density.</p>
+    <p>High-contrast images convert cleanly because dark and light areas translate directly into distinct blocks. Low-contrast images tend to blend into a muddy mid-range of stone and terracotta. For portraits, crop tight to the face before uploading, removing as much background as possible. At 128 blocks wide, a portrait that fills the frame reads clearly; one with a busy background behind it will not.</p>
+    <p>Detail density is the other factor. A complex scene with a hundred small elements will lose most of those elements at anything below 256x256 blocks. Simple images with clear shapes scale down well. Silhouettes, logos, and character sprites are ideal. If your source image has lots of small text or fine patterns, those details will not survive the block conversion.</p>
+    <p>Before uploading, crop to a square or to the aspect ratio you plan to build. A 1:1 crop for a portrait mural means no black bars. Resize the source to something close to your target block dimensions if the file is very large; it speeds up the browser conversion and does not affect quality.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="2">2. Open BlockForge</h2>
+    <p>Go to the <a href="/app/">BlockForge app</a>. The tool loads in your browser, nothing installs. Drag your image onto the canvas, or click the upload button to pick from disk. PNG, JPG, GIF, WEBP, and BMP all work.</p>
+    <p>Once the image loads, you will see it in the center setup panel. On the left is the settings column where you control output size, Minecraft version, orientation, dithering, and block matching. On the right is the block palette panel.</p>
+    <p>The toolbar at the top of the setup view has five tools: Grab (pan the canvas), Pencil (paint single blocks), Brush (paint a square of blocks), Fill (flood fill a region), and Dropper (pick a block color from the canvas). You will use most of these in the editor after conversion. For setup, you mostly just configure the left panel and pick your palette.</p>
+    <p>The lock aspect ratio checkbox is on by default. With it on, changing the width field will auto-adjust the height to match your source image's proportions. You can uncheck it to set custom dimensions independently.</p>
+    <p>Once your image is loaded and your settings look right, hit Convert Image at the bottom of the left panel. A progress bar tracks the conversion steps: resize, palette build, matching, and coherence pass. For a 128x128 output it takes a second or two.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="3">3. Choose a block palette</h2>
+    <p>The default palette uses all 263 supported blocks. That gives the most accurate color match, but it also pulls from blocks that may not fit the style you want. If you are building a wool mural, you probably do not want stone bricks creeping into the output.</p>
+    <p>Use the three palette mode buttons at the top of the right panel to switch between All, Survival, and Custom. All uses every block. Survival filters down to blocks that are obtainable without creative mode. Custom lets you toggle individual blocks on and off.</p>
+    <p>Filtering by material category is the fastest way to get a consistent aesthetic. Click Custom, then deselect all, and re-enable just the categories you want. Building a portrait with the wool-only palette gives you 16 distinct colors that work together visually. Using only concrete gives you sharper, more saturated results than wool. Terracotta produces a warmer, more muted palette that suits natural scenes and portraits with warmer skin tones.</p>
+    <p>The full list of supported blocks, grouped by category with textures, is on the <a href="/blocks/">blocks reference page</a>. Use it to check which blocks are in each category before deciding what to include. Some categories like glazed terracotta have strong directional textures that can look odd in a mural unless you want that effect.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="4">4. Pick the dimensions that match your build</h2>
+    <p>Width and height are measured in blocks, not pixels. A 128 by 128 output means 16,384 blocks to place. Pick a size that fits the wall, floor, or area you have in mind, not just the largest size the preview allows.</p>
+    <p>Practical size guide: 64x64 works well for a sign-sized wall feature or a small spawn decoration. 128x128 is the standard portrait size, readable from 10-20 blocks away. 256x256 gives enough detail for landscape scenes and complex logos. Anything above 256x256 is large-scale floor art or a multi-session project.</p>
+    <p>Build time scales with block count. A 64x64 mural is around 4,000 blocks in creative and 2-3 hours in survival. A 256x256 mural is over 65,000 blocks. Plan for the time you actually have.</p>
+    <p>Aspect ratio matters too. If you plan to build on a wall that is 64 blocks wide and 48 blocks tall, set the output to 64x48 exactly. BlockForge will crop or letterbox to fit if you leave aspect ratio locked and only one dimension matches. For the cleanest result, match the output dimensions to the wall you have measured in game before exporting.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="5">5. Export the schematic</h2>
+    <p>Hit the export button. BlockForge generates a .schematic file and your browser downloads it. The file is small, usually under a megabyte even for big builds. Save it somewhere you can find it from your Minecraft install.</p>
+    <p>The .schematic format is the legacy WorldEdit format, originally from 2012. Despite its age it remains the most widely supported structure format in the Java Edition modding ecosystem. Both modern WorldEdit (version 7+) and Litematica read it without any conversion step needed.</p>
+    <p>BlockForge also exports .litematic (native Litematica format) and .schem (Sponge Schematic format, used by newer WorldEdit versions). If you are on a server running WorldEdit 7+, .schem is the better choice. For Litematica on a local world, .litematic or .schem both work; .litematic gives you access to Litematica's full material list and placement tools.</p>
+    <p>After the download, the file will be in your browser's default downloads folder unless you have changed that setting. On Windows it is typically C:\Users\YourName\Downloads. Move it to a permanent location before importing, since Litematica and WorldEdit reference the file path and a file in Downloads may get deleted or moved by cleanup tools.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="6">6. Install Litematica or WorldEdit</h2>
+    <p>You need one of two mods to actually use the schematic in Minecraft: Litematica for survival-mode block-by-block placement, or WorldEdit for instant creative-mode placement. Litematica is the more flexible option for most builders.</p>
+    <p><strong>Litematica</strong> is by masady (masa). Download it from <a href="https://www.curseforge.com/minecraft/mc-mods/litematica" rel="noopener noreferrer" target="_blank">CurseForge</a> or <a href="https://www.modrinth.com/mod/litematica" rel="noopener noreferrer" target="_blank">Modrinth</a>. It requires the Fabric mod loader and the MaLiLib library mod. Install Fabric first using the Fabric installer at fabricmc.net, then drop Litematica and MaLiLib into your .minecraft/mods/ folder. Litematica is available for most Minecraft versions from 1.12 onward.</p>
+    <p><strong>WorldEdit</strong> is by EngineHub. It runs on Fabric, Forge, and as a Bukkit/Paper plugin for servers. Download it from <a href="https://enginehub.org/worldedit/" rel="noopener noreferrer" target="_blank">enginehub.org</a>. For a local world, use the Fabric or Forge version depending on your mod loader. Drop the jar into your mods folder. WorldEdit pastes schematics as real blocks instantly, so it is only useful in creative mode or on servers where the permission is granted.</p>
+    <p>Version compatibility: Litematica and WorldEdit both follow Minecraft's version closely. Use the mod version that matches your Minecraft version exactly. Mismatched versions can cause crashes or silent failures. Check the mod page for supported versions before downloading.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="7">7. Import and place in your world</h2>
+    <p>Once Litematica or WorldEdit is installed, open the schematic from inside the mod and position it where you want to build. Litematica shows a transparent preview you can walk around. WorldEdit pastes it as real blocks immediately.</p>
+    <p><strong>With Litematica:</strong> Copy your schematic file into .minecraft/schematics/ (create the folder if it does not exist). Open Litematica's main menu with M (default keybind). Go to Load Schematics, find your file, and click Load. The schematic appears as a transparent ghost overlay. Use the placement controls to move, rotate, and mirror it. Rotate with R and mirror with M while in placement mode. Once the position looks right, lock the placement.</p>
+    <p>In creative mode, Litematica's Print mode auto-places all blocks instantly. Open the Litematica menu, go to Schematic Placements, select your placement, and use Fill Layers or Print to place blocks. In survival, the ghost overlay stays visible as you manually place each block. The Schematic Verifier tool highlights blocks you have placed incorrectly.</p>
+    <p><strong>With WorldEdit:</strong> Copy your .schem file into .minecraft/config/worldedit/schematics/. In-game, run <code>//schem load filename</code> (no extension needed). Then run <code>//paste</code> to place the schematic at your current position. Use <code>//paste -a</code> to skip air blocks. Undo with <code>//undo</code> if the position is wrong, reposition yourself, and paste again.</p>
+  </div>
+
+  <div class="guide-step">
+    <h2 id="8">8. Tips for survival mode placement</h2>
+    <p>Building a BlockForge mural in survival takes time. The mod tells you exactly which blocks you need and how many. Use the materials list to bulk-craft or trade for the blocks before you start placing, otherwise you will be running back and forth to a chest every twenty seconds.</p>
+    <p>Open Litematica's material list from the menu before you start. Sort by block count descending so you gather the most-needed blocks first. For wool murals you are usually looking at stacks of 10-20 colors; for concrete you need to craft and cure each color separately. Terracotta is obtainable via Badlands biomes or smelted clay.</p>
+    <p>Build from the bottom row up so you always have blocks to stand on without placing scaffolding. For wall murals taller than 8 blocks, place scaffolding every 4-6 blocks as you go up. Remove it after you finish each section rather than at the end, so the footprint stays manageable.</p>
+    <p>Build in vertical strips of 16 blocks wide rather than row by row if your mural is very wide. This keeps you moving in one direction and reduces backtracking. Check alignment against the Litematica ghost overlay every few minutes; it is easy to get one block off in a long horizontal run.</p>
+    <p>Blocks with orientation like stairs, glazed terracotta, and logs will be placed with default orientation by Litematica's ghost. Pay attention to the orientation indicator on each block when placing manually. Glazed terracotta has a directional pattern; if every tile faces the same direction the result can look wrong. BlockForge selects blocks by color match, not by orientation, so check the palette if glazed terracotta is appearing unexpectedly and filter it out if the pattern does not suit your mural.</p>
+  </div>
+
+  <section class="next-steps">
+    <h2>Next steps</h2>
+    <ul>
+      <li><a href="/app/">Open BlockForge</a></li>
+      <li><a href="/showcase/">See example builds</a></li>
+      <li><a href="/blocks/">Browse the full block palette</a></li>
+      <li><a href="/faq/">FAQ</a></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>Saturnity Minecraft Tools</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">BlockForge</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/" rel="noopener">All Saturnity tools</a></li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnitygl" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    Made by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>.
+  </div>
+</footer>
+</body>
+</html>

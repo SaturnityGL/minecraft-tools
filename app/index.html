@@ -1,0 +1,1942 @@
+﻿<!-- ============================================================
+     app/index.html - BlockForge app for blockforge.saturnitystools.com
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockForge App: Convert Image to Minecraft Schematic</title>
+  <meta name="description" content="Open the BlockForge app and turn an image into a Minecraft block schematic in your browser. 263 supported blocks, free, no signup, no upload.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/app/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/app/">
+  <meta property="og:title" content="BlockForge App: Convert Image to Minecraft Schematic">
+  <meta property="og:description" content="Open the BlockForge app and turn an image into a Minecraft block schematic in your browser. 263 supported blocks, free, no signup, no upload.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="Saturnity Minecraft Tools">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BlockForge App: Convert Image to Minecraft Schematic">
+  <meta name="twitter:description" content="Open the BlockForge app and turn an image into a Minecraft block schematic in your browser. 263 supported blocks, free, no signup, no upload.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Consent (must load BEFORE any analytics/ads tag) -->
+  <script src="/assets/js/consent.js?v=2" defer></script>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/#blockforge",
+    "name": "BlockForge",
+    "url": "https://blockforge.saturnitystools.com/app/",
+    "description": "Convert any image into Minecraft block art in your browser. Exports a .schematic file for WorldEdit or Litematica.",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any (web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" }
+  }
+  </script>
+</head>
+<body>
+
+<nav class="nav" id="siteNav">
+  <div class="nav__inner">
+    <a href="/" class="nav__logo">Saturnity <span>Minecraft Tools</span></a>
+    <ul class="nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/app/">BlockForge</a></li>
+      <li><a href="/guide/">Guide</a></li>
+      <li><a href="/showcase/">Showcase</a></li>
+      <li><a href="/blocks/">Blocks</a></li>
+      <li><a href="/faq/">FAQ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  if (window.self !== window.top) {
+    document.getElementById('siteNav').style.display = 'none';
+    document.documentElement.style.setProperty('--nav-h', '0px');
+  }
+</script>
+
+<div id="appShell">
+<div id="appFrame">
+
+  <!-- â•â•â•â•â•â•â•â• SETUP VIEW â•â•â•â•â•â•â•â• -->
+  <div id="setupView" class="view">
+
+    <!-- LEFT PANEL -->
+    <div id="leftPanel">
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Image</div>
+        <button class="btn-green" id="loadBtn" style="margin-bottom:8px">Load Image...</button>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+        <label class="cb-row">
+          <input type="checkbox" id="lockRatioCheck" checked>
+          Lock aspect ratio
+        </label>
+        <div id="blockCountDisplay"></div>
+      </div>
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Output Size</div>
+        <div class="dim-row" style="margin-bottom:6px">
+          <label style="font-size:12px;color:var(--text-muted);min-width:46px">Width</label>
+          <input type="number" id="targetW" class="dim-in" value="128" min="1" max="512">
+          <button class="lock-btn locked" id="lockBtn" title="Lock aspect ratio">&#128279;</button>
+        </div>
+        <div class="dim-row">
+          <label style="font-size:12px;color:var(--text-muted);min-width:46px">Height</label>
+          <input type="number" id="targetH" class="dim-in" value="128" min="1" max="512">
+          <span style="width:26px;flex-shrink:0"></span>
+        </div>
+        <div id="sizePreview"></div>
+      </div>
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Minecraft Version</div>
+        <select id="versionSelect"></select>
+      </div>
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Orientation</div>
+        <div class="radio-list">
+          <label>
+            <input type="radio" name="orient" value="horizontal" checked>
+            Horizontal (flat on ground, XZ-plane)
+          </label>
+          <label>
+            <input type="radio" name="orient" value="vertical">
+            Vertical (standing wall, XY-plane)
+          </label>
+        </div>
+      </div>
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Dithering</div>
+        <div class="radio-list" style="margin-bottom:8px">
+          <label><input type="radio" name="dither" value="none" checked> None</label>
+          <label><input type="radio" name="dither" value="bayer4"> Ordered (Bayer 4x4) - fast</label>
+          <label><input type="radio" name="dither" value="floyd-steinberg"> Floyd-Steinberg - best gradients</label>
+        </div>
+        <div id="ditherHint" class="hint">None: Solid block colors, sharpest edges.</div>
+        <label class="cb-row" style="margin-top:8px">
+          <input type="checkbox" id="coherenceCheck" checked>
+          Coherence smoothing
+        </label>
+        <div class="form-row" style="margin-top:6px">
+          <label style="flex:1;min-width:unset">Alpha threshold</label>
+          <input type="number" id="alphaThresholdInput" min="1" max="255" value="128" style="width:54px">
+        </div>
+      </div>
+
+      <div class="lp-sec">
+        <div class="sec-hdr">Block Matching</div>
+        <div class="slider-wrap">
+          <div class="slider-lbl">
+            <span>Texture penalty</span>
+            <strong id="varianceVal">3.0</strong>
+          </div>
+          <input type="range" id="varianceSlider" min="0" max="20" step="1" value="6">
+        </div>
+        <div class="hint">Leave at default (3.0) for most images. Raise if unusual blocks (bookshelf, mossy cobble) appear in areas that should be plain. Set to 0 to disable.</div>
+      </div>
+
+      <div class="lp-sec" style="margin-top:auto">
+        <button class="btn-green" id="convertBtn" disabled>Convert Image</button>
+        <div id="progressWrap">
+          <div id="progressLabel">Processing...</div>
+          <div id="progressBar"><div id="progressFill"></div></div>
+        </div>
+      </div>
+
+    </div><!-- #leftPanel -->
+
+    <!-- SETUP CENTER: Source image -->
+    <div id="setupCenter">
+      <div class="center-label">Source Image</div>
+      <div id="setupImageArea">
+        <div id="dropZone">
+          <svg id="dropZoneSvg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <div style="font-size:13px;font-weight:600">Drop image here or click to open</div>
+          <div style="font-size:11px">PNG, JPG, GIF, WebP, transparent images supported</div>
+        </div>
+        <img id="sourcePreview" alt="Source image">
+      </div>
+    </div>
+
+    <!-- SETUP RIGHT PANEL: Block palette -->
+    <div class="right-panel" id="setupRightPanel">
+      <div class="rp-hdr">
+        <div class="rp-title">Block Palette</div>
+        <div class="rp-sub">Choose which blocks are available for conversion.</div>
+      </div>
+      <div class="pal-mode-row">
+        <button class="pal-btn pal-active-all" id="palBtnAll">All</button>
+        <button class="pal-btn" id="palBtnSurv">Survival</button>
+        <button class="pal-btn" id="palBtnCust">Custom</button>
+      </div>
+      <div id="custActions">
+        <button class="link-btn" id="custSelectAll">Select all</button>
+        <button class="link-btn" id="custDeselectAll">Deselect all</button>
+      </div>
+      <div id="setupBlockCount">0 blocks</div>
+      <div class="pal-scroll">
+        <div class="pal-grid" id="setupPalGrid"></div>
+      </div>
+    </div>
+
+  </div><!-- #setupView -->
+
+
+  <!-- â•â•â•â•â•â•â•â• EDITOR VIEW â•â•â•â•â•â•â•â• -->
+  <div id="editorView" class="view hidden" style="flex-direction:column">
+
+    <!-- EDITOR TOOLBAR -->
+    <div id="editorToolbar">
+      <button class="tbr-btn" id="setupBtn">&#8592; Setup</button>
+      <div class="tbr-sep"></div>
+      <button class="tbr-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>Undo</button>
+      <button class="tbr-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>Redo</button>
+      <div class="tbr-sep"></div>
+      <div class="zoom-group">
+        <span class="zoom-label">Zoom:</span>
+        <button class="tbr-btn" id="zoomOutBtn">-</button>
+        <span id="zoomLabel">100%</span>
+        <button class="tbr-btn" id="zoomInBtn">+</button>
+        <button class="tbr-btn" id="fitBtn">Fit</button>
+      </div>
+      <div class="tbr-sep"></div>
+      <button class="tbr-btn" id="gridToggleBtn">Block Grid</button>
+      <button class="tbr-btn" id="chunkToggleBtn">Chunk Grid</button>
+      <div id="sizeInfo"></div>
+      <div class="tbr-sep"></div>
+      <button class="tbr-btn tbr-on" id="texToggleBtn">Tex</button>
+      <div class="tbr-sep"></div>
+      <button class="tbr-btn tbr-export" id="exportBtn">Export...</button>
+      <button class="tbr-btn" id="costBtn">Block Cost</button>
+      <button class="tbr-btn tbr-build" id="buildModeBtn">Build Mode</button>
+    </div>
+
+    <!-- EDITOR BODY -->
+    <div id="editorBody">
+
+      <!-- TOOL RAIL -->
+      <div id="editorToolRail">
+        <button class="tool-btn tbr-on" id="toolGrab" title="Grab (G)">
+          <img src="/assets/icons/grab.png" alt="Grab">
+          <span>Grab</span>
+        </button>
+        <button class="tool-btn" id="toolPencil" title="Pencil (P)">
+          <img src="/assets/icons/pencil.png" alt="Pencil">
+          <span>Pencil</span>
+        </button>
+        <button class="tool-btn" id="toolBrush" title="Brush (B)">
+          <img src="/assets/icons/brush.png" alt="Brush">
+          <span>Brush</span>
+        </button>
+        <div id="brushSizeWrap">
+          <span>Size</span>
+          <input type="number" id="brushSizeInput" value="3" min="1" max="20" title="Brush size">
+        </div>
+        <button class="tool-btn" id="toolFill" title="Fill (F)">
+          <img src="/assets/icons/fill.png" alt="Fill">
+          <span>Fill</span>
+        </button>
+        <div class="tool-rail-sep"></div>
+        <button class="tool-btn" id="toolDropper" title="Dropper (D)">
+          <img src="/assets/icons/dropper.png" alt="Dropper">
+          <span>Dropper</span>
+        </button>
+      </div>
+
+      <!-- CANVAS AREA -->
+      <div id="canvasArea">
+        <div id="viewport">
+          <div id="canvasWrap">
+            <canvas id="resultCanvas" width="1" height="1"></canvas>
+            <div id="hoverBlock"></div>
+          </div>
+        </div>
+        <div id="statusBar">
+          <span id="statusCoords">-</span>
+          <span class="sb-sep">|</span>
+          <span id="statusBlock">-</span>
+          <span class="sb-sep">|</span>
+          <span id="statusSize">No image</span>
+        </div>
+      </div>
+
+      <!-- EDITOR RIGHT PANEL -->
+      <div id="editorRightPanel" class="right-panel" style="border-left:1px solid var(--border)">
+        <div class="erp-hdr">Palette</div>
+        <div id="editorPalScroll">
+          <div class="pal-grid" id="editorPalGrid"></div>
+        </div>
+        <div id="activeSection">
+          <div id="activeBlockDisplay">
+            <canvas id="activeBlockCanvas" width="36" height="36"></canvas>
+            <div id="activeBlockInfo">
+              <div id="activeBlockName">Select a block</div>
+              <div id="activeBlockHint">Click to change</div>
+            </div>
+          </div>
+          <div id="brushSizeRow">
+            <span>Brush size:</span>
+            <input type="number" id="brushSizeCtrl" value="3" min="1" max="20">
+          </div>
+        </div>
+        <div id="palFooter"></div>
+      </div>
+
+    </div><!-- #editorBody -->
+  </div><!-- #editorView -->
+
+</div><!-- #appFrame -->
+</div><!-- #appShell -->
+
+
+<!-- BUILD MODE PANEL -->
+<div id="buildPanel">
+  <div class="build-hdr">Build Mode</div>
+  <div class="build-hint">Click blocks to mark them. Navigate by row to track your progress.</div>
+  <div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px">Mark style</div>
+    <div class="mark-styles">
+      <button class="mark-btn active" data-mark="check">&#10003;</button>
+      <button class="mark-btn" data-mark="cross">&#10007;</button>
+      <button class="mark-btn" data-mark="dot">&#183;</button>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px">Current row</div>
+    <div class="build-row-lbl" id="buildRowLabel">Row 1</div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button class="btn-sec" id="buildPrevBtn" style="flex:1">Prev</button>
+      <button class="btn-sec" id="buildNextBtn" style="flex:1">Next</button>
+    </div>
+  </div>
+  <button class="btn-sec" id="buildClearBtn" style="margin-top:auto">Clear Marks</button>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-bg" id="exportOverlay">
+  <div class="modal-box">
+    <h2>Export</h2>
+    <div class="modal-row">
+      <label>Format</label>
+      <div class="modal-rgroup">
+        <label><input type="radio" name="exportFmt" value="worldedit" checked> WorldEdit commands (.txt)</label>
+        <label><input type="radio" name="exportFmt" value="blocklist"> Block list (.txt)</label>
+        <label><input type="radio" name="exportFmt" value="datapack"> Datapack (.zip)</label>
+        <label><input type="radio" name="exportFmt" value="schem"> Sponge Schematic (.schem)</label>
+        <label><input type="radio" name="exportFmt" value="litematic"> Litematica (.litematic)</label>
+      </div>
+    </div>
+    <div class="modal-row" id="exportOrientRow">
+      <label>Orientation</label>
+      <div class="modal-rgroup horiz">
+        <label><input type="radio" name="exportOrient" value="vertical" checked> Vertical</label>
+        <label><input type="radio" name="exportOrient" value="horizontal"> Horizontal</label>
+      </div>
+    </div>
+    <div class="modal-row" id="exportFacingRow">
+      <label>Facing</label>
+      <select id="exportFacing" class="modal-sel">
+        <option value="south">South (default)</option>
+        <option value="north">North</option>
+        <option value="east">East</option>
+        <option value="west">West</option>
+      </select>
+    </div>
+    <div class="modal-row" id="exportVersionRow" style="display:none">
+      <label>MC Version</label>
+      <select id="exportVersion" class="modal-sel"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" id="exportCancelBtn">Cancel</button>
+      <button class="btn-modal-ok" id="exportDoBtn">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- COST MODAL -->
+<div class="modal-bg" id="costOverlay">
+  <div class="modal-box" style="max-width:420px">
+    <h2>Block Cost Estimator</h2>
+    <div id="costContent"></div>
+    <div class="modal-footer">
+      <button class="btn-sec" id="costCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCK PICKER -->
+<div class="picker-bg" id="pickerBg">
+  <div class="picker-panel" id="pickerPanel">
+    <input type="text" class="picker-search" id="pickerSearch" placeholder="Search blocks...">
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+// â”€â”€ WORKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const WORKER_SRC = `
+  function srgbToLinear(c) {
+    c /= 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function rgbToLab(r, g, b) {
+    const rl=srgbToLinear(r), gl=srgbToLinear(g), bl=srgbToLinear(b);
+    const x=rl*0.4124564+gl*0.3575761+bl*0.1804375;
+    const y=rl*0.2126729+gl*0.7151522+bl*0.0721750;
+    const z=rl*0.0193339+gl*0.1191920+bl*0.9503041;
+    const f=t=>t>0.008856?Math.cbrt(t):(903.3*t+16)/116;
+    const fx=f(x/0.95047),fy=f(y/1.0),fz=f(z/1.08883);
+    return [116*fy-16,500*(fx-fy),200*(fy-fz)];
+  }
+  function buildPalLab(palette) {
+    return palette.map(b=>{const c=b.texColor||b.color;return rgbToLab(c[0],c[1],c[2]);});
+  }
+  function nearest(pLab,palLab,varArr,vw,glassArr) {
+    let best=Infinity,idx=0;
+    const [pl,pa,pb]=pLab;
+    for(let i=0;i<palLab.length;i++){
+      const [cl,ca,cb]=palLab[i];
+      let d=(pl-cl)*(pl-cl)+(pa-ca)*(pa-ca)+(pb-cb)*(pb-cb);
+      if(varArr) d+=varArr[i]*vw;
+      if(glassArr) d+=glassArr[i];
+      if(d<best){best=d;idx=i;}
+    }
+    return idx;
+  }
+  function resizeBilinear(src,sw,sh,dw,dh){
+    const dst=new Uint8ClampedArray(dw*dh*4);
+    const xr=sw/dw,yr=sh/dh;
+    for(let dy=0;dy<dh;dy++) for(let dx=0;dx<dw;dx++){
+      const sx=(dx+0.5)*xr-0.5,sy=(dy+0.5)*yr-0.5;
+      const x0=Math.max(0,Math.floor(sx)),y0=Math.max(0,Math.floor(sy));
+      const x1=Math.min(sw-1,x0+1),y1=Math.min(sh-1,y0+1);
+      const fx=sx-x0,fy=sy-y0;
+      const i00=(y0*sw+x0)*4,i10=(y0*sw+x1)*4,i01=(y1*sw+x0)*4,i11=(y1*sw+x1)*4;
+      const di=(dy*dw+dx)*4;
+      for(let c=0;c<4;c++)
+        dst[di+c]=Math.round(src[i00+c]*(1-fx)*(1-fy)+src[i10+c]*fx*(1-fy)+src[i01+c]*(1-fx)*fy+src[i11+c]*fx*fy);
+    }
+    return dst;
+  }
+  const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(v=>(v/16-0.5)*24);
+  function applyBayer(px,W,H){
+    const out=new Uint8ClampedArray(px);
+    for(let r=0;r<H;r++) for(let c=0;c<W;c++){
+      const n=BAYER[(r%4)*4+(c%4)],i=(r*W+c)*4;
+      out[i]=Math.max(0,Math.min(255,px[i]+n));
+      out[i+1]=Math.max(0,Math.min(255,px[i+1]+n));
+      out[i+2]=Math.max(0,Math.min(255,px[i+2]+n));
+    }
+    return out;
+  }
+  function floydSteinberg(px,W,H,pal,palLab,varArr,vw,glassArr,transMask,strength=0.75){
+    const buf=new Float64Array(W*H*3);
+    for(let i=0;i<W*H;i++){buf[i*3]=px[i*4];buf[i*3+1]=px[i*4+1];buf[i*3+2]=px[i*4+2];}
+    const grid=new Int32Array(W*H);
+    const palRGB=pal.map(b=>b.texColor||b.color);
+    for(let r=0;r<H;r++){
+      for(let c=0;c<W;c++){
+        if(transMask&&transMask[r*W+c]){grid[r*W+c]=-1;continue;}
+        const i3=(r*W+c)*3;
+        const pr=Math.max(0,Math.min(255,buf[i3])),pg=Math.max(0,Math.min(255,buf[i3+1])),pb2=Math.max(0,Math.min(255,buf[i3+2]));
+        const lab=rgbToLab(pr,pg,pb2);
+        const idx=nearest(lab,palLab,varArr,vw,glassArr);
+        grid[r*W+c]=idx;
+        const er=(pr-palRGB[idx][0])*strength,eg=(pg-palRGB[idx][1])*strength,eb=(pb2-palRGB[idx][2])*strength;
+        if(c+1<W){buf[(r*W+c+1)*3]+=er*7/16;buf[(r*W+c+1)*3+1]+=eg*7/16;buf[(r*W+c+1)*3+2]+=eb*7/16;}
+        if(r+1<H){
+          if(c>0){buf[((r+1)*W+c-1)*3]+=er*3/16;buf[((r+1)*W+c-1)*3+1]+=eg*3/16;buf[((r+1)*W+c-1)*3+2]+=eb*3/16;}
+          buf[((r+1)*W+c)*3]+=er*5/16;buf[((r+1)*W+c)*3+1]+=eg*5/16;buf[((r+1)*W+c)*3+2]+=eb*5/16;
+          if(c+1<W){buf[((r+1)*W+c+1)*3]+=er/16;buf[((r+1)*W+c+1)*3+1]+=eg/16;buf[((r+1)*W+c+1)*3+2]+=eb/16;}
+        }
+      }
+      if(r%20===0) self.postMessage({type:'progress',step:'Dithering...',pct:40+Math.round(r/H*40)});
+    }
+    return grid;
+  }
+  function shiftArr(arr,H,W,dr,dc){
+    const out=new Int32Array(arr.length);
+    for(let r=0;r<H;r++) for(let c=0;c<W;c++){
+      const sr=Math.max(0,Math.min(H-1,r+dr)),sc=Math.max(0,Math.min(W-1,c+dc));
+      out[r*W+c]=arr[sr*W+sc];
+    }
+    return out;
+  }
+  function coherence(grid,pixLab,palLab,W,H,varArr,vw,glassArr,tol=8.0,passes=2){
+    const tol2=tol*tol;
+    const basePen=varArr?varArr:new Float64Array(palLab.length);
+    const pen=new Float64Array(palLab.length);
+    for(let i=0;i<palLab.length;i++) pen[i]=basePen[i]*vw+(glassArr?glassArr[i]:0);
+    for(let p=0;p<passes;p++){
+      const curDist=new Float64Array(H*W);
+      for(let i=0;i<H*W;i++){
+        if(grid[i]<0){curDist[i]=Infinity;continue;}
+        const pi=palLab[grid[i]];
+        const dl=pixLab[i*3]-pi[0],da=pixLab[i*3+1]-pi[1],db=pixLab[i*3+2]-pi[2];
+        curDist[i]=dl*dl+da*da+db*db+pen[grid[i]];
+      }
+      const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+      const matching=new Int32Array(H*W);
+      for(const [dr,dc] of dirs){
+        const nbr=shiftArr(grid,H,W,dr,dc);
+        for(let i=0;i<H*W;i++) if(grid[i]>=0&&nbr[i]===grid[i]) matching[i]++;
+      }
+      const newGrid=new Int32Array(grid);
+      const bestDist=new Float64Array(curDist);
+      for(const [dr,dc] of dirs){
+        const nbr=shiftArr(grid,H,W,dr,dc);
+        for(let i=0;i<H*W;i++){
+          if(grid[i]<0) continue;
+          if(matching[i]>1) continue;
+          if(nbr[i]<0||nbr[i]===grid[i]) continue;
+          const ni=palLab[nbr[i]];
+          const dl=pixLab[i*3]-ni[0],da=pixLab[i*3+1]-ni[1],db=pixLab[i*3+2]-ni[2];
+          const nd=dl*dl+da*da+db*db+pen[nbr[i]];
+          if(nd<=bestDist[i]+tol2){newGrid[i]=nbr[i];bestDist[i]=nd;}
+        }
+      }
+      let changed=false;
+      for(let i=0;i<H*W;i++) if(newGrid[i]!==grid[i]){changed=true;break;}
+      grid=newGrid;
+      if(!changed) break;
+    }
+    return grid;
+  }
+  self.onmessage=function(e){
+    const {imgData,imgW,imgH,targetW,targetH,lockRatio,palette,ditherMode,varianceWeight,doCoherence,alphaThreshold}=e.data;
+    const thresh=alphaThreshold!=null?alphaThreshold:128;
+    self.postMessage({type:'progress',step:'Resizing...',pct:5});
+    const flat=new Uint8ClampedArray(imgData);
+    let W=targetW,H=targetH;
+    if(lockRatio){const r=Math.min(targetW/imgW,targetH/imgH);W=Math.max(1,Math.round(imgW*r));H=Math.max(1,Math.round(imgH*r));}
+    const pix=resizeBilinear(flat,imgW,imgH,W,H);
+    const transMask=new Uint8Array(H*W);
+    for(let i=0;i<H*W;i++) if(pix[i*4+3]<thresh) transMask[i]=1;
+    self.postMessage({type:'progress',step:'Building palette...',pct:12});
+    const palLab=buildPalLab(palette);
+    const varArr=palette.some(b=>b.texVariance!=null)?new Float64Array(palette.map(b=>b.texVariance||0)):null;
+    const hasGlass=palette.some(b=>b.category==='glass');
+    const glassArr=hasGlass?new Float64Array(palette.map(b=>b.category==='glass'?225.0:0.0)):null;
+    let grid;
+    if(ditherMode==='bayer4'){
+      self.postMessage({type:'progress',step:'Bayer dithering...',pct:22});
+      const dp=applyBayer(pix,W,H);
+      grid=new Int32Array(H*W);
+      for(let r=0;r<H;r++){
+        for(let c=0;c<W;c++){
+          const i=r*W+c;
+          if(transMask[i]){grid[i]=-1;continue;}
+          const pi=i*4;
+          grid[i]=nearest(rgbToLab(dp[pi],dp[pi+1],dp[pi+2]),palLab,varArr,varianceWeight,glassArr);
+        }
+        if(r%16===0) self.postMessage({type:'progress',step:'Matching...',pct:30+Math.round(r/H*46)});
+      }
+    } else if(ditherMode==='floyd-steinberg'){
+      self.postMessage({type:'progress',step:'Floyd-Steinberg...',pct:22});
+      grid=floydSteinberg(pix,W,H,palette,palLab,varArr,varianceWeight,glassArr,transMask);
+    } else {
+      grid=new Int32Array(H*W);
+      for(let r=0;r<H;r++){
+        for(let c=0;c<W;c++){
+          const i=r*W+c;
+          if(transMask[i]){grid[i]=-1;continue;}
+          const pi=i*4;
+          grid[i]=nearest(rgbToLab(pix[pi],pix[pi+1],pix[pi+2]),palLab,varArr,varianceWeight,glassArr);
+        }
+        if(r%16===0) self.postMessage({type:'progress',step:'Matching...',pct:22+Math.round(r/H*54)});
+      }
+    }
+    if(doCoherence){
+      self.postMessage({type:'progress',step:'Coherence pass...',pct:78});
+      const pixLab=new Float64Array(H*W*3);
+      for(let i=0;i<H*W;i++){
+        if(transMask[i]){pixLab[i*3]=0;pixLab[i*3+1]=0;pixLab[i*3+2]=0;continue;}
+        const l=rgbToLab(pix[i*4],pix[i*4+1],pix[i*4+2]);
+        pixLab[i*3]=l[0];pixLab[i*3+1]=l[1];pixLab[i*3+2]=l[2];
+      }
+      grid=coherence(grid,pixLab,palLab,W,H,varArr,varianceWeight,glassArr);
+    }
+    self.postMessage({type:'progress',step:'Done',pct:100});
+    self.postMessage({type:'done',grid:grid.buffer,gridW:W,gridH:H},[grid.buffer]);
+  };
+`;
+
+// â”€â”€ GLOBALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let DB = null;
+let blockIndex = {};
+let sprite = null;
+let spriteCtx = null;
+let texColors = {};
+let texVariance = {};
+
+let sourceImage = null;
+let srcW = 0, srcH = 0;
+
+let result = null;
+let showTextures = true;
+let showGrid = false;
+let showChunkGrid = false;
+
+let history = [];
+let redoStack = [];
+
+let currentTool = 'grab';
+let paintBlockIdx = 0;
+let brushSize = 3;
+
+let zoom = 1.0;
+let panX = 0, panY = 0;
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let isPainting = false;
+let lastPaintCell = null;
+
+let buildModeActive = false;
+let buildCurrentRow = 0;
+let buildMarkStyle = 'check';
+let buildMarks = null;
+
+let lockRatio = true;
+let worker = null;
+let palMode = 'all'; // 'all' | 'survival' | 'custom'
+let customSet = new Set();
+
+const TILE = 16;
+const SPRITE_COLS = 15;
+
+// â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function init() {
+  try {
+    const [dbRes, idxRes] = await Promise.all([
+      fetch('/assets/blocks.json'),
+      fetch('/assets/blocks_index.json'),
+    ]);
+    DB = await dbRes.json();
+    blockIndex = await idxRes.json();
+  } catch (err) {
+    showToast('Failed to load block data: ' + err.message);
+    return;
+  }
+  await loadSprite();
+  analyzeTextures();
+  buildVersionSelect();
+  buildExportVersionSelect();
+  buildSetupPalGrid();
+  createWorker();
+  setupListeners();
+}
+
+function loadSprite() {
+  return new Promise((resolve, reject) => {
+    sprite = new Image();
+    sprite.onload = () => {
+      const oc = document.createElement('canvas');
+      oc.width = sprite.width; oc.height = sprite.height;
+      spriteCtx = oc.getContext('2d');
+      spriteCtx.drawImage(sprite, 0, 0);
+      resolve();
+    };
+    sprite.onerror = reject;
+    sprite.src = '/assets/blocks.png';
+  });
+}
+
+function analyzeTextures() {
+  if (!spriteCtx) return;
+  for (const block of DB.blocks) {
+    const slot = blockIndex[block.id];
+    if (slot == null) continue;
+    const col = slot % SPRITE_COLS;
+    const row = Math.floor(slot / SPRITE_COLS);
+    const px = spriteCtx.getImageData(col * 16, row * 16, 16, 16).data;
+    let sr = 0, sg = 0, sb = 0;
+    const n = 256;
+    for (let i = 0; i < n; i++) { sr += px[i*4]; sg += px[i*4+1]; sb += px[i*4+2]; }
+    const mr = sr/n, mg = sg/n, mb = sb/n;
+    texColors[block.id] = [Math.round(mr), Math.round(mg), Math.round(mb)];
+    let vr = 0, vg = 0, vb = 0;
+    for (let i = 0; i < n; i++) {
+      vr += (px[i*4]-mr)**2; vg += (px[i*4+1]-mg)**2; vb += (px[i*4+2]-mb)**2;
+    }
+    texVariance[block.id] = (Math.sqrt(vr/n) + Math.sqrt(vg/n) + Math.sqrt(vb/n)) / 3;
+  }
+}
+
+function buildVersionSelect() {
+  const sel = document.getElementById('versionSelect');
+  for (const v of [...DB.versions].reverse()) {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  }
+  sel.value = '1.21';
+}
+
+function buildExportVersionSelect() {
+  const sel = document.getElementById('exportVersion');
+  for (const v of [...DB.versions].reverse()) {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  }
+  sel.value = '1.21';
+}
+
+function createWorker() {
+  const blob = new Blob([WORKER_SRC], { type: 'application/javascript' });
+  worker = new Worker(URL.createObjectURL(blob));
+  worker.onmessage = onWorkerMessage;
+  worker.onerror = (e) => { showToast('Worker error: ' + e.message); setConverting(false); };
+}
+
+// â”€â”€ PALETTE MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function setPalMode(mode) {
+  palMode = mode;
+  const btnAll  = document.getElementById('palBtnAll');
+  const btnSurv = document.getElementById('palBtnSurv');
+  const btnCust = document.getElementById('palBtnCust');
+  btnAll.className  = 'pal-btn' + (mode === 'all'      ? ' pal-active-all'  : '');
+  btnSurv.className = 'pal-btn' + (mode === 'survival' ? ' pal-active-surv' : '');
+  btnCust.className = 'pal-btn' + (mode === 'custom'   ? ' pal-active-cust' : '');
+
+  if (mode === 'custom' && customSet.size === 0) {
+    // seed with all blocks available at the current version
+    const version = document.getElementById('versionSelect').value;
+    const versionOrder = DB.versions;
+    DB.blocks
+      .filter(b => versionOrder.indexOf(b.version) <= versionOrder.indexOf(version))
+      .forEach(b => customSet.add(b.id));
+  }
+  buildSetupPalGrid();
+}
+
+function getActivePalette() {
+  const version = document.getElementById('versionSelect').value;
+  const versionOrder = DB.versions;
+  return DB.blocks.filter(b => {
+    if (versionOrder.indexOf(b.version) > versionOrder.indexOf(version)) return false;
+    if (palMode === 'survival' && !b.survival) return false;
+    if (palMode === 'custom' && !customSet.has(b.id)) return false;
+    return true;
+  });
+}
+
+// â”€â”€ SETUP PALETTE GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function buildSetupPalGrid() {
+  const grid = document.getElementById('setupPalGrid');
+  const custActions = document.getElementById('custActions');
+  if (!DB || !sprite) { grid.innerHTML = ''; return; }
+  grid.innerHTML = '';
+
+  if (palMode === 'custom') {
+    custActions.classList.add('vis');
+    const version = document.getElementById('versionSelect').value;
+    const versionOrder = DB.versions;
+    const allBlocks = DB.blocks.filter(
+      b => versionOrder.indexOf(b.version) <= versionOrder.indexOf(version)
+    );
+    document.getElementById('setupBlockCount').textContent =
+      customSet.size + ' / ' + allBlocks.length + ' blocks';
+    for (const block of allBlocks) {
+      const tile = makePalTile(block, true, null);
+      if (customSet.has(block.id)) tile.classList.add('tile-sel');
+      tile.addEventListener('click', () => {
+        if (customSet.has(block.id)) customSet.delete(block.id);
+        else customSet.add(block.id);
+        tile.classList.toggle('tile-sel', customSet.has(block.id));
+        document.getElementById('setupBlockCount').textContent =
+          customSet.size + ' / ' + allBlocks.length + ' blocks';
+      });
+      grid.appendChild(tile);
+    }
+  } else {
+    custActions.classList.remove('vis');
+    const blocks = getActivePalette();
+    document.getElementById('setupBlockCount').textContent = blocks.length + ' blocks';
+    for (const block of blocks) {
+      grid.appendChild(makePalTile(block, false, null));
+    }
+  }
+}
+
+function makePalTile(block, clickable, onClick) {
+  const tile = document.createElement('div');
+  tile.className = 'pal-tile' + (clickable ? ' clickable' : '');
+  const c = document.createElement('canvas');
+  c.width = 16; c.height = 16;
+  drawBlockToCanvas(c, block);
+  const tip = document.createElement('div');
+  tip.className = 'tile-tip';
+  tip.textContent = block.name;
+  tile.appendChild(c);
+  tile.appendChild(tip);
+  if (clickable && onClick) tile.addEventListener('click', onClick);
+  return tile;
+}
+
+function drawBlockToCanvas(canvas, block) {
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const slot = blockIndex[block.id];
+  if (slot != null && sprite && sprite.complete) {
+    const sc = slot % SPRITE_COLS;
+    const sr = Math.floor(slot / SPRITE_COLS);
+    ctx.drawImage(sprite, sc*16, sr*16, 16, 16, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = `rgb(${block.color[0]},${block.color[1]},${block.color[2]})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+// â”€â”€ EDITOR PALETTE GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function buildEditorPalGrid() {
+  if (!result) return;
+  const grid = document.getElementById('editorPalGrid');
+  grid.innerHTML = '';
+  result.palette.forEach((block, idx) => {
+    const tile = makePalTile(block, true, () => {
+      paintBlockIdx = idx;
+      updateActiveBlockDisplay();
+      highlightEditorPalTile(idx);
+      if (currentTool === 'grab' || currentTool === 'dropper') setTool('pencil');
+    });
+    if (idx === paintBlockIdx) tile.classList.add('tile-sel');
+    tile.dataset.palIdx = idx;
+    grid.appendChild(tile);
+  });
+  updatePalFooter();
+}
+
+function highlightEditorPalTile(idx) {
+  document.querySelectorAll('#editorPalGrid .pal-tile').forEach((el, i) => {
+    el.classList.toggle('tile-sel', i === idx);
+  });
+}
+
+function updatePalFooter() {
+  if (!result) return;
+  const total = result.gridW * result.gridH;
+  const solid = [...result.grid].filter(v => v >= 0).length;
+  document.getElementById('palFooter').textContent =
+    `${result.gridW}x${result.gridH} blocks | ${solid.toLocaleString()} total | src ${srcW}x${srcH}px`;
+}
+
+// â”€â”€ VIEW SWITCHING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function switchToEditor() {
+  document.getElementById('setupView').classList.add('hidden');
+  const ev = document.getElementById('editorView');
+  ev.classList.remove('hidden');
+  ev.style.flexDirection = 'column';
+  buildEditorPalGrid();
+  updateActiveBlockDisplay();
+  updateSizeInfo();
+  fitCanvas();
+}
+
+function switchToSetup() {
+  document.getElementById('editorView').classList.add('hidden');
+  document.getElementById('setupView').classList.remove('hidden');
+  // Close build mode if open
+  if (buildModeActive) { buildModeActive = false; document.getElementById('buildPanel').classList.remove('open'); document.getElementById('buildModeBtn').classList.remove('tbr-on'); }
+}
+
+function updateSizeInfo() {
+  if (!result) return;
+  document.getElementById('sizeInfo').textContent =
+    `${result.gridW} x ${result.gridH} blocks | ${(result.gridW * result.gridH).toLocaleString()} total`;
+}
+
+// â”€â”€ CONVERSION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function doConvert() {
+  if (!sourceImage) return;
+  const palette = getActivePalette();
+  if (!palette.length) { showToast('No blocks in palette. Enable at least one category.'); return; }
+
+  const targetW = parseInt(document.getElementById('targetW').value) || 128;
+  const targetH = parseInt(document.getElementById('targetH').value) || 128;
+  const ditherMode = document.querySelector('input[name="dither"]:checked').value;
+  const varSlider = parseInt(document.getElementById('varianceSlider').value);
+  const varianceWeight = varSlider / 2.0;
+  const doCoherence = document.getElementById('coherenceCheck').checked;
+  const alphaThreshold = parseInt(document.getElementById('alphaThresholdInput').value) || 128;
+
+  const approxBlocks = lockRatio
+    ? Math.round(Math.min(targetW/srcW, targetH/srcH) * srcW) * Math.round(Math.min(targetW/srcW, targetH/srcH) * srcH)
+    : targetW * targetH;
+  if (approxBlocks > 100000) {
+    if (!confirm(`This will generate approximately ${approxBlocks.toLocaleString()} blocks. Large images may be slow. Continue?`)) return;
+  }
+
+  const oc = document.createElement('canvas');
+  oc.width = srcW; oc.height = srcH;
+  oc.getContext('2d').drawImage(sourceImage, 0, 0);
+  const imgData = oc.getContext('2d').getImageData(0, 0, srcW, srcH).data;
+
+  const palForWorker = palette.map(b => ({
+    id: b.id, name: b.name, color: b.color, category: b.category,
+    texColor: texColors[b.id] || null,
+    texVariance: texVariance[b.id] != null ? texVariance[b.id] : null,
+  }));
+
+  setConverting(true);
+  worker.postMessage({
+    imgData, imgW: srcW, imgH: srcH,
+    targetW, targetH, lockRatio,
+    palette: palForWorker, ditherMode, varianceWeight, doCoherence, alphaThreshold,
+  }, [imgData.buffer]);
+  worker._palette = palForWorker;
+}
+
+function onWorkerMessage(e) {
+  const { type } = e.data;
+  if (type === 'progress') {
+    document.getElementById('progressFill').style.width = e.data.pct + '%';
+    document.getElementById('progressLabel').textContent = e.data.step;
+  } else if (type === 'done') {
+    const { grid, gridW, gridH } = e.data;
+    result = { grid: new Int32Array(grid), palette: worker._palette, gridW, gridH };
+    buildMarks = new Int8Array(gridH * gridW);
+    buildCurrentRow = 0;
+    history = []; redoStack = [];
+    paintBlockIdx = 0;
+    setConverting(false);
+    renderResult();
+    switchToEditor();
+    document.getElementById('statusSize').textContent = `${gridW} x ${gridH} blocks`;
+    updateUndoRedo();
+  }
+}
+
+function setConverting(active) {
+  const btn = document.getElementById('convertBtn');
+  const prog = document.getElementById('progressWrap');
+  btn.disabled = active;
+  btn.textContent = active ? 'Converting...' : 'Convert Image';
+  prog.classList.toggle('vis', active);
+  if (!active) document.getElementById('progressFill').style.width = '0%';
+}
+
+// â”€â”€ RENDERING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function renderResult() {
+  if (!result) return;
+  const { grid, palette, gridW, gridH } = result;
+  const canvas = document.getElementById('resultCanvas');
+  canvas.width = gridW * TILE;
+  canvas.height = gridH * TILE;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (showTextures && sprite && sprite.complete) {
+    for (let r = 0; r < gridH; r++) {
+      for (let c = 0; c < gridW; c++) {
+        const idx = grid[r * gridW + c];
+        if (idx < 0) continue;
+        const blockId = palette[idx].id;
+        const slot = blockIndex[blockId];
+        if (slot == null) {
+          const col2 = palette[idx].color;
+          ctx.fillStyle = `rgb(${col2[0]},${col2[1]},${col2[2]})`;
+          ctx.fillRect(c*TILE, r*TILE, TILE, TILE);
+        } else {
+          const sc = slot % SPRITE_COLS;
+          const sr = Math.floor(slot / SPRITE_COLS);
+          ctx.drawImage(sprite, sc*16, sr*16, 16, 16, c*TILE, r*TILE, TILE, TILE);
+        }
+      }
+    }
+  } else {
+    for (let r = 0; r < gridH; r++) {
+      for (let c = 0; c < gridW; c++) {
+        const idx = grid[r * gridW + c];
+        if (idx < 0) continue;
+        const col3 = palette[idx].color;
+        ctx.fillStyle = `rgb(${col3[0]},${col3[1]},${col3[2]})`;
+        ctx.fillRect(c*TILE, r*TILE, TILE, TILE);
+      }
+    }
+  }
+
+  // Grid overlays
+  if (showGrid) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (let c = 1; c < gridW; c++) { ctx.moveTo(c*TILE, 0); ctx.lineTo(c*TILE, gridH*TILE); }
+    for (let r = 1; r < gridH; r++) { ctx.moveTo(0, r*TILE); ctx.lineTo(gridW*TILE, r*TILE); }
+    ctx.stroke();
+  }
+  if (showChunkGrid) {
+    ctx.strokeStyle = 'rgba(255,50,50,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let c = 16; c < gridW; c += 16) { ctx.moveTo(c*TILE, 0); ctx.lineTo(c*TILE, gridH*TILE); }
+    for (let r = 16; r < gridH; r += 16) { ctx.moveTo(0, r*TILE); ctx.lineTo(gridW*TILE, r*TILE); }
+    ctx.stroke();
+  }
+
+  // Build mode overlays
+  if (buildModeActive && buildMarks) {
+    const SYM = { 1:'âœ“', 2:'âœ—', 3:'Â·' };
+    const CLR = { 1:'rgba(80,200,80,0.7)', 2:'rgba(200,60,60,0.7)', 3:'rgba(200,200,80,0.7)' };
+    ctx.font = `bold ${Math.max(8, TILE*0.72)}px monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < gridH * gridW; i++) {
+      const m = buildMarks[i];
+      if (!m) continue;
+      const r = Math.floor(i / gridW), c = i % gridW;
+      ctx.fillStyle = CLR[m] || 'rgba(255,255,255,0.5)';
+      ctx.fillText(SYM[m] || '?', c*TILE + TILE/2, r*TILE + TILE/2);
+    }
+    ctx.fillStyle = 'rgba(74,124,67,0.12)';
+    ctx.fillRect(0, buildCurrentRow * TILE, gridW * TILE, TILE);
+  }
+
+  applyTransform();
+}
+
+function renderCell(row, col) {
+  if (!result) return;
+  const canvas = document.getElementById('resultCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const idx = result.grid[row * result.gridW + col];
+  if (idx < 0) { ctx.clearRect(col*TILE, row*TILE, TILE, TILE); return; }
+  const blockId = result.palette[idx].id;
+  const slot = blockIndex[blockId];
+  if (slot != null && showTextures && sprite) {
+    const sc = slot % SPRITE_COLS, sr = Math.floor(slot / SPRITE_COLS);
+    ctx.drawImage(sprite, sc*16, sr*16, 16, 16, col*TILE, row*TILE, TILE, TILE);
+  } else {
+    const col3 = result.palette[idx].color;
+    ctx.fillStyle = `rgb(${col3[0]},${col3[1]},${col3[2]})`;
+    ctx.fillRect(col*TILE, row*TILE, TILE, TILE);
+  }
+}
+
+function applyTransform() {
+  document.getElementById('canvasWrap').style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+  document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+}
+
+function fitCanvas() {
+  if (!result) return;
+  const vp = document.getElementById('viewport');
+  // Force layout to get real dimensions
+  requestAnimationFrame(() => {
+    const vpW = vp.clientWidth, vpH = vp.clientHeight;
+    const canW = result.gridW * TILE, canH = result.gridH * TILE;
+    zoom = Math.min(vpW / canW, vpH / canH, 4) * 0.88;
+    panX = (vpW - canW * zoom) / 2;
+    panY = (vpH - canH * zoom) / 2;
+    applyTransform();
+  });
+}
+
+// â”€â”€ ACTIVE BLOCK DISPLAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function updateActiveBlockDisplay() {
+  if (!result) return;
+  const block = result.palette[paintBlockIdx];
+  if (!block) return;
+  document.getElementById('activeBlockName').textContent = block.name;
+  const oc = document.getElementById('activeBlockCanvas');
+  drawBlockToCanvas(oc, block);
+}
+
+// â”€â”€ TOOLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TOOL_IDS = ['Grab', 'Pencil', 'Brush', 'Fill', 'Dropper'];
+
+function setTool(name) {
+  currentTool = name;
+  TOOL_IDS.forEach(t => {
+    const btn = document.getElementById('tool' + t);
+    if (btn) btn.classList.toggle('tbr-on', t.toLowerCase() === name);
+  });
+  const vp = document.getElementById('viewport');
+  vp.className = 'tool-' + name + (vp.classList.contains('panning') ? ' panning' : '');
+  document.getElementById('brushSizeWrap').classList.toggle('vis', name === 'brush');
+  document.getElementById('brushSizeRow').classList.toggle('vis', name === 'brush');
+}
+
+function mouseToCell(e) {
+  const vp = document.getElementById('viewport');
+  const rect = vp.getBoundingClientRect();
+  return {
+    col: Math.floor((e.clientX - rect.left - panX) / (zoom * TILE)),
+    row: Math.floor((e.clientY - rect.top  - panY) / (zoom * TILE)),
+  };
+}
+
+function cellInBounds(row, col) {
+  return result && row >= 0 && row < result.gridH && col >= 0 && col < result.gridW;
+}
+
+function paint(row, col) {
+  if (!cellInBounds(row, col)) return;
+  if (currentTool === 'pencil') {
+    if (result.grid[row * result.gridW + col] !== paintBlockIdx) {
+      pushHistory();
+      result.grid[row * result.gridW + col] = paintBlockIdx;
+      renderCell(row, col);
+    }
+  } else if (currentTool === 'brush') {
+    const half = Math.floor(brushSize / 2);
+    let changed = false;
+    for (let dr = -half; dr <= half; dr++) for (let dc = -half; dc <= half; dc++) {
+      const r2 = row+dr, c2 = col+dc;
+      if (cellInBounds(r2, c2) && result.grid[r2 * result.gridW + c2] !== paintBlockIdx) {
+        if (!changed) { pushHistory(); changed = true; }
+        result.grid[r2 * result.gridW + c2] = paintBlockIdx;
+      }
+    }
+    if (changed) renderResult();
+  }
+}
+
+function floodFill(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const target = result.grid[row * result.gridW + col];
+  if (target === paintBlockIdx) return;
+  pushHistory();
+  const queue = [[row, col]];
+  const { grid, gridW, gridH } = result;
+  const visited = new Uint8Array(gridH * gridW);
+  while (queue.length) {
+    const [r, c] = queue.pop();
+    const i = r * gridW + c;
+    if (visited[i] || grid[i] !== target) continue;
+    visited[i] = 1;
+    grid[i] = paintBlockIdx;
+    if (r > 0)       queue.push([r-1, c]);
+    if (r < gridH-1) queue.push([r+1, c]);
+    if (c > 0)       queue.push([r, c-1]);
+    if (c < gridW-1) queue.push([r, c+1]);
+  }
+  renderResult();
+}
+
+function dropper(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const idx = result.grid[row * result.gridW + col];
+  if (idx < 0) return;
+  paintBlockIdx = idx;
+  updateActiveBlockDisplay();
+  highlightEditorPalTile(idx);
+  setTool('pencil');
+}
+
+// â”€â”€ UNDO / REDO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function pushHistory() {
+  history.push(new Int32Array(result.grid));
+  if (history.length > 50) history.shift();
+  redoStack = [];
+  updateUndoRedo();
+}
+
+function undo() {
+  if (!history.length) return;
+  redoStack.push(new Int32Array(result.grid));
+  result.grid = history.pop();
+  renderResult();
+  updateUndoRedo();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  history.push(new Int32Array(result.grid));
+  result.grid = redoStack.pop();
+  renderResult();
+  updateUndoRedo();
+}
+
+function updateUndoRedo() {
+  document.getElementById('undoBtn').disabled = !history.length;
+  document.getElementById('redoBtn').disabled = !redoStack.length;
+}
+
+// â”€â”€ BLOCK PICKER (add new blocks) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function ensureBlockInPalette(blockData) {
+  const existing = result.palette.findIndex(b => b.id === blockData.id);
+  if (existing !== -1) return existing;
+  result.palette.push({
+    ...blockData,
+    texColor: texColors[blockData.id] || null,
+    texVariance: texVariance[blockData.id] != null ? texVariance[blockData.id] : null,
+  });
+  buildEditorPalGrid();
+  return result.palette.length - 1;
+}
+
+function buildPickerGrid(filter = '') {
+  if (!result) return;
+  const gridEl = document.getElementById('pickerGrid');
+  gridEl.innerHTML = '';
+  const f = filter.toLowerCase();
+  const allBlocks = getActivePalette();
+  const paintBlock = result.palette[paintBlockIdx];
+  allBlocks.forEach(block => {
+    if (f && !block.name.toLowerCase().includes(f) && !block.id.toLowerCase().includes(f)) return;
+    const div = document.createElement('div');
+    const isSelected = paintBlock && paintBlock.id === block.id;
+    div.className = 'p-tile' + (isSelected ? ' p-sel' : '');
+    const c = document.createElement('canvas');
+    c.width = 16; c.height = 16;
+    drawBlockToCanvas(c, block);
+    const tip = document.createElement('div');
+    tip.className = 'p-tip';
+    tip.textContent = block.name;
+    div.appendChild(c); div.appendChild(tip);
+    div.addEventListener('click', () => {
+      paintBlockIdx = ensureBlockInPalette(block);
+      updateActiveBlockDisplay();
+      highlightEditorPalTile(paintBlockIdx);
+      closePicker();
+      if (currentTool === 'grab' || currentTool === 'dropper') setTool('pencil');
+    });
+    gridEl.appendChild(div);
+  });
+}
+
+function openPicker() {
+  if (!result) return;
+  const disp = document.getElementById('activeBlockDisplay');
+  const rect = disp.getBoundingClientRect();
+  const panel = document.getElementById('pickerPanel');
+  // Position picker to the left of the active block display
+  const pw = 280;
+  let left = rect.left - pw - 8;
+  if (left < 8) left = rect.right + 8;
+  let top = Math.min(rect.top, window.innerHeight - 440);
+  if (top < 8) top = 8;
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+  document.getElementById('pickerBg').classList.add('open');
+  document.getElementById('pickerSearch').value = '';
+  buildPickerGrid();
+  document.getElementById('pickerSearch').focus();
+}
+
+function closePicker() {
+  document.getElementById('pickerBg').classList.remove('open');
+}
+
+// â”€â”€ EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function blockCoords(row, col, H, W, orientation, facing) {
+  if (orientation === 'horizontal') {
+    if (facing === 'north') return [col, 0, row];
+    if (facing === 'south') return [col, 0, H-1-row];
+    if (facing === 'east')  return [W-1-row, 0, col];
+    return [row, 0, col];
+  } else {
+    if (facing === 'south') return [col, H-1-row, 0];
+    if (facing === 'north') return [W-1-col, H-1-row, 0];
+    if (facing === 'east')  return [0, H-1-row, col];
+    return [0, H-1-row, W-1-col];
+  }
+}
+
+async function doExport() {
+  if (!result) return;
+  const fmt    = document.querySelector('input[name="exportFmt"]:checked').value;
+  const orient = document.querySelector('input[name="exportOrient"]:checked').value;
+  const facing = document.getElementById('exportFacing').value;
+  const { grid, palette, gridW: W, gridH: H } = result;
+
+  if (fmt === 'worldedit') {
+    const lines = [];
+    for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) {
+      const idx = grid[r*W+c];
+      if (idx < 0) continue;
+      const [dx,dy,dz] = blockCoords(r,c,H,W,orient,facing);
+      lines.push(`/setblock ~${dx} ~${dy} ~${dz} minecraft:${palette[idx].id}`);
+    }
+    downloadText(lines.join('\n'), 'blockforge_worldedit.txt');
+
+  } else if (fmt === 'blocklist') {
+    const counts = {};
+    let totalSolid = 0;
+    for (let i = 0; i < H*W; i++) {
+      const idx = grid[i]; if (idx < 0) continue; totalSolid++;
+      const b = palette[idx];
+      if (!counts[b.id]) counts[b.id] = { name: b.name, count: 0 };
+      counts[b.id].count++;
+    }
+    const lines = Object.entries(counts)
+      .sort((a,b2) => b2[1].count - a[1].count)
+      .map(([, {name,count}]) => `${name}: ${count.toLocaleString()}`);
+    lines.unshift(`Total: ${totalSolid.toLocaleString()} blocks\n`);
+    downloadText(lines.join('\n'), 'blockforge_blocklist.txt');
+
+  } else if (fmt === 'datapack') {
+    const version = document.getElementById('exportVersion').value;
+    const dpFormat = DB.datapacks[version] || 26;
+    const cmds = [];
+    for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) {
+      const idx = grid[r*W+c]; if (idx < 0) continue;
+      const [dx,dy,dz] = blockCoords(r,c,H,W,orient,facing);
+      cmds.push(`setblock ~${dx} ~${dy} ~${dz} minecraft:${palette[idx].id}`);
+    }
+    const zip = new JSZip();
+    zip.file('pack.mcmeta', JSON.stringify({pack:{pack_format:dpFormat,description:"BlockForge pixel art"}}));
+    const ns = 'blockforge';
+    const CHUNK = 10000;
+    if (cmds.length <= CHUNK) {
+      zip.file(`data/${ns}/function/place.mcfunction`, cmds.join('\n'));
+      zip.file(`data/${ns}/function/run.mcfunction`, `function ${ns}:place`);
+    } else {
+      const chunks = [];
+      for (let i = 0; i < cmds.length; i += CHUNK) chunks.push(cmds.slice(i, i+CHUNK));
+      chunks.forEach((ch,i) => zip.file(`data/${ns}/function/place_${i}.mcfunction`, ch.join('\n')));
+      zip.file(`data/${ns}/function/run.mcfunction`, chunks.map((_,i)=>`function ${ns}:place_${i}`).join('\n'));
+    }
+    const blob = await zip.generateAsync({type:'blob'});
+    downloadBlob(blob, 'blockforge_datapack.zip');
+
+  } else if (fmt === 'schem') {
+    await exportSchem();
+
+  } else if (fmt === 'litematic') {
+    await exportLitematic();
+  }
+
+  closeModal('exportOverlay');
+}
+
+function downloadText(text, filename) {
+  downloadBlob(new Blob([text], {type:'text/plain'}), filename);
+}
+function downloadBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// â”€â”€ NBT HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+class NBTWriter {
+  constructor() { this._buf = []; }
+  _u8(v)  { this._buf.push(v & 0xFF); }
+  _i16(v) { this._u8(v>>8); this._u8(v); }
+  _i32(v) { this._u8(v>>24); this._u8(v>>16); this._u8(v>>8); this._u8(v); }
+  _i64(lo, hi) { this._i32(hi); this._i32(lo); }
+  _str(s) { const b = new TextEncoder().encode(s); this._i16(b.length); b.forEach(c=>this._u8(c)); }
+  _tag(type, name) { this._u8(type); this._str(name); }
+
+  byte(name, v)   { this._tag(1,name); this._u8(v); }
+  short(name, v)  { this._tag(2,name); this._i16(v); }
+  int(name, v)    { this._tag(3,name); this._i32(v); }
+  string(name, v) { this._tag(8,name); this._str(v); }
+
+  byteArray(name, arr) {
+    this._tag(7,name); this._i32(arr.length);
+    arr.forEach(v=>this._u8(v));
+  }
+  intArray(name, arr) {
+    this._tag(11,name); this._i32(arr.length);
+    arr.forEach(v=>this._i32(v));
+  }
+  longArray(name, pairs) {
+    // pairs = array of [lo32, hi32]
+    this._tag(12,name); this._i32(pairs.length);
+    pairs.forEach(([lo,hi])=>this._i64(lo,hi));
+  }
+
+  beginCompound(name) { this._tag(10,name); }
+  endCompound()       { this._u8(0); }
+  beginList(name, elemType, count) { this._tag(9,name); this._u8(elemType); this._i32(count); }
+
+  bytes() { return new Uint8Array(this._buf); }
+}
+
+async function gzipBytes(u8) {
+  const cs = new CompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(u8); writer.close();
+  const chunks = [];
+  const reader = cs.readable.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const total = chunks.reduce((n,c)=>n+c.length,0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off+=c.length; }
+  return out;
+}
+
+function encodeVarint(v) {
+  const out = [];
+  do { let b = v & 0x7F; v >>>= 7; if (v) b |= 0x80; out.push(b); } while (v);
+  return out;
+}
+
+function packBlockStates(indices, paletteSize) {
+  // Litematica packs block state indices into 64-bit longs, no crossing of long boundaries
+  const bitsPerEntry = Math.max(2, Math.ceil(Math.log2(paletteSize || 1)));
+  const perLong = Math.floor(64 / bitsPerEntry);
+  const numLongs = Math.ceil(indices.length / perLong);
+  const pairs = [];
+  for (let li = 0; li < numLongs; li++) {
+    let lo = BigInt(0), hi = BigInt(0);
+    for (let j = 0; j < perLong; j++) {
+      const idx = li * perLong + j;
+      if (idx >= indices.length) break;
+      const shift = BigInt(j * bitsPerEntry);
+      const val = BigInt(indices[idx]);
+      const full = val << shift;
+      lo |= full & BigInt(0xFFFFFFFF);
+      hi |= (full >> BigInt(32)) & BigInt(0xFFFFFFFF);
+    }
+    pairs.push([Number(lo), Number(hi)]);
+  }
+  return pairs;
+}
+
+async function exportSchem() {
+  const { grid, palette, gridW: W, gridH: H } = result;
+  // Build block palette and data arrays (YZX order; Y=height, our art is flat so Y=1)
+  const schemPalette = ['minecraft:air'];
+  const palMap = {}; // minecraft:id -> schemPalette index
+  for (const b of palette) {
+    const key = `minecraft:${b.id}`;
+    if (palMap[key] === undefined) { palMap[key] = schemPalette.length; schemPalette.push(key); }
+  }
+
+  const sW = W, sH = 1, sL = H; // Width, Height, Length
+  // YZX order: Y=0 always, Z=row, X=col
+  const blockData = [];
+  for (let z = 0; z < sL; z++) {
+    for (let x = 0; x < sW; x++) {
+      const idx = grid[z * W + x];
+      if (idx < 0) { blockData.push(...encodeVarint(0)); } // air
+      else { blockData.push(...encodeVarint(palMap[`minecraft:${palette[idx].id}`])); }
+    }
+  }
+
+  const nbt = new NBTWriter();
+  nbt.beginCompound('Schematic');
+    nbt.int('Version', 2);
+    nbt.int('DataVersion', 3953);
+    nbt.beginCompound('Metadata');
+      nbt.string('Name', 'BlockForge Export');
+      nbt.int('WEOffsetX', 0); nbt.int('WEOffsetY', 0); nbt.int('WEOffsetZ', 0);
+    nbt.endCompound();
+    nbt.short('Width', sW);
+    nbt.short('Height', sH);
+    nbt.short('Length', sL);
+    nbt.beginCompound('Palette');
+      schemPalette.forEach((name, i) => nbt.int(name, i));
+    nbt.endCompound();
+    nbt.int('PaletteMax', schemPalette.length);
+    nbt.byteArray('BlockData', blockData);
+  nbt.endCompound();
+
+  const gz = await gzipBytes(nbt.bytes());
+  downloadBlob(new Blob([gz], {type:'application/octet-stream'}), 'blockforge.schem');
+}
+
+async function exportLitematic() {
+  const { grid, palette, gridW: W, gridH: H } = result;
+  const now = Math.floor(Date.now() / 1000);
+
+  // Build palette list for packed longs
+  const litPalette = ['minecraft:air'];
+  const palMap = {};
+  for (const b of palette) {
+    const key = `minecraft:${b.id}`;
+    if (palMap[key] === undefined) { palMap[key] = litPalette.length; litPalette.push(key); }
+  }
+
+  // YZX order, Y=height=1, Z=row, X=col
+  const indices = [];
+  for (let z = 0; z < H; z++) {
+    for (let x = 0; x < W; x++) {
+      const idx = grid[z * W + x];
+      indices.push(idx < 0 ? 0 : palMap[`minecraft:${palette[idx].id}`]);
+    }
+  }
+  const packedLongs = packBlockStates(indices, litPalette.length);
+
+  const nbt = new NBTWriter();
+  nbt.beginCompound('');
+    nbt.int('Version', 6);
+    nbt.int('SubVersion', 1);
+    nbt.int('MinecraftDataVersion', 3953);
+    nbt.beginCompound('Metadata');
+      nbt.string('Name', 'BlockForge Export');
+      nbt.string('Description', '');
+      nbt.int('TimeCreated', now);
+      nbt.int('TimeModified', now);
+      nbt.int('RegionCount', 1);
+      nbt.beginCompound('EnclosingSize');
+        nbt.int('x', W); nbt.int('y', 1); nbt.int('z', H);
+      nbt.endCompound();
+    nbt.endCompound();
+    nbt.beginCompound('Regions');
+      nbt.beginCompound('BlockForge');
+        nbt.beginCompound('Position');
+          nbt.int('x', 0); nbt.int('y', 0); nbt.int('z', 0);
+        nbt.endCompound();
+        nbt.beginCompound('Size');
+          nbt.int('x', W); nbt.int('y', 1); nbt.int('z', H);
+        nbt.endCompound();
+        // Block state palette
+        nbt.beginList('BlockStatePalette', 10, litPalette.length);
+        for (const name of litPalette) {
+          nbt.beginCompound('');
+            nbt.string('Name', name);
+          nbt.endCompound();
+        }
+        nbt.longArray('BlockStates', packedLongs);
+        // Empty entity/tile lists
+        nbt.beginList('Entities', 10, 0);
+        nbt.beginList('TileEntities', 10, 0);
+        nbt.intArray('PendingFluidTicks', []);
+        nbt.intArray('PendingBlockTicks', []);
+      nbt.endCompound();
+    nbt.endCompound();
+  nbt.endCompound();
+
+  const gz = await gzipBytes(nbt.bytes());
+  downloadBlob(new Blob([gz], {type:'application/octet-stream'}), 'blockforge.litematic');
+}
+
+// â”€â”€ BLOCK COST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function showBlockCost() {
+  if (!result) return;
+  const { grid, palette, gridW: W, gridH: H } = result;
+  const counts = {}; let totalSolid = 0;
+  for (let i = 0; i < H*W; i++) {
+    const idx = grid[i]; if (idx < 0) continue; totalSolid++;
+    const b = palette[idx];
+    if (!counts[b.id]) counts[b.id] = { name:b.name, id:b.id, count:0 };
+    counts[b.id].count++;
+  }
+  const sorted = Object.values(counts).sort((a,b) => b.count - a.count);
+  let html = '<table class="cost-table"><thead><tr><th></th><th>Block</th><th>Count</th><th>Stacks</th></tr></thead><tbody>';
+  for (const { id, name, count } of sorted) {
+    const slot = blockIndex[id];
+    let img = '';
+    if (slot != null) {
+      const oc = document.createElement('canvas');
+      oc.width = 16; oc.height = 16;
+      const ctx = oc.getContext('2d'); ctx.imageSmoothingEnabled = false;
+      if (sprite) {
+        ctx.drawImage(sprite, (slot%SPRITE_COLS)*16, Math.floor(slot/SPRITE_COLS)*16, 16, 16, 0, 0, 16, 16);
+      }
+      img = `<img class="cost-tile" src="${oc.toDataURL()}" alt="${name}">`;
+    }
+    html += `<tr><td>${img}</td><td>${name}</td><td>${count.toLocaleString()}</td><td>${(count/64).toFixed(1)}</td></tr>`;
+  }
+  html += `</tbody></table><div class="cost-total">Total: ${totalSolid.toLocaleString()} blocks</div>`;
+  document.getElementById('costContent').innerHTML = html;
+  openModal('costOverlay');
+}
+
+// â”€â”€ BUILD MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function toggleBuildMode() {
+  buildModeActive = !buildModeActive;
+  document.getElementById('buildPanel').classList.toggle('open', buildModeActive);
+  document.getElementById('buildModeBtn').classList.toggle('tbr-on', buildModeActive);
+  if (result) renderResult();
+  updateBuildRow();
+}
+
+function updateBuildRow() {
+  if (!result) return;
+  document.getElementById('buildRowLabel').textContent = `Row ${buildCurrentRow + 1} / ${result.gridH}`;
+}
+
+function buildNav(delta) {
+  if (!result) return;
+  buildCurrentRow = Math.max(0, Math.min(result.gridH-1, buildCurrentRow + delta));
+  updateBuildRow();
+  renderResult();
+}
+
+// â”€â”€ MODALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// â”€â”€ SIZE PREVIEW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function updateSizePreview() {
+  if (!srcW) return;
+  const tw = parseInt(document.getElementById('targetW').value) || 128;
+  const th = parseInt(document.getElementById('targetH').value) || 128;
+  let aw = tw, ah = th;
+  if (lockRatio) {
+    const r = Math.min(tw/srcW, th/srcH);
+    aw = Math.max(1, Math.round(srcW*r));
+    ah = Math.max(1, Math.round(srcH*r));
+  }
+  document.getElementById('sizePreview').textContent = `Output: ${aw} x ${ah} blocks (${(aw*ah).toLocaleString()} total)`;
+  document.getElementById('blockCountDisplay').textContent = `${aw} x ${ah} = ${(aw*ah).toLocaleString()} blocks`;
+}
+
+// â”€â”€ IMAGE LOADING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function loadImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) { showToast('Please select an image file.'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      srcW = img.width; srcH = img.height;
+      sourceImage = img;
+      const prev = document.getElementById('sourcePreview');
+      prev.src = ev.target.result;
+      prev.classList.add('visible');
+      document.getElementById('dropZone').style.display = 'none';
+      if (lockRatio) {
+        const w = parseInt(document.getElementById('targetW').value) || 128;
+        document.getElementById('targetH').value = Math.max(1, Math.round(w * srcH / srcW));
+      }
+      updateSizePreview();
+      document.getElementById('convertBtn').disabled = false;
+      document.getElementById('blockCountDisplay').style.display = 'block';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// â”€â”€ VIEWPORT HANDLERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function onVpDown(e) {
+  if (!result) return;
+  e.preventDefault();
+  const { row, col } = mouseToCell(e);
+  if (e.button === 1 || (e.button === 0 && currentTool === 'grab')) {
+    isPanning = true;
+    panStart = { x: e.clientX - panX, y: e.clientY - panY };
+    document.getElementById('viewport').classList.add('panning');
+    return;
+  }
+  if (e.button === 2) { dropper(row, col); return; }
+  if (!cellInBounds(row, col)) return;
+  if (buildModeActive && buildMarks) {
+    const i = row * result.gridW + col;
+    const markVal = { check:1, cross:2, dot:3 }[buildMarkStyle] || 1;
+    buildMarks[i] = buildMarks[i] === markVal ? 0 : markVal;
+    renderResult();
+    return;
+  }
+  if (currentTool === 'dropper') { dropper(row, col); return; }
+  if (currentTool === 'fill') { floodFill(row, col); return; }
+  if (currentTool === 'pencil' || currentTool === 'brush') {
+    isPainting = true; lastPaintCell = { row, col };
+    paint(row, col);
+  }
+}
+
+function onVpMove(e) {
+  if (isPanning) {
+    panX = e.clientX - panStart.x;
+    panY = e.clientY - panStart.y;
+    applyTransform(); return;
+  }
+  if (!result) return;
+  const { row, col } = mouseToCell(e);
+  const hb = document.getElementById('hoverBlock');
+  if (cellInBounds(row, col) && currentTool !== 'grab') {
+    hb.style.display = 'block';
+    hb.style.left   = (col * TILE) + 'px';
+    hb.style.top    = (row * TILE) + 'px';
+    hb.style.width  = TILE + 'px';
+    hb.style.height = TILE + 'px';
+  } else {
+    hb.style.display = 'none';
+  }
+  if (cellInBounds(row, col)) {
+    document.getElementById('statusCoords').textContent = `x: ${col}, y: ${row}`;
+    const idx = result.grid[row * result.gridW + col];
+    document.getElementById('statusBlock').textContent = idx >= 0 ? result.palette[idx].name : '-';
+  }
+  if (isPainting && (currentTool === 'pencil' || currentTool === 'brush')) {
+    if (!lastPaintCell || lastPaintCell.row !== row || lastPaintCell.col !== col) {
+      paint(row, col); lastPaintCell = { row, col };
+    }
+  }
+}
+
+function onVpUp() {
+  isPanning = false; isPainting = false; lastPaintCell = null;
+  document.getElementById('viewport').classList.remove('panning');
+}
+
+function onVpLeave() {
+  document.getElementById('hoverBlock').style.display = 'none';
+  isPanning = false; isPainting = false;
+}
+
+function onVpWheel(e) {
+  e.preventDefault();
+  const vp = document.getElementById('viewport');
+  const rect = vp.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+  const nz = Math.max(0.05, Math.min(16, zoom * factor));
+  panX = mx - (mx - panX) * nz / zoom;
+  panY = my - (my - panY) * nz / zoom;
+  zoom = nz;
+  applyTransform();
+}
+
+// â”€â”€ LISTENERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function setupListeners() {
+  // File loading
+  const fileIn = document.getElementById('fileInput');
+  document.getElementById('loadBtn').addEventListener('click', () => fileIn.click());
+  fileIn.addEventListener('change', () => { if (fileIn.files[0]) loadImageFile(fileIn.files[0]); });
+
+  // Setup center drop zone (whole area is clickable)
+  const imgArea = document.getElementById('setupImageArea');
+  imgArea.addEventListener('click', () => fileIn.click());
+  imgArea.addEventListener('dragover', e => { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); });
+  imgArea.addEventListener('dragleave', () => document.getElementById('dropZone').classList.remove('drag-over'));
+  imgArea.addEventListener('drop', e => {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) loadImageFile(e.dataTransfer.files[0]);
+  });
+
+  // Lock aspect ratio
+  document.getElementById('lockRatioCheck').addEventListener('change', function() {
+    lockRatio = this.checked;
+    document.getElementById('lockBtn').classList.toggle('locked', lockRatio);
+  });
+  document.getElementById('lockBtn').addEventListener('click', () => {
+    lockRatio = !lockRatio;
+    document.getElementById('lockBtn').classList.toggle('locked', lockRatio);
+    document.getElementById('lockRatioCheck').checked = lockRatio;
+  });
+
+  // Dimensions
+  document.getElementById('targetW').addEventListener('input', () => {
+    if (lockRatio && srcW && srcH) {
+      const tw = parseInt(document.getElementById('targetW').value) || 128;
+      document.getElementById('targetH').value = Math.max(1, Math.round(tw * srcH / srcW));
+    }
+    updateSizePreview();
+  });
+  document.getElementById('targetH').addEventListener('input', () => {
+    if (lockRatio && srcW && srcH) {
+      const th = parseInt(document.getElementById('targetH').value) || 128;
+      document.getElementById('targetW').value = Math.max(1, Math.round(th * srcW / srcH));
+    }
+    updateSizePreview();
+  });
+
+  // Dither hint
+  document.querySelectorAll('input[name="dither"]').forEach(r => r.addEventListener('change', () => {
+    const hints = {
+      none: 'None: Solid block colors, sharpest edges.',
+      bayer4: 'Ordered: Adds a subtle crosshatch pattern to simulate more colors. Good for gradients.',
+      'floyd-steinberg': 'Floyd-Steinberg: Diffuses color error to neighbors. Best color accuracy, can look noisy.'
+    };
+    document.getElementById('ditherHint').textContent = hints[r.value] || '';
+  }));
+
+  // Variance slider
+  document.getElementById('varianceSlider').addEventListener('input', function() {
+    document.getElementById('varianceVal').textContent = (this.value / 2).toFixed(1);
+  });
+
+  // Palette mode buttons
+  document.getElementById('palBtnAll').addEventListener('click',  () => setPalMode('all'));
+  document.getElementById('palBtnSurv').addEventListener('click', () => setPalMode('survival'));
+  document.getElementById('palBtnCust').addEventListener('click', () => setPalMode('custom'));
+
+  // Custom palette select/deselect all
+  document.getElementById('custSelectAll').addEventListener('click', () => {
+    const version = document.getElementById('versionSelect').value;
+    const versionOrder = DB.versions;
+    DB.blocks
+      .filter(b => versionOrder.indexOf(b.version) <= versionOrder.indexOf(version))
+      .forEach(b => customSet.add(b.id));
+    buildSetupPalGrid();
+  });
+  document.getElementById('custDeselectAll').addEventListener('click', () => {
+    customSet.clear();
+    buildSetupPalGrid();
+  });
+
+  // Version change
+  document.getElementById('versionSelect').addEventListener('change', () => buildSetupPalGrid());
+
+  // Convert
+  document.getElementById('convertBtn').addEventListener('click', doConvert);
+
+  // Setup -> editor back button
+  document.getElementById('setupBtn').addEventListener('click', switchToSetup);
+
+  // Tools
+  document.getElementById('toolGrab').addEventListener('click',    () => setTool('grab'));
+  document.getElementById('toolPencil').addEventListener('click',  () => setTool('pencil'));
+  document.getElementById('toolBrush').addEventListener('click',   () => setTool('brush'));
+  document.getElementById('toolFill').addEventListener('click',    () => setTool('fill'));
+  document.getElementById('toolDropper').addEventListener('click', () => setTool('dropper'));
+
+  // Brush size
+  document.getElementById('brushSizeInput').addEventListener('input', function() {
+    brushSize = Math.max(1, Math.min(20, parseInt(this.value) || 1));
+    document.getElementById('brushSizeCtrl').value = brushSize;
+  });
+  document.getElementById('brushSizeCtrl').addEventListener('input', function() {
+    brushSize = Math.max(1, Math.min(20, parseInt(this.value) || 1));
+    document.getElementById('brushSizeInput').value = brushSize;
+  });
+
+  // Undo/redo
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('redoBtn').addEventListener('click', redo);
+
+  // Zoom
+  document.getElementById('fitBtn').addEventListener('click', fitCanvas);
+  document.getElementById('zoomInBtn').addEventListener('click', () => { zoom = Math.min(16, zoom * 1.25); applyTransform(); });
+  document.getElementById('zoomOutBtn').addEventListener('click', () => { zoom = Math.max(0.05, zoom / 1.25); applyTransform(); });
+
+  // Grid toggles
+  document.getElementById('gridToggleBtn').addEventListener('click', () => {
+    showGrid = !showGrid;
+    document.getElementById('gridToggleBtn').classList.toggle('tbr-on', showGrid);
+    if (result) renderResult();
+  });
+  document.getElementById('chunkToggleBtn').addEventListener('click', () => {
+    showChunkGrid = !showChunkGrid;
+    document.getElementById('chunkToggleBtn').classList.toggle('tbr-on', showChunkGrid);
+    if (result) renderResult();
+  });
+
+  // Texture toggle
+  document.getElementById('texToggleBtn').addEventListener('click', () => {
+    showTextures = !showTextures;
+    document.getElementById('texToggleBtn').classList.toggle('tbr-on', showTextures);
+    if (result) renderResult();
+  });
+
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    document.getElementById('exportVersionRow').style.display = 'none';
+    openModal('exportOverlay');
+  });
+  document.querySelectorAll('input[name="exportFmt"]').forEach(r => r.addEventListener('change', () => {
+    if (!r.checked) return;
+    const nbt = r.value === 'schem' || r.value === 'litematic';
+    const noOrient = r.value === 'blocklist' || nbt;
+    document.getElementById('exportVersionRow').style.display = (r.value === 'datapack') ? 'flex' : 'none';
+    document.getElementById('exportOrientRow').style.display = noOrient ? 'none' : 'flex';
+    document.getElementById('exportFacingRow').style.display = noOrient ? 'none' : 'flex';
+  }));
+  document.getElementById('exportDoBtn').addEventListener('click', doExport);
+  document.getElementById('exportCancelBtn').addEventListener('click', () => closeModal('exportOverlay'));
+  document.getElementById('exportOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('exportOverlay')) closeModal('exportOverlay');
+  });
+
+  // Cost
+  document.getElementById('costBtn').addEventListener('click', showBlockCost);
+  document.getElementById('costCloseBtn').addEventListener('click', () => closeModal('costOverlay'));
+  document.getElementById('costOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('costOverlay')) closeModal('costOverlay');
+  });
+
+  // Active block -> picker
+  document.getElementById('activeBlockDisplay').addEventListener('click', openPicker);
+  document.getElementById('pickerBg').addEventListener('click', e => {
+    if (e.target === document.getElementById('pickerBg')) closePicker();
+  });
+  document.getElementById('pickerSearch').addEventListener('input', function() { buildPickerGrid(this.value); });
+
+  // Build mode
+  document.getElementById('buildModeBtn').addEventListener('click', toggleBuildMode);
+  document.getElementById('buildPrevBtn').addEventListener('click', () => buildNav(-1));
+  document.getElementById('buildNextBtn').addEventListener('click', () => buildNav(1));
+  document.getElementById('buildClearBtn').addEventListener('click', () => {
+    if (buildMarks) { buildMarks.fill(0); renderResult(); }
+  });
+  document.querySelectorAll('.mark-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.mark-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildMarkStyle = btn.dataset.mark;
+  }));
+
+  // Viewport
+  const vp = document.getElementById('viewport');
+  vp.addEventListener('mousedown', onVpDown);
+  vp.addEventListener('mousemove', onVpMove);
+  vp.addEventListener('mouseup', onVpUp);
+  vp.addEventListener('mouseleave', onVpLeave);
+  vp.addEventListener('wheel', onVpWheel, { passive: false });
+  vp.addEventListener('contextmenu', e => e.preventDefault());
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+      if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); }
+      return;
+    }
+    if (e.key === 'g' || e.key === 'G') setTool('grab');
+    if (e.key === 'p' || e.key === 'P') setTool('pencil');
+    if (e.key === 'b' || e.key === 'B') setTool('brush');
+    if (e.key === 'f' || e.key === 'F') setTool('fill');
+    if (e.key === 'd' || e.key === 'D') setTool('dropper');
+    if (e.key === '+' || e.key === '=') { zoom = Math.min(16, zoom * 1.25); applyTransform(); }
+    if (e.key === '-') { zoom = Math.max(0.05, zoom / 1.25); applyTransform(); }
+    if (e.key === 'Escape') closePicker();
+  });
+}
+
+init().catch(err => showToast('Init failed: ' + err.message));
+</script>
+
+<footer>
+  <p>&copy; 2026 Saturnity. Built for humans, runs in your browser.</p>
+  <p style="margin-top:8px; font-size:0.85rem;">
+    <a href="/">Home</a> &middot; <a href="/guide/">Guide</a> &middot; <a href="/blocks/">Blocks</a> &middot; <a href="/faq/">FAQ</a> &middot; <a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy</a> &middot; <a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a>
+  </p>
+</footer>
+</body>
+</html>
+

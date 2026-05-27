@@ -1,0 +1,11 @@
+{
+  "name": "Saturnity Minecraft Tools",
+  "short_name": "Saturnity MC",
+  "icons": [
+    { "src": "/favicon-96x96.png", "sizes": "96x96", "type": "image/png" }
+  ],
+  "theme_color": "#1a1a1a",
+  "background_color": "#1a1a1a",
+  "display": "standalone",
+  "start_url": "/"
+}
