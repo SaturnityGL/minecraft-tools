@@ -16,7 +16,7 @@
   <meta property="og:title" content="BlockForge App: Convert Image to Minecraft Schematic">
   <meta property="og:description" content="Open the BlockForge app and turn an image into a Minecraft block schematic in your browser. 263 supported blocks, free, no signup, no upload.">
   <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
-  <meta property="og:site_name" content="Saturnity Minecraft Tools">
+  <meta property="og:site_name" content="BlockForge">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
@@ -32,6 +32,9 @@
 
   <!-- Consent (must load BEFORE any analytics/ads tag) -->
   <script src="/assets/js/consent.js?v=2" defer></script>
+
+  <!-- Site identity -->
+  <link rel="stylesheet" href="/assets/css/site.css">
 
   <!-- JSON-LD -->
   <script type="application/ld+json">
@@ -66,37 +69,39 @@
       --secondary:    #2E2E2E;
       --sec-hover:    #383838;
       --canvas-bg:    #C8C6C2;
-      --nav-h:        48px;
       --left-w:       280px;
       --right-w:      264px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%; font-family: 'Segoe UI', Arial, sans-serif;
-      background: #141414; color: var(--text); font-size: 13px; overflow: hidden;
+    /* App-specific resets on top of site.css */
+    body {
+      font-size: 13px;
+      color: var(--text);
     }
 
-    /* ── NAV ── */
-    .nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); background: #242424; border-bottom: 1px solid #333; z-index: 1000; display: flex; align-items: center; }
-    .nav__inner { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
-    .nav__logo { font-size: 1.4rem; font-weight: 700; color: #e8e8e8; letter-spacing: -0.5px; text-decoration: none; }
-    .nav__logo span { color: #cc0000; }
-    .nav__links { display: flex; align-items: center; gap: 8px; list-style: none; }
-    .nav__links a { color: #888; padding: 8px 16px; border-radius: 6px; font-size: 0.95rem; font-weight: 500; text-decoration: none; transition: color 0.2s, background 0.2s; }
-    .nav__links a:hover { color: #e8e8e8; background: #2e2e2e; }
-    a.nav__discord { padding: 8px; display: flex; align-items: center; }
-
-    /* ── APP SHELL ── */
+    /* ── APP SHELL ── sits below header, fills viewport height */
     #appShell {
-      position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
-      display: flex; justify-content: center; background: #141414;
+      height: calc(100vh - var(--header-h));
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      padding: 20px 0 0;
+      overflow: hidden;
     }
     #appFrame {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      background: var(--bg);
+      width: 100%;
+      max-width: 1600px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(20, 18, 14, 0.87);
+      backdrop-filter: blur(10px) saturate(1.1);
+      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px 10px 0 0;
       overflow: hidden;
+      box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.5);
     }
 
     /* ── VIEWS ── */
@@ -570,26 +575,16 @@
 </head>
 <body>
 
-<nav class="nav" id="siteNav">
-  <div class="nav__inner">
-    <a href="/" class="nav__logo">Saturnity <span>Minecraft Tools</span></a>
-    <ul class="nav__links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/app/">BlockForge</a></li>
-      <li><a href="/guide/">Guide</a></li>
-      <li><a href="/showcase/">Showcase</a></li>
-      <li><a href="/blocks/">Blocks</a></li>
-      <li><a href="/faq/">FAQ</a></li>
-    </ul>
-  </div>
-</nav>
-
-<script>
-  if (window.self !== window.top) {
-    document.getElementById('siteNav').style.display = 'none';
-    document.documentElement.style.setProperty('--nav-h', '0px');
-  }
-</script>
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/app/" class="active">Pixel Art</a>
+    <a href="/guide/">Guide</a>
+    <a href="/blocks/">Blocks</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
 
 <div id="appShell">
 <div id="appFrame">
@@ -1526,7 +1521,7 @@ function renderResult() {
 
   // Build mode overlays
   if (buildModeActive && buildMarks) {
-    const SYM = { 1:'âœ“', 2:'âœ—', 3:'Â·' };
+    const SYM = { 1:'✓', 2:'✗', 3:'·' };
     const CLR = { 1:'rgba(80,200,80,0.7)', 2:'rgba(200,60,60,0.7)', 3:'rgba(200,200,80,0.7)' };
     ctx.font = `bold ${Math.max(8, TILE*0.72)}px monospace`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -2450,11 +2445,45 @@ function setupListeners() {
 init().catch(err => showToast('Init failed: ' + err.message));
 </script>
 
-<footer>
-  <p>&copy; 2026 Saturnity. Built for humans, runs in your browser.</p>
-  <p style="margin-top:8px; font-size:0.85rem;">
-    <a href="/">Home</a> &middot; <a href="/guide/">Guide</a> &middot; <a href="/blocks/">Blocks</a> &middot; <a href="/faq/">FAQ</a> &middot; <a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy</a> &middot; <a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a>
-  </p>
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnitygl" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
 </footer>
 </body>
 </html>

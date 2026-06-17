@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlockForge: Free Minecraft Pixel Art Generator | Saturnity Minecraft Tools</title>
-  <meta name="description" content="Turn any image into Minecraft block art in your browser. BlockForge picks the closest block from 263 textures, exports a schematic, free, no signup.">
+  <title>BlockForge: Free Minecraft Tools</title>
+  <meta name="description" content="BlockForge hosts free browser tools for Minecraft builders. Start with the Pixel Art Generator: convert any image into a block schematic, no signup, no upload.">
   <link rel="canonical" href="https://blockforge.saturnitystools.com/">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://blockforge.saturnitystools.com/">
-  <meta property="og:title" content="BlockForge: Free Minecraft Pixel Art Generator | Saturnity Minecraft Tools">
-  <meta property="og:description" content="Turn any image into Minecraft block art in your browser. BlockForge picks the closest block from 263 textures, exports a schematic, free, no signup.">
+  <meta property="og:title" content="BlockForge: Free Minecraft Tools">
+  <meta property="og:description" content="BlockForge hosts free browser tools for Minecraft builders. Start with the Pixel Art Generator: convert any image into a block schematic, no signup, no upload.">
   <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
-  <meta property="og:site_name" content="Saturnity Minecraft Tools">
+  <meta property="og:site_name" content="BlockForge">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BlockForge: Free Minecraft Pixel Art Generator | Saturnity Minecraft Tools">
-  <meta name="twitter:description" content="Turn any image into Minecraft block art in your browser. BlockForge picks the closest block from 263 textures, exports a schematic, free, no signup.">
+  <meta name="twitter:title" content="BlockForge: Free Minecraft Tools">
+  <meta name="twitter:description" content="BlockForge hosts free browser tools for Minecraft builders. Start with the Pixel Art Generator: convert any image into a block schematic, no signup, no upload.">
   <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -35,14 +35,14 @@
         "@type": "WebSite",
         "@id": "https://blockforge.saturnitystools.com/#website",
         "url": "https://blockforge.saturnitystools.com/",
-        "name": "Saturnity Minecraft Tools",
+        "name": "BlockForge",
         "publisher": { "@id": "https://saturnitystools.com/#organization" },
         "inLanguage": "en"
       },
       {
         "@type": "WebApplication",
         "@id": "https://blockforge.saturnitystools.com/#blockforge",
-        "name": "BlockForge",
+        "name": "BlockForge Pixel Art Generator",
         "url": "https://blockforge.saturnitystools.com/app/",
         "description": "Free browser tool that converts any image into Minecraft block art and exports a .schematic file for WorldEdit or Litematica.",
         "applicationCategory": "MultimediaApplication",
@@ -67,15 +67,11 @@
 <body>
 
 <header class="site-header">
-  <a href="/" class="brand">
-    <img src="/favicon.svg" alt="" width="28" height="28">
-    <span>Saturnity Minecraft Tools</span>
-  </a>
+  <a href="/" class="brand">BlockForge</a>
   <nav>
     <a href="/" class="active">Home</a>
-    <a href="/app/">BlockForge</a>
+    <a href="/app/">Pixel Art</a>
     <a href="/guide/">Guide</a>
-    <a href="/showcase/">Showcase</a>
     <a href="/blocks/">Blocks</a>
     <a href="/faq/">FAQ</a>
   </nav>
@@ -83,73 +79,40 @@
 
 <main>
   <section class="hero">
-    <h1>BlockForge, the Free Minecraft Pixel Art Generator</h1>
-    <p class="lead">Turn any image into a Minecraft block mural, in your browser, with one click. No downloads, no signup, no watermarks. Drop in a photo, pick a block palette, export a schematic, and paste it into your world.</p>
-    <p class="cta">
-      <a href="/app/" class="btn btn-primary">Launch BlockForge</a>
-      <a href="/guide/" class="btn btn-secondary">Read the guide</a>
-    </p>
+    <h1>Free tools for Minecraft builders.</h1>
   </section>
 
   <section>
-    <h2>What BlockForge does</h2>
-    <p>BlockForge converts an image into a grid of Minecraft blocks. It looks at every pixel of your image and picks the closest matching block from 263 supported textures, using real Minecraft texture data instead of flat color swatches. The output is a .schematic file you can drop straight into WorldEdit or Litematica.</p>
-    <p>You can scale the result to any size you want, from a small 64 by 64 sign to a full chunk-spanning mural. Bigger means more detail, but also more blocks to place, so it is worth picking a size you actually want to build before exporting.</p>
-    <p>The tool runs entirely in your browser. Nothing gets uploaded to a server. Your image stays on your computer, the conversion happens locally with JavaScript, and the schematic downloads when you click export. That means no upload limits, no privacy worries, and no waiting for someone else's queue.</p>
-  </section>
-
-  <section>
-    <h2>Who BlockForge is for</h2>
-    <p>BlockForge is for Minecraft players who want to put real art into their builds. The most common use is mural work: portraits of friends, character art from games, brand logos for a server hub, custom signs at spawn. Map artists use it to plan large floor pieces. Roleplay servers use it for stained-glass mosaics and painted backdrops. Builders on adventure maps use it to recreate paintings and posters as decorative elements.</p>
-    <p>If you have ever tried to recreate an image block by block manually, you already know why a converter helps. BlockForge does the slow part, picking the right block for each pixel, and leaves you the fun part, placing it in your world.</p>
-  </section>
-
-  <section>
-    <h2>How it works</h2>
-    <ol>
-      <li><strong>Upload an image.</strong> PNG, JPG, GIF, WEBP, and BMP all work.</li>
-      <li><strong>Pick a block palette.</strong> The default uses every supported block. You can narrow it to wool only, terracotta only, concrete only, or any custom subset.</li>
-      <li><strong>Set the output dimensions.</strong> Width and height in blocks, with a preview that updates as you drag.</li>
-      <li><strong>Hit export.</strong> You get a .schematic file that imports directly into WorldEdit or Litematica.</li>
-    </ol>
-    <p>The full tutorial, including how to install Litematica and place the schematic in survival, lives on the <a href="/guide/">guide page</a>.</p>
-  </section>
-
-  <section>
-    <h2>What you can build</h2>
-    <p>The <a href="/showcase/">showcase</a> covers six common builds: portrait murals, game logos, mob art, landscape paintings, pixel character sprites, and map-art replicas. Each one includes the recommended block palette, the rough size, and what the result looks like in game.</p>
-  </section>
-
-  <section>
-    <h2>Built by Saturnity</h2>
-    <p>BlockForge started as a desktop Python tool and got rewritten for the browser so anyone can use it without installing anything. It is part of <a href="https://saturnitystools.com/" rel="noopener">Saturnity's Tools</a>, a small collection of free browser utilities built by one person who likes making things that just work. No paywall, no upsell, no email gate.</p>
-    <p>This subdomain is the home for all Saturnity Minecraft tools. BlockForge is the first one. More are planned, including a schematic library and an in-browser viewer for files from Litematica and WorldEdit.</p>
+    <div class="tool-grid">
+      <a href="/app/" class="tool-card tool-card--primary">
+        <div class="tool-card__label">Pixel Art Generator</div>
+        <div class="tool-card__name">BlockForge</div>
+        <p class="tool-card__desc">Convert any image into a Minecraft block mural. Picks from 263 real block textures, exports a .schematic for WorldEdit or Litematica. Runs entirely in your browser, nothing uploaded.</p>
+        <span class="tool-card__cta">Open the app &rarr;</span>
+      </a>
+    </div>
   </section>
 
   <section>
     <h2>Quick links</h2>
     <ul>
-      <li><a href="/app/">Open the BlockForge app</a></li>
       <li><a href="/guide/">Step-by-step guide</a></li>
       <li><a href="/blocks/">All 263 supported blocks</a></li>
       <li><a href="/faq/">Frequently asked questions</a></li>
     </ul>
-    <p class="cta">
-      <a href="/app/" class="btn btn-primary">Launch BlockForge</a>
-    </p>
   </section>
 </main>
 
 <footer class="site-footer">
   <div class="footer-cols">
     <div>
-      <strong>Saturnity Minecraft Tools</strong>
+      <strong>BlockForge</strong>
       <p>Free browser tools for Minecraft builders.</p>
     </div>
     <div>
       <strong>Tools</strong>
       <ul>
-        <li><a href="/app/">BlockForge</a></li>
+        <li><a href="/app/">Pixel Art Generator</a></li>
         <li><a href="/guide/">How-to guide</a></li>
         <li><a href="/blocks/">Block reference</a></li>
       </ul>
@@ -157,7 +120,12 @@
     <div>
       <strong>From Saturnity</strong>
       <ul>
-        <li><a href="https://saturnitystools.com/" rel="noopener">All Saturnity tools</a></li>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
         <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
         <li><a href="https://ko-fi.com/saturnitygl" rel="noopener">Support on Ko-Fi</a></li>
       </ul>
@@ -172,7 +140,7 @@
     </div>
   </div>
   <div class="footer-credit">
-    Made by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>.
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
   </div>
 </footer>
 </body>
