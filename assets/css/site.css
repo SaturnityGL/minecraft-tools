@@ -57,7 +57,7 @@
   --brand-h:         37px;
 
   /* Stone button PNGs are 196x40 native */
-  --nav-btn-w:       140px;
+  --nav-btn-w:       172px;
   --nav-btn-h:       28px;
 
   /* Type */
@@ -897,7 +897,7 @@ main section.hero { margin-bottom: 44px !important; }
   :root {
     --brand-w: 224px;
     --brand-h: 30px;
-    --nav-btn-w: 118px;
+    --nav-btn-w: 144px;
     --nav-btn-h: 26px;
   }
   .site-header { padding: 0 18px; gap: 14px; }
@@ -908,7 +908,7 @@ main section.hero { margin-bottom: 44px !important; }
   :root {
     --brand-w: 168px;
     --brand-h: 22px;
-    --nav-btn-w: 92px;
+    --nav-btn-w: 112px;
     --nav-btn-h: 22px;
   }
   .site-header {
