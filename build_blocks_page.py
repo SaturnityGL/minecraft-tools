@@ -168,7 +168,7 @@ page = f"""<!DOCTYPE html>
       <ul>
         <li><a href="https://saturnitystools.com/" rel="noopener">All Saturnity tools</a></li>
         <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
-        <li><a href="https://ko-fi.com/saturnitygl" rel="noopener">Support on Ko-Fi</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
       </ul>
     </div>
     <div>
