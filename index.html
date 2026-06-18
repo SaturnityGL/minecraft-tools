@@ -143,5 +143,19 @@
     by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
   </div>
 </footer>
+
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js' defer></script>
+<script>
+  window.addEventListener('load', function () {
+    if (window.kofiWidgetOverlay) {
+      kofiWidgetOverlay.draw('saturnitygl', {
+        'type': 'floating-chat',
+        'floating-chat.donateButton.text': 'Support',
+        'floating-chat.donateButton.background-color': '#8b1a1a',
+        'floating-chat.donateButton.text-color': '#fff'
+      });
+    }
+  });
+</script>
 </body>
 </html>
