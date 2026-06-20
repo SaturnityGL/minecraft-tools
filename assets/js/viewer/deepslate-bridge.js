@@ -98,13 +98,32 @@ async function loadResources() {
   return resourceLoadPromise;
 }
 
-function buildStructure(grid, yLimit) {
-  const structure = new Structure([grid.width, Math.min(grid.height, yLimit + 1), grid.depth]);
+// Build a Structure from the grid. If floorEnabled, plant a grass_block plane at y=0
+// with padding around the structure footprint, and shift the real blocks up by 1.
+function buildStructure(grid, yLimit, floorEnabled) {
+  // Floor padding extends the grass plane slightly beyond the build footprint.
+  // Capped at 6 so large structures don't quadruple the floor block count.
+  const pad = floorEnabled ? Math.min(6, Math.max(2, Math.ceil(Math.max(grid.width, grid.depth) / 16))) : 0;
+  const sizeX = grid.width + pad * 2;
+  const sizeY = Math.min(grid.height, yLimit + 1) + (floorEnabled ? 1 : 0);
+  const sizeZ = grid.depth + pad * 2;
+  const yOffset = floorEnabled ? 1 : 0;
+
+  const structure = new Structure([sizeX, sizeY, sizeZ]);
+
+  if (floorEnabled) {
+    for (let fx = 0; fx < sizeX; fx++) {
+      for (let fz = 0; fz < sizeZ; fz++) {
+        structure.addBlock([fx, 0, fz], 'minecraft:grass_block', { snowy: 'false' });
+      }
+    }
+  }
+
   for (const [x, y, z, state] of grid.entries()) {
     if (y > yLimit) continue;
     const bracketIdx = state.indexOf('[');
     if (bracketIdx === -1) {
-      structure.addBlock([x, y, z], state);
+      structure.addBlock([x + pad, y + yOffset, z + pad], state);
     } else {
       const name = state.slice(0, bracketIdx);
       const propStr = state.slice(bracketIdx + 1, state.length - 1);
@@ -115,7 +134,7 @@ function buildStructure(grid, yLimit) {
           props[pair.slice(0, eqIdx)] = pair.slice(eqIdx + 1);
         }
       }
-      structure.addBlock([x, y, z], name, props);
+      structure.addBlock([x + pad, y + yOffset, z + pad], name, props);
     }
   }
   return structure;
@@ -127,6 +146,8 @@ export class DeepslateRenderer {
     this.canvas = canvas;
     this.grid = null;
     this.yLimit = Infinity;
+    this.floorEnabled = false;
+    this.clearColor = [0.10, 0.08, 0.06]; // deep warm default, matches BF --color-bg-deep
     this.pitch = 0.6;
     this.yaw = 0.5;
     this.cameraPos = vec3.fromValues(0, 0, 0);
@@ -250,6 +271,10 @@ export class DeepslateRenderer {
     this.yaw = this.yaw % (Math.PI * 2);
     this.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.pitch));
 
+    const [r, g, b] = this.clearColor;
+    this.gl.clearColor(r, g, b, 1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
     const view = mat4.create();
     mat4.rotateX(view, view, this.pitch);
     mat4.rotateY(view, view, this.yaw);
@@ -257,6 +282,28 @@ export class DeepslateRenderer {
 
     this.renderer.drawStructure(view);
     this.renderer.drawGrid(view);
+  }
+
+  setClearColor(r, g, b) {
+    this.clearColor = [r, g, b];
+    this.requestRender();
+  }
+
+  setFloorEnabled(enabled) {
+    if (this.floorEnabled === enabled) return;
+    this.floorEnabled = enabled;
+
+    // Re-center the camera so the structure stays framed when floor padding shifts it
+    if (this.grid) {
+      this.pitch = 0.6;
+      this.yaw = 0.5;
+      const cx = -this.grid.width / 2;
+      const cy = -this.grid.height / 2;
+      const cz = -Math.max(this.grid.width, this.grid.depth) * 1.2;
+      vec3.set(this.cameraPos, cx, cy, cz);
+    }
+
+    this.rebuildStructure();
   }
 
   setGrid(grid) {
@@ -280,7 +327,7 @@ export class DeepslateRenderer {
 
   rebuildStructure() {
     if (!this.grid) return;
-    const structure = buildStructure(this.grid, this.yLimit);
+    const structure = buildStructure(this.grid, this.yLimit, this.floorEnabled);
     this.renderer.setStructure(structure);
     this.renderer.updateStructureBuffers();
     this.requestRender();

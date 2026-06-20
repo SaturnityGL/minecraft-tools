@@ -278,6 +278,101 @@
       color: white;
     }
 
+    /* Atmosphere tint overlay sits on top of the canvas, below the HUD */
+    .atmosphere-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      transition: background 0.4s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+    .atmosphere-overlay.is-on { opacity: 1; }
+
+    /* Scene preset chip-grid */
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .scene-chip {
+      padding: 6px 8px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 12px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .scene-chip:hover { background: var(--color-bg-hover); }
+    .scene-chip.is-active {
+      border-color: var(--color-accent);
+      background: var(--color-bg-hover);
+    }
+    .scene-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .floor-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+    .floor-row input { accent-color: var(--color-accent); cursor: pointer; }
+    .floor-note {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .custom-color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .custom-color-row input[type="color"] {
+      width: 32px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* Unmapped row in materials list — slight muted styling so it's clearly separate */
+    .material-row.is-unmapped {
+      background: rgba(204, 0, 0, 0.06);
+      border-top: 1px solid var(--color-border);
+    }
+    .material-row.is-unmapped .material-name {
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+    .material-row.is-unmapped .material-name::before {
+      content: '! ';
+      color: var(--color-accent);
+      font-weight: 700;
+      font-style: normal;
+    }
+
     .y-slider-row {
       display: flex;
       align-items: center;
@@ -378,6 +473,8 @@
     <div class="canvas-wrap" id="canvas-wrap">
       <canvas id="viewer-canvas"></canvas>
 
+      <div id="atmosphere-overlay" class="atmosphere-overlay"></div>
+
       <div class="hud-help">
         WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down
       </div>
@@ -408,6 +505,44 @@
           <label for="y-slider">Y: <span id="y-value">0</span></label>
           <input type="range" id="y-slider" min="0" max="1" step="1" value="0">
         </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Scene</h2>
+        <div class="scene-grid" id="scene-grid">
+          <button type="button" class="scene-chip is-active" data-scene="default">
+            <span class="scene-swatch" style="background:#1a1510;"></span>Studio
+          </button>
+          <button type="button" class="scene-chip" data-scene="day">
+            <span class="scene-swatch" style="background:#87ceeb;"></span>Day
+          </button>
+          <button type="button" class="scene-chip" data-scene="sunset">
+            <span class="scene-swatch" style="background:#e6815a;"></span>Sunset
+          </button>
+          <button type="button" class="scene-chip" data-scene="night">
+            <span class="scene-swatch" style="background:#0b1027;"></span>Night
+          </button>
+          <button type="button" class="scene-chip" data-scene="cave">
+            <span class="scene-swatch" style="background:#0a0907;"></span>Cave
+          </button>
+          <button type="button" class="scene-chip" data-scene="meadow">
+            <span class="scene-swatch" style="background:#5a8b4f;"></span>Meadow
+          </button>
+        </div>
+        <div class="custom-color-row">
+          <input type="color" id="custom-color" value="#1a1510" title="Custom background">
+          <span>Custom background</span>
+        </div>
+        <span class="floor-note">Atmosphere is a background + soft tint, not real lighting.</span>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Floor</h2>
+        <label class="floor-row">
+          <input type="checkbox" id="floor-toggle">
+          <span>Show grass floor under the build</span>
+        </label>
+        <span class="floor-note">Adds a grass plane below the structure for scale and color. Excluded from material counts.</span>
       </div>
 
       <div class="sidebar-section">
