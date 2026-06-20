@@ -1,0 +1,469 @@
+<!-- ============================================================
+     viewer/index.html - BlockForge Schematic Viewer
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockForge Schematic Viewer: Preview .litematic and .schem in Your Browser</title>
+  <meta name="description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded, runs entirely in your browser.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/viewer/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/viewer/">
+  <meta property="og:title" content="BlockForge Schematic Viewer">
+  <meta property="og:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BlockForge Schematic Viewer">
+  <meta name="twitter:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Consent (must load BEFORE any analytics/ads tag) -->
+  <script src="/assets/js/consent.js?v=2" defer></script>
+
+  <!-- Site identity -->
+  <link rel="stylesheet" href="/assets/css/site.css">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/#viewer",
+    "name": "BlockForge Schematic Viewer",
+    "url": "https://blockforge.saturnitystools.com/viewer/",
+    "description": "Open Minecraft schematic files (.litematic, .schem, .schematic, .nbt) and fly around them in 3D in your browser. Nothing is uploaded.",
+    "applicationCategory": "MultimediaApplication",
+    "applicationSubCategory": "Minecraft schematic viewer",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Modern browser with WebGL enabled",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" },
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png"
+  }
+  </script>
+
+  <style>
+    /* Viewer-specific layout. Base nav/footer/body come from site.css. */
+    [hidden] { display: none !important; }
+
+    main.viewer-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Drop zone (initial state, before a file is loaded) */
+    .dropzone-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .dropzone {
+      width: 100%;
+      max-width: 640px;
+      background: var(--color-bg-surface);
+      border: 2px dashed var(--color-border);
+      border-radius: var(--card-radius);
+      padding: 48px 32px;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+    .dropzone:hover, .dropzone.is-dragover {
+      border-color: var(--color-accent);
+      background: var(--color-bg-hover);
+    }
+    .dropzone h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--color-text);
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    .dropzone p {
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .dropzone .formats {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 6px 14px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 6px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .dropzone-btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 24px;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .dropzone-btn:hover {
+      background: var(--color-accent-hover);
+    }
+    .dropzone .hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    /* Loaded view (after a file is parsed) */
+    .viewer-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 0;
+      min-height: 0;
+      background: var(--color-bg-deep);
+    }
+    @media (max-width: 768px) {
+      .viewer-stage {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+      }
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      background: var(--color-bg-deep);
+    }
+    .canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    .canvas-wrap canvas:active {
+      cursor: grabbing;
+    }
+    .hud-info {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(20, 16, 10, 0.85);
+      border: 1px solid rgba(212, 200, 176, 0.2);
+      border-radius: 4px;
+      color: #e8dfc8;
+      font-size: 12px;
+      padding: 6px 12px;
+      pointer-events: none;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+    .hud-help {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(20, 16, 10, 0.85);
+      border: 1px solid rgba(212, 200, 176, 0.2);
+      border-radius: 4px;
+      color: #e8dfc8;
+      font-size: 11px;
+      padding: 6px 10px;
+      pointer-events: none;
+      font-family: 'Consolas', 'Monaco', monospace;
+      line-height: 1.5;
+    }
+    .overlay-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(26, 21, 16, 0.85);
+      color: #f5f0e8;
+      padding: 24px;
+      text-align: center;
+    }
+    .overlay-center .status-text { font-size: 16px; opacity: 0.8; }
+    .overlay-center .error-text { color: #ff8a8a; font-size: 14px; max-width: 480px; }
+    .overlay-center .retry-btn {
+      padding: 8px 18px;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .sidebar {
+      background: var(--color-bg-surface);
+      border-left: 1px solid var(--color-border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+        max-height: 40vh;
+      }
+    }
+    .sidebar-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sidebar-section:last-child { border-bottom: none; }
+    .sidebar-section h2 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .file-name {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+    .file-stats {
+      font-size: 13px;
+      color: var(--color-text);
+      line-height: 1.7;
+    }
+    .file-stats strong { color: var(--color-text); }
+    .new-file-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 12px;
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-accent);
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: var(--font-body);
+    }
+    .new-file-btn:hover {
+      background: var(--color-accent);
+      color: white;
+    }
+
+    .y-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .y-slider-row label {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      min-width: 56px;
+    }
+    .y-slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--color-accent);
+    }
+
+    .material-toggle {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .material-toggle:hover { color: var(--color-accent); }
+    .material-list {
+      margin-top: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .material-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 12px;
+    }
+    .material-row:last-child { border-bottom: none; }
+    .material-name { color: var(--color-text); }
+    .material-count { color: var(--color-text-muted); font-family: 'Consolas', 'Monaco', monospace; }
+
+    /* Hide the file input visually but keep it in the accessibility tree
+       so the dropzone <label for> still opens the picker and assistive tech can use it. */
+    #file-input {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/app/">Pixel Art</a>
+    <a href="/viewer/" class="active">Viewer</a>
+    <a href="/guide/">Guide</a>
+    <a href="/blocks/">Blocks</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
+
+<main class="viewer-main">
+
+  <!-- Initial state: drop zone -->
+  <section id="dropzone-wrap" class="dropzone-wrap">
+    <label class="dropzone" id="dropzone" for="file-input">
+      <h1>Schematic Viewer</h1>
+      <p>Drop a Minecraft schematic file here to preview it in 3D.</p>
+      <p>Nothing uploaded, everything runs in your browser.</p>
+      <span class="formats">.litematic &nbsp;.schem &nbsp;.schematic &nbsp;.nbt</span>
+      <div>
+        <span class="dropzone-btn">Choose a file</span>
+      </div>
+      <p class="hint">Fly around with WASD, drag to look, scroll to zoom.</p>
+      <input id="file-input" type="file" accept=".litematic,.schem,.schematic,.nbt">
+    </label>
+  </section>
+
+  <!-- Loaded state: 3D viewer + sidebar -->
+  <section id="viewer-stage" class="viewer-stage" hidden>
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="viewer-canvas"></canvas>
+
+      <div class="hud-help">
+        WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down
+      </div>
+
+      <div id="hud-info" class="hud-info" hidden></div>
+
+      <div id="overlay-loading" class="overlay-center" hidden>
+        <span class="status-text">Loading schematic...</span>
+      </div>
+
+      <div id="overlay-error" class="overlay-center" hidden>
+        <span class="error-text" id="error-text"></span>
+        <button class="retry-btn" id="error-retry">Pick another file</button>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h2>File</h2>
+        <div class="file-name" id="file-name"></div>
+        <div class="file-stats" id="file-stats"></div>
+        <button type="button" class="new-file-btn" id="new-file-btn">Open a different file</button>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Y limit</h2>
+        <div class="y-slider-row">
+          <label for="y-slider">Y: <span id="y-value">0</span></label>
+          <input type="range" id="y-slider" min="0" max="1" step="1" value="0">
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <button class="material-toggle" id="material-toggle" aria-expanded="false">
+          <span>Materials (<span id="material-count">0</span>)</span>
+          <span id="material-chevron">+</span>
+        </button>
+        <div class="material-list" id="material-list" hidden></div>
+      </div>
+    </aside>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script type="module" src="/assets/js/viewer/viewer.js"></script>
+</body>
+</html>
