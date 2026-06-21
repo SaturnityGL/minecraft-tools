@@ -1,7 +1,23 @@
 // Litematica .litematic parser
 // NBT: Regions (compound of regions), each with Position, Size, BlockStatePalette, BlockStates (bit-packed long array)
+//
+// Region Size can be negative on any axis. A negative Size on an axis means the
+// region's primary corner (Position) sits on the MAX side of that axis, and the
+// encoded block data walks from there toward smaller world coordinates.
 import { NbtFile, NbtType } from '../../lib/deepslate.esm.js';
 import { BlockGrid } from '../blockgrid.js';
+
+// Practical ceiling on the combined region bounding box volume.
+//
+// Storage itself comfortably handles up to ~150M cells (2 bytes per cell in the
+// palette-backed Uint16Array). The real bottleneck is deepslate's StructureRenderer,
+// which iterates the dense size to build per-chunk meshes. Past ~15M cells the chunk
+// pass freezes the browser for tens of seconds and feels broken, even when the
+// schematic has only a few hundred thousand actual placed blocks.
+//
+// 15M cells covers every realistic shared schematic (gothic castles, ships, towns).
+// Files past it get a clear error pointing at the volume, not the file size.
+const MAX_VOLUME = 15_000_000;
 
 function blockStateCompoundToString(bs) {
   const name = bs.getString('Name');
@@ -121,15 +137,33 @@ export async function parse(bytes) {
   const gridW = Math.max(1, maxX - minX);
   const gridH = Math.max(1, maxY - minY);
   const gridD = Math.max(1, maxZ - minZ);
+
+  const volume = gridW * gridH * gridD;
+  if (volume > MAX_VOLUME) {
+    throw new Error(`This litematic's bounding box is ${gridW} x ${gridH} x ${gridD} = ${volume.toLocaleString()} cells, past the browser viewer's smooth-rendering ceiling of ${MAX_VOLUME.toLocaleString()} cells. The volume is what hurts, not how many blocks are filled. Try cropping the build to a tighter region with Litematica before loading it here.`);
+  }
+
   const grid = new BlockGrid(gridW, gridH, gridD);
 
   for (const r of regions) {
-    const { offsetX, offsetY, offsetZ, sizeX, sizeY, sizeZ, palette, longs } = r;
+    const { offsetX, offsetY, offsetZ, sizeX, sizeY, sizeZ, rawSizeX, rawSizeY, rawSizeZ, palette, longs } = r;
     if (sizeX === 0 || sizeY === 0 || sizeZ === 0) continue;
 
+    // Direction sign per axis. A negative rawSize means the primary corner
+    // (offset) is on the MAX side, and local indices walk toward smaller world coords.
+    const dirX = rawSizeX < 0 ? -1 : 1;
+    const dirY = rawSizeY < 0 ? -1 : 1;
+    const dirZ = rawSizeZ < 0 ? -1 : 1;
+
+    // Resolve the palette ONCE per region. blockStateCompoundToString iterates
+    // properties + sorts + joins, which is far too expensive to run per block
+    // (18M-block region would call it 18M times for ~241 unique states).
+    const paletteStrings = new Array(palette.length);
     let airIdx = -1;
     for (let i = 0; i < palette.length; i++) {
-      if (palette[i].getString('Name') === 'minecraft:air') { airIdx = i; break; }
+      const s = blockStateCompoundToString(palette[i]);
+      paletteStrings[i] = s;
+      if (s === 'minecraft:air' && airIdx === -1) airIdx = i;
     }
 
     const totalBlocks = sizeX * sizeY * sizeZ;
@@ -146,12 +180,12 @@ export async function parse(bytes) {
           if (paletteIdx === airIdx) continue;
           if (paletteIdx >= palette.length) continue;
 
-          const stateStr = blockStateCompoundToString(palette[paletteIdx]);
+          const stateStr = paletteStrings[paletteIdx];
           if (stateStr === 'minecraft:air') continue;
 
-          const gx = offsetX + x - minX;
-          const gy = offsetY + y - minY;
-          const gz = offsetZ + z - minZ;
+          const gx = offsetX + x * dirX - minX;
+          const gy = offsetY + y * dirY - minY;
+          const gz = offsetZ + z * dirZ - minZ;
           grid.set(gx, gy, gz, stateStr);
         }
       }
