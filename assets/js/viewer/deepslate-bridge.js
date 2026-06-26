@@ -147,7 +147,7 @@ export class DeepslateRenderer {
     this.grid = null;
     this.yLimit = Infinity;
     this.floorEnabled = false;
-    this.clearColor = [0.10, 0.08, 0.06]; // deep warm default, matches BF --color-bg-deep
+    this.clearColor = [0.53, 0.81, 0.92]; // day sky default
     this.pitch = 0.6;
     this.yaw = 0.5;
     this.cameraPos = vec3.fromValues(0, 0, 0);

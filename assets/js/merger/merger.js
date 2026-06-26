@@ -7,6 +7,39 @@ import * as nbtParser from '../viewer/formats/nbt.js';
 import { mergeGrids } from './merge.js';
 import { exportLitematic, exportSchemV2, triggerDownload } from './export.js';
 
+// Scene presets: clearColor is RGB 0-1 for the GL background; overlay is a CSS color
+// applied over the canvas (or empty string = no overlay).
+const SCENE_PRESETS = {
+  default: { clearColor: [0.10, 0.08, 0.06], overlay: '' },
+  day:     { clearColor: [0.53, 0.81, 0.92], overlay: '' },
+  sunset:  { clearColor: [0.90, 0.51, 0.35], overlay: '#ffb182' },
+  night:   { clearColor: [0.04, 0.06, 0.15], overlay: '#1a2a55' },
+  cave:    { clearColor: [0.04, 0.03, 0.03], overlay: '#0a0907' },
+  meadow:  { clearColor: [0.35, 0.55, 0.31], overlay: '' },
+};
+
+function applyScene(name) {
+  const preset = SCENE_PRESETS[name] ?? SCENE_PRESETS.default;
+  renderer?.setClearColor(...preset.clearColor);
+  const atmoOverlay = document.getElementById('atmo-overlay');
+  if (atmoOverlay) {
+    if (preset.overlay) {
+      atmoOverlay.style.background = preset.overlay;
+      atmoOverlay.style.opacity = '1';
+      atmoOverlay.style.mixBlendMode = 'multiply';
+    } else {
+      atmoOverlay.style.background = '';
+      atmoOverlay.style.opacity = '0';
+    }
+  }
+  const sceneGrid = document.getElementById('scene-grid');
+  if (sceneGrid) {
+    sceneGrid.querySelectorAll('.scene-chip').forEach(function(chip) {
+      chip.classList.toggle('is-active', chip.dataset.scene === name);
+    });
+  }
+}
+
 const els = {
   dropzoneWrap: document.getElementById('dropzone-wrap'),
   dropzone: document.getElementById('dropzone'),
@@ -174,6 +207,7 @@ async function runMerge() {
       if (!renderer) {
         resizeCanvas();
         renderer = await createRenderer(els.canvas);
+        applyScene('day');
       }
       renderer.setGrid(grid);
     }
@@ -314,6 +348,14 @@ els.exportBtn.addEventListener('click', () => {
   } catch (err) {
     alert(`Export failed: ${err instanceof Error ? err.message : err}`);
   }
+});
+
+document.getElementById('scene-grid')?.addEventListener('click', function(e) {
+  var chip = e.target.closest('.scene-chip');
+  if (!chip) return;
+  document.querySelectorAll('#scene-grid .scene-chip').forEach(function(c) { c.classList.remove('is-active'); });
+  chip.classList.add('is-active');
+  applyScene(chip.dataset.scene);
 });
 
 resizeObserver = new ResizeObserver(() => resizeCanvas());

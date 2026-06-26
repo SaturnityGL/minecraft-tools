@@ -579,14 +579,41 @@
   <a href="/" class="brand">BlockForge</a>
   <nav>
     <a href="/">Home</a>
-    <a href="/app/" class="active">Pixel Art</a>
-    <a href="/viewer/">Viewer</a>
-    <a href="/merger/">Merger</a>
-    <a href="/guide/">Guide</a>
-    <a href="/blocks/">Blocks</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+      </div>
+    </div>
     <a href="/faq/">FAQ</a>
   </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
 </header>
+<div class="pixel-art-subnav">
+  <span class="pixel-art-subnav__label">Pixel Art:</span>
+  <a href="/app/" class="active">Generator</a>
+  <a href="/guide/">Guide</a>
+  <a href="/blocks/">Block reference</a>
+</div>
 
 <div id="appShell">
 <div id="appFrame">
