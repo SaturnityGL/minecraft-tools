@@ -1,27 +1,27 @@
 <!-- ============================================================
-     viewer/index.html - BlockForge Schematic Viewer
+     merger/index.html - BlockForge Schematic Merger
      ============================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlockForge Schematic Viewer: Preview .litematic and .schem in Your Browser</title>
-  <meta name="description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded, runs entirely in your browser.">
-  <link rel="canonical" href="https://blockforge.saturnitystools.com/viewer/">
+  <title>BlockForge Schematic Merger: Combine Multiple Schematics Into One</title>
+  <meta name="description" content="Combine multiple Minecraft schematic files with 3D offsets and Y-rotation. Preview the merged result and export as .litematic or .schem. Runs entirely in your browser.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/merger/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blockforge.saturnitystools.com/viewer/">
-  <meta property="og:title" content="BlockForge Schematic Viewer">
-  <meta property="og:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/merger/">
+  <meta property="og:title" content="BlockForge Schematic Merger">
+  <meta property="og:description" content="Combine multiple Minecraft schematic files with 3D offsets and Y-rotation. Preview the merged result and export as .litematic or .schem. Nothing uploaded.">
   <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
   <meta property="og:site_name" content="BlockForge">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BlockForge Schematic Viewer">
-  <meta name="twitter:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta name="twitter:title" content="BlockForge Schematic Merger">
+  <meta name="twitter:description" content="Combine multiple Minecraft schematic files with 3D offsets and Y-rotation. Preview the merged result and export as .litematic or .schem. Nothing uploaded.">
   <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
 
   <!-- Favicons -->
@@ -41,12 +41,12 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "@id": "https://blockforge.saturnitystools.com/#viewer",
-    "name": "BlockForge Schematic Viewer",
-    "url": "https://blockforge.saturnitystools.com/viewer/",
-    "description": "Open Minecraft schematic files (.litematic, .schem, .schematic, .nbt) and fly around them in 3D in your browser. Nothing is uploaded.",
+    "@id": "https://blockforge.saturnitystools.com/#merger",
+    "name": "BlockForge Schematic Merger",
+    "url": "https://blockforge.saturnitystools.com/merger/",
+    "description": "Combine multiple Minecraft schematic files with 3D offsets and Y-rotation. Preview the merged result and export as .litematic or .schem. Nothing is uploaded.",
     "applicationCategory": "MultimediaApplication",
-    "applicationSubCategory": "Minecraft schematic viewer",
+    "applicationSubCategory": "Minecraft schematic merger",
     "operatingSystem": "Any (web browser)",
     "browserRequirements": "Modern browser with WebGL enabled",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -56,10 +56,9 @@
   </script>
 
   <style>
-    /* Viewer-specific layout. Base nav/footer/body come from site.css. */
     [hidden] { display: none !important; }
 
-    main.viewer-main {
+    main.merger-main {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -69,7 +68,6 @@
       margin: 0;
     }
 
-    /* Drop zone (initial state, before a file is loaded) */
     .dropzone-wrap {
       flex: 1;
       display: flex;
@@ -129,29 +127,176 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .dropzone-btn:hover {
-      background: var(--color-accent-hover);
-    }
+    .dropzone-btn:hover { background: var(--color-accent-hover); }
     .dropzone .hint {
       margin-top: 20px;
       font-size: 13px;
       color: var(--color-text-muted);
     }
 
-    /* Loaded view (after a file is parsed) */
-    .viewer-stage {
+    .merger-stage {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 280px;
+      grid-template-columns: 300px 1fr 280px;
       gap: 0;
       min-height: 0;
       background: var(--color-bg-deep);
     }
-    @media (max-width: 768px) {
-      .viewer-stage {
+    @media (max-width: 900px) {
+      .merger-stage {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
+        grid-template-rows: auto 1fr auto;
       }
+    }
+
+    .schem-panel {
+      background: var(--color-bg-surface);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .schem-panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .schem-panel-header h2 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin: 0;
+    }
+    .add-file-btn {
+      padding: 4px 10px;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .add-file-btn:hover { background: var(--color-accent-hover); }
+
+    .schem-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .schem-list:empty::after {
+      content: 'Drop files here or click Add';
+      display: block;
+      padding: 20px 14px;
+      color: var(--color-text-muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .schem-drop-target {
+      border: 2px dashed var(--color-border);
+      margin: 8px;
+      border-radius: 4px;
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      transition: border-color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .schem-drop-target.is-dragover {
+      border-color: var(--color-accent);
+      background: var(--color-bg-hover);
+    }
+
+    .schem-row {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 12px;
+    }
+    .schem-row:last-child { border-bottom: none; }
+    .schem-row-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .schem-name {
+      flex: 1;
+      font-family: 'Consolas', 'Monaco', monospace;
+      color: var(--color-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .schem-tag {
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 3px;
+      color: var(--color-text-muted);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .schem-vis-btn, .schem-rm-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 3px;
+    }
+    .schem-vis-btn:hover { color: var(--color-text); background: var(--color-bg-hover); }
+    .schem-rm-btn:hover { color: #e05555; background: rgba(224,85,85,0.1); }
+    .schem-row.is-hidden .schem-name { opacity: 0.4; }
+
+    .schem-dims {
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+
+    .schem-offset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .schem-offset-grid label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      color: var(--color-text-muted);
+      font-size: 10px;
+    }
+    .schem-offset-grid input[type="number"] {
+      width: 100%;
+      padding: 3px 5px;
+      background: var(--color-bg-deep);
+      border: 1px solid var(--color-border);
+      border-radius: 3px;
+      color: var(--color-text);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 11px;
+    }
+    .schem-rot-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-text-muted);
+      font-size: 10px;
+    }
+    .schem-rot-row select {
+      padding: 3px 5px;
+      background: var(--color-bg-deep);
+      border: 1px solid var(--color-border);
+      border-radius: 3px;
+      color: var(--color-text);
+      font-size: 11px;
     }
 
     .canvas-wrap {
@@ -166,22 +311,8 @@
       height: 100%;
       cursor: grab;
     }
-    .canvas-wrap canvas:active {
-      cursor: grabbing;
-    }
-    .hud-info {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      background: rgba(20, 16, 10, 0.85);
-      border: 1px solid rgba(212, 200, 176, 0.2);
-      border-radius: 4px;
-      color: #e8dfc8;
-      font-size: 12px;
-      padding: 6px 12px;
-      pointer-events: none;
-      font-family: 'Consolas', 'Monaco', monospace;
-    }
+    .canvas-wrap canvas:active { cursor: grabbing; }
+
     .hud-help {
       position: absolute;
       top: 12px;
@@ -211,15 +342,6 @@
     }
     .overlay-center .status-text { font-size: 16px; opacity: 0.8; }
     .overlay-center .error-text { color: #ff8a8a; font-size: 14px; max-width: 480px; }
-    .overlay-center .retry-btn {
-      padding: 8px 18px;
-      background: var(--color-accent);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-    }
 
     .sidebar {
       background: var(--color-bg-surface);
@@ -227,13 +349,6 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-    }
-    @media (max-width: 768px) {
-      .sidebar {
-        border-left: none;
-        border-top: 1px solid var(--color-border);
-        max-height: 40vh;
-      }
     }
     .sidebar-section {
       padding: 14px 16px;
@@ -247,131 +362,12 @@
       letter-spacing: 1px;
       margin-bottom: 8px;
     }
-    .file-name {
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 12px;
-      color: var(--color-text-muted);
-      word-break: break-all;
-      margin-bottom: 10px;
-    }
-    .file-stats {
+    .bbox-stats {
       font-size: 13px;
       color: var(--color-text);
       line-height: 1.7;
     }
-    .file-stats strong { color: var(--color-text); }
-    .new-file-btn {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 6px 12px;
-      background: transparent;
-      color: var(--color-accent);
-      border: 1px solid var(--color-accent);
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      font-family: var(--font-body);
-    }
-    .new-file-btn:hover {
-      background: var(--color-accent);
-      color: white;
-    }
-
-    /* Atmosphere tint overlay sits on top of the canvas, below the HUD */
-    .atmosphere-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      mix-blend-mode: multiply;
-      transition: background 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
-    }
-    .atmosphere-overlay.is-on { opacity: 1; }
-
-    /* Scene preset chip-grid */
-    .scene-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-    }
-    .scene-chip {
-      padding: 6px 8px;
-      background: var(--color-bg-surface);
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      color: var(--color-text);
-      cursor: pointer;
-      font-family: var(--font-body);
-      font-size: 12px;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: border-color 0.12s, background 0.12s;
-    }
-    .scene-chip:hover { background: var(--color-bg-hover); }
-    .scene-chip.is-active {
-      border-color: var(--color-accent);
-      background: var(--color-bg-hover);
-    }
-    .scene-swatch {
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      border: 1px solid rgba(0,0,0,0.15);
-    }
-
-    .floor-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--color-text);
-      cursor: pointer;
-    }
-    .floor-row input { accent-color: var(--color-accent); cursor: pointer; }
-    .floor-note {
-      display: block;
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--color-text-muted);
-    }
-
-    .custom-color-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--color-text-muted);
-    }
-    .custom-color-row input[type="color"] {
-      width: 32px;
-      height: 28px;
-      padding: 0;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      background: none;
-      cursor: pointer;
-    }
-
-    /* Unmapped row in materials list — slight muted styling so it's clearly separate */
-    .material-row.is-unmapped {
-      background: rgba(204, 0, 0, 0.06);
-      border-top: 1px solid var(--color-border);
-    }
-    .material-row.is-unmapped .material-name {
-      color: var(--color-text-muted);
-      font-style: italic;
-    }
-    .material-row.is-unmapped .material-name::before {
-      content: '! ';
-      color: var(--color-accent);
-      font-weight: 700;
-      font-style: normal;
-    }
+    .bbox-stats strong { color: var(--color-text); }
 
     .y-slider-row {
       display: flex;
@@ -387,6 +383,39 @@
       flex: 1;
       accent-color: var(--color-accent);
     }
+
+    .export-fmt-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .export-fmt-row label { font-size: 12px; color: var(--color-text-muted); }
+    .export-fmt-row select {
+      flex: 1;
+      padding: 5px 8px;
+      background: var(--color-bg-deep);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text);
+      font-size: 13px;
+    }
+    .export-btn {
+      display: block;
+      width: 100%;
+      padding: 9px 0;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .export-btn:hover { background: var(--color-accent-hover); }
+    .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .material-toggle {
       width: 100%;
@@ -406,11 +435,11 @@
     .material-toggle:hover { color: var(--color-accent); }
     .material-list {
       margin-top: 10px;
-      max-height: 320px;
+      max-height: 300px;
       overflow-y: auto;
       border: 1px solid var(--color-border);
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.02);
+      background: rgba(0,0,0,0.02);
     }
     .material-row {
       display: flex;
@@ -422,11 +451,9 @@
     }
     .material-row:last-child { border-bottom: none; }
     .material-name { color: var(--color-text); }
-    .material-count { color: var(--color-text-muted); font-family: 'Consolas', 'Monaco', monospace; }
+    .material-count { color: var(--color-text-muted); font-family: 'Consolas','Monaco',monospace; }
 
-    /* Hide the file input visually but keep it in the accessibility tree
-       so the dropzone <label for> still opens the picker and assistive tech can use it. */
-    #file-input {
+    #file-input-merger {
       position: absolute;
       width: 1px; height: 1px;
       padding: 0; margin: -1px;
@@ -444,62 +471,56 @@
   <nav>
     <a href="/">Home</a>
     <a href="/app/">Pixel Art</a>
-    <a href="/viewer/" class="active">Viewer</a>
-    <a href="/merger/">Merger</a>
+    <a href="/viewer/">Viewer</a>
+    <a href="/merger/" class="active">Merger</a>
     <a href="/guide/">Guide</a>
     <a href="/blocks/">Blocks</a>
     <a href="/faq/">FAQ</a>
   </nav>
 </header>
 
-<main class="viewer-main">
+<main class="merger-main">
 
-  <!-- Initial state: drop zone -->
+  <input id="file-input-merger" type="file" accept=".litematic,.schem,.schematic,.nbt" multiple>
+
   <section id="dropzone-wrap" class="dropzone-wrap">
-    <label class="dropzone" id="dropzone" for="file-input">
-      <h1>Schematic Viewer</h1>
-      <p>Drop a Minecraft schematic file here to preview it in 3D.</p>
+    <label class="dropzone" id="dropzone" for="file-input-merger">
+      <h1>Schematic Merger</h1>
+      <p>Combine multiple Minecraft schematic files into one. Set X/Y/Z offsets and Y-rotation for each, preview in 3D, then export as .litematic or .schem.</p>
       <p>Nothing uploaded, everything runs in your browser.</p>
       <span class="formats">.litematic &nbsp;.schem &nbsp;.schematic &nbsp;.nbt</span>
       <div>
-        <span class="dropzone-btn">Choose a file</span>
+        <span class="dropzone-btn">Choose files</span>
       </div>
-      <p class="hint">Fly around with WASD, drag to look, scroll to zoom.</p>
-      <p class="hint" style="margin-top:6px;font-style:italic;">Large builds will take a second to load.</p>
-      <input id="file-input" type="file" accept=".litematic,.schem,.schematic,.nbt">
+      <p class="hint">Drop multiple files at once, or add them one by one.</p>
     </label>
   </section>
 
-  <!-- Loaded state: 3D viewer + sidebar -->
-  <section id="viewer-stage" class="viewer-stage" hidden>
+  <section id="merger-stage" class="merger-stage" hidden>
+    <div class="schem-panel">
+      <div class="schem-panel-header">
+        <h2>Schematics</h2>
+        <button type="button" class="add-file-btn" id="add-file-btn">+ Add</button>
+      </div>
+      <div class="schem-list" id="schem-list"></div>
+      <div class="schem-drop-target" id="schem-drop-target">Drop more files here</div>
+    </div>
+
     <div class="canvas-wrap" id="canvas-wrap">
-      <canvas id="viewer-canvas"></canvas>
-
-      <div id="atmosphere-overlay" class="atmosphere-overlay"></div>
-
-      <div class="hud-help">
-        WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down
+      <canvas id="merger-canvas"></canvas>
+      <div class="hud-help">WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down</div>
+      <div id="overlay-merging" class="overlay-center" hidden>
+        <span class="status-text">Merging...</span>
       </div>
-
-      <div id="hud-info" class="hud-info" hidden></div>
-
-      <div id="overlay-loading" class="overlay-center" hidden>
-        <span class="status-text">Loading schematic...</span>
-      </div>
-
       <div id="overlay-error" class="overlay-center" hidden>
         <span class="error-text" id="error-text"></span>
-        <button class="retry-btn" id="error-retry">Pick another file</button>
       </div>
     </div>
 
     <aside class="sidebar">
       <div class="sidebar-section">
-        <h2>File</h2>
-        <div class="file-name" id="file-name"></div>
-        <div class="file-stats" id="file-stats"></div>
-        <button type="button" class="new-file-btn" id="new-file-btn">Open a different file</button>
-        <span class="floor-note" style="font-style:italic;">Large builds will take a second to load.</span>
+        <h2>Bounding Box</h2>
+        <div class="bbox-stats" id="bbox-stats">No schematics loaded.</div>
       </div>
 
       <div class="sidebar-section">
@@ -511,41 +532,15 @@
       </div>
 
       <div class="sidebar-section">
-        <h2>Scene</h2>
-        <div class="scene-grid" id="scene-grid">
-          <button type="button" class="scene-chip is-active" data-scene="default">
-            <span class="scene-swatch" style="background:#1a1510;"></span>Studio
-          </button>
-          <button type="button" class="scene-chip" data-scene="day">
-            <span class="scene-swatch" style="background:#87ceeb;"></span>Day
-          </button>
-          <button type="button" class="scene-chip" data-scene="sunset">
-            <span class="scene-swatch" style="background:#e6815a;"></span>Sunset
-          </button>
-          <button type="button" class="scene-chip" data-scene="night">
-            <span class="scene-swatch" style="background:#0b1027;"></span>Night
-          </button>
-          <button type="button" class="scene-chip" data-scene="cave">
-            <span class="scene-swatch" style="background:#0a0907;"></span>Cave
-          </button>
-          <button type="button" class="scene-chip" data-scene="meadow">
-            <span class="scene-swatch" style="background:#5a8b4f;"></span>Meadow
-          </button>
+        <h2>Export</h2>
+        <div class="export-fmt-row">
+          <label for="export-fmt">Format</label>
+          <select id="export-fmt">
+            <option value="litematic">.litematic</option>
+            <option value="schem">.schem v2</option>
+          </select>
         </div>
-        <div class="custom-color-row">
-          <input type="color" id="custom-color" value="#1a1510" title="Custom background">
-          <span>Custom background</span>
-        </div>
-        <span class="floor-note">Atmosphere is a background + soft tint, not real lighting.</span>
-      </div>
-
-      <div class="sidebar-section">
-        <h2>Floor</h2>
-        <label class="floor-row">
-          <input type="checkbox" id="floor-toggle">
-          <span>Show grass floor under the build</span>
-        </label>
-        <span class="floor-note">Adds a grass plane below the structure for scale and color. Excluded from material counts.</span>
+        <button type="button" class="export-btn" id="export-btn" disabled>Export merged</button>
       </div>
 
       <div class="sidebar-section">
@@ -603,6 +598,6 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/viewer/viewer.js"></script>
+<script type="module" src="/assets/js/merger/merger.js"></script>
 </body>
 </html>
