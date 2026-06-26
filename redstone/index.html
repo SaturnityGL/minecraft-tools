@@ -1,0 +1,308 @@
+<!-- ============================================================
+     redstone/index.html - BlockForge Redstone Hub
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockForge Redstone Tools: Schematic Generators for Logic Builders</title>
+  <meta name="description" content="Browser tools for redstone engineers. Convert files into ROM cartridges, build memory matrices, and export ready-to-place Minecraft schematics. No install, no upload.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/redstone/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/redstone/">
+  <meta property="og:title" content="BlockForge Redstone Tools">
+  <meta property="og:description" content="Browser tools for redstone engineers. Convert files into ROM cartridges and export Minecraft schematics.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BlockForge Redstone Tools">
+  <meta name="twitter:description" content="Browser tools for redstone engineers. Convert files into ROM cartridges and export Minecraft schematics.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Consent -->
+  <script src="/assets/js/consent.js?v=2" defer></script>
+
+  <link rel="stylesheet" href="/assets/css/site.css">
+
+  <!-- JSON-LD: CollectionPage with ItemList of redstone tools -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": "https://blockforge.saturnitystools.com/redstone/#collection",
+    "url": "https://blockforge.saturnitystools.com/redstone/",
+    "name": "BlockForge Redstone Tools",
+    "description": "Browser-based schematic tools for Minecraft redstone engineers.",
+    "isPartOf": { "@id": "https://blockforge.saturnitystools.com/#website" },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "url": "https://blockforge.saturnitystools.com/redstone/rom/",
+          "name": "Redstone ROM Builder"
+        }
+      ]
+    }
+  }
+  </script>
+
+  <style>
+    main.hub-main {
+      flex: 1;
+      max-width: 1080px;
+      width: 100%;
+      margin: 32px auto 48px;
+      padding: 0 20px;
+    }
+
+    .hub-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .hub-header h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .hub-header p {
+      color: var(--color-text-muted);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 700px) {
+      .hub-grid { grid-template-columns: 1fr; }
+    }
+    .hub-card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 8px);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.12s, transform 0.12s, box-shadow 0.12s;
+    }
+    .hub-card:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .hub-card.is-coming-soon {
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none;
+    }
+    .hub-card h3 {
+      font-family: var(--font-display);
+      font-size: 19px;
+      color: var(--color-text);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .hub-card .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--color-accent);
+      color: white;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .hub-card .tag.tag-soon {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .hub-card p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.55;
+      margin-bottom: 12px;
+      flex: 1;
+    }
+    .hub-card .cta {
+      align-self: flex-start;
+      font-size: 13px;
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    .primer {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 8px);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .primer h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--color-text);
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .primer p {
+      color: var(--color-text);
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+    .primer p:last-child { margin-bottom: 0; }
+    .primer strong { color: var(--color-text); }
+    .primer code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+      </div>
+    </div>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="hub-main">
+
+  <div class="hub-header">
+    <h1>Redstone Tools</h1>
+    <p>Schematic generators for redstone engineers. Build memory cartridges, sequencers, and logic blocks straight from your browser, then drop the schematic into your world.</p>
+  </div>
+
+  <div class="hub-grid">
+    <a class="hub-card" href="/redstone/rom/">
+      <h3>ROM Builder <span class="tag">New</span></h3>
+      <p>Drop any binary file and get a working redstone ROM cartridge. Each byte becomes a row of redstone blocks on a stone substrate. Configure word size, bit order, and substrate. Export .litematic or .schem.</p>
+      <span class="cta">Open ROM Builder &rarr;</span>
+    </a>
+
+    <div class="hub-card is-coming-soon">
+      <h3>Sequencer Generator <span class="tag tag-soon">Planned</span></h3>
+      <p>Generate stepped redstone sequencers from a step list. Choose tick interval, pulse width, and lane count. Coming next.</p>
+      <span class="cta">In design</span>
+    </div>
+
+    <div class="hub-card is-coming-soon">
+      <h3>Decoder / Demuxer <span class="tag tag-soon">Planned</span></h3>
+      <p>Drop in N address bits and get a compact decoder schematic with 2^N output lines. Useful for ROM address buses or display drivers.</p>
+      <span class="cta">In design</span>
+    </div>
+  </div>
+
+  <div class="primer">
+    <h2>What is a redstone ROM?</h2>
+    <p>A redstone <strong>ROM (read-only memory)</strong> stores data as a grid of blocks. Each cell is either <strong>set</strong> (a powered block like a redstone block) or <strong>clear</strong> (empty). Other redstone machines read the grid row by row using comparators or observers to pull bits onto a data bus.</p>
+    <p>ROMs are the storage layer behind most non-trivial redstone computers. They drive lookup tables (e.g. <code>sin(x)</code> for trig engines), character displays, automatic farms with programmed timing, instrument sequencers, and decoders for custom assembly languages.</p>
+    <p>The <strong>ROM Builder</strong> here saves you from the most tedious part: hand-placing thousands of redstone blocks. Drop your file, pick a layout, and export a finished schematic. Drop the schematic into your build with Litematica or WorldEdit and you have a working cartridge.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+</body>
+</html>

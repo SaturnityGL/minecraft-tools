@@ -1,27 +1,27 @@
 <!-- ============================================================
-     viewer/index.html - BlockForge Schematic Viewer
+     redstone/rom/index.html - BlockForge Redstone ROM Builder
      ============================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlockForge Schematic Viewer: Preview .litematic and .schem in Your Browser</title>
-  <meta name="description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded, runs entirely in your browser.">
-  <link rel="canonical" href="https://blockforge.saturnitystools.com/viewer/">
+  <title>Redstone ROM Builder: Turn Any File Into a Minecraft Cartridge</title>
+  <meta name="description" content="Drop any binary file and get a working redstone ROM cartridge as a Minecraft schematic. Configure word size, bit order, and substrate. Export as .litematic or .schem. Runs in your browser.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/redstone/rom/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://blockforge.saturnitystools.com/viewer/">
-  <meta property="og:title" content="BlockForge Schematic Viewer">
-  <meta property="og:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/redstone/rom/">
+  <meta property="og:title" content="Redstone ROM Builder for Minecraft">
+  <meta property="og:description" content="Turn any file into a working redstone ROM cartridge. Configure word size, bit order, and substrate block. Export .litematic or .schem. Nothing uploaded.">
   <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
   <meta property="og:site_name" content="BlockForge">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BlockForge Schematic Viewer">
-  <meta name="twitter:description" content="Open a Minecraft schematic file and fly around it in 3D. Supports .litematic, .schem, .schematic, and .nbt. Nothing uploaded.">
+  <meta name="twitter:title" content="Redstone ROM Builder for Minecraft">
+  <meta name="twitter:description" content="Turn any file into a working redstone ROM cartridge. Export .litematic or .schem.">
   <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
 
   <!-- Favicons -->
@@ -41,12 +41,12 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "@id": "https://blockforge.saturnitystools.com/#viewer",
-    "name": "BlockForge Schematic Viewer",
-    "url": "https://blockforge.saturnitystools.com/viewer/",
-    "description": "Open Minecraft schematic files (.litematic, .schem, .schematic, .nbt) and fly around them in 3D in your browser. Nothing is uploaded.",
+    "@id": "https://blockforge.saturnitystools.com/#rom-builder",
+    "name": "BlockForge Redstone ROM Builder",
+    "url": "https://blockforge.saturnitystools.com/redstone/rom/",
+    "description": "Convert any binary file into a Minecraft redstone ROM cartridge schematic. Configure word size, bit order, row spacing, and substrate. Export as .litematic or .schem. Nothing is uploaded.",
     "applicationCategory": "MultimediaApplication",
-    "applicationSubCategory": "Minecraft schematic viewer",
+    "applicationSubCategory": "Minecraft redstone schematic generator",
     "operatingSystem": "Any (web browser)",
     "browserRequirements": "Modern browser with WebGL enabled",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -56,10 +56,9 @@
   </script>
 
   <style>
-    /* Viewer-specific layout. Base nav/footer/body come from site.css. */
     [hidden] { display: none !important; }
 
-    main.viewer-main {
+    main.rom-main {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -68,17 +67,10 @@
       padding: 0;
       margin: 24px auto 40px;
     }
-    main.viewer-main section { margin-bottom: 0; }
-    main.viewer-main section + section { padding-top: 0; }
-    main.viewer-main section + section::before { display: none; }
+    main.rom-main section { margin-bottom: 0; }
+    main.rom-main section + section { padding-top: 0; }
+    main.rom-main section + section::before { display: none; }
 
-    .viewer-stage {
-      border: 1px solid var(--color-border);
-      border-radius: var(--card-radius, 8px);
-      overflow: hidden;
-    }
-
-    /* Drop zone (initial state, before a file is loaded) */
     .dropzone-wrap {
       flex: 1;
       display: flex;
@@ -138,29 +130,112 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .dropzone-btn:hover {
-      background: var(--color-accent-hover);
-    }
+    .dropzone-btn:hover { background: var(--color-accent-hover); }
     .dropzone .hint {
       margin-top: 20px;
       font-size: 13px;
       color: var(--color-text-muted);
     }
 
-    /* Loaded view (after a file is parsed) */
-    .viewer-stage {
+    .rom-stage {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 280px;
+      grid-template-columns: 280px 1fr 300px;
       gap: 0;
-      min-height: 0;
+      min-height: 600px;
       background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 8px);
+      overflow: hidden;
     }
-    @media (max-width: 768px) {
-      .viewer-stage {
+    @media (max-width: 900px) {
+      .rom-stage {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
+        grid-template-rows: auto 1fr auto;
       }
+    }
+
+    .opts-panel {
+      background: var(--color-bg-surface);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .opts-panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    .opts-panel-header h2 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin: 0 0 6px;
+    }
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .file-row .file-name-display {
+      flex: 1;
+      font-family: 'Consolas', 'Monaco', monospace;
+      color: var(--color-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .change-file-btn {
+      padding: 3px 9px;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .change-file-btn:hover { background: var(--color-accent-hover); }
+
+    .opts-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+    }
+    .opt-row {
+      margin-bottom: 14px;
+    }
+    .opt-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .opt-row select, .opt-row input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+    .opt-row input[type="text"] {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+    }
+    .opt-help {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
     }
 
     .canvas-wrap {
@@ -175,22 +250,8 @@
       height: 100%;
       cursor: grab;
     }
-    .canvas-wrap canvas:active {
-      cursor: grabbing;
-    }
-    .hud-info {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      background: rgba(20, 16, 10, 0.85);
-      border: 1px solid rgba(212, 200, 176, 0.2);
-      border-radius: 4px;
-      color: #e8dfc8;
-      font-size: 12px;
-      padding: 6px 12px;
-      pointer-events: none;
-      font-family: 'Consolas', 'Monaco', monospace;
-    }
+    .canvas-wrap canvas:active { cursor: grabbing; }
+
     .hud-help {
       position: absolute;
       top: 12px;
@@ -220,15 +281,6 @@
     }
     .overlay-center .status-text { font-size: 16px; opacity: 0.8; }
     .overlay-center .error-text { color: #ff8a8a; font-size: 14px; max-width: 480px; }
-    .overlay-center .retry-btn {
-      padding: 8px 18px;
-      background: var(--color-accent);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-    }
 
     .sidebar {
       background: var(--color-bg-surface);
@@ -236,13 +288,6 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-    }
-    @media (max-width: 768px) {
-      .sidebar {
-        border-left: none;
-        border-top: 1px solid var(--color-border);
-        max-height: 40vh;
-      }
     }
     .sidebar-section {
       padding: 14px 16px;
@@ -256,49 +301,30 @@
       letter-spacing: 1px;
       margin-bottom: 8px;
     }
-    .file-name {
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 12px;
-      color: var(--color-text-muted);
-      word-break: break-all;
-      margin-bottom: 10px;
-    }
-    .file-stats {
+    .stats-list {
       font-size: 13px;
       color: var(--color-text);
       line-height: 1.7;
     }
-    .file-stats strong { color: var(--color-text); }
-    .new-file-btn {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 6px 12px;
-      background: transparent;
-      color: var(--color-accent);
-      border: 1px solid var(--color-accent);
-      border-radius: 4px;
+    .stats-list .muted { color: var(--color-text-muted); font-size: 11px; }
+    .stats-list .warn { color: var(--color-text-muted); font-size: 11px; margin-top: 4px; }
+    .stats-list strong { color: var(--color-text); }
+
+    .y-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .y-slider-row label {
       font-size: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      font-family: var(--font-body);
+      color: var(--color-text-muted);
+      min-width: 56px;
     }
-    .new-file-btn:hover {
-      background: var(--color-accent);
-      color: white;
+    .y-slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--color-accent);
     }
 
-    /* Atmosphere tint overlay sits on top of the canvas, below the HUD */
-    .atmosphere-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      mix-blend-mode: multiply;
-      transition: background 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
-    }
-    .atmosphere-overlay.is-on { opacity: 1; }
-
-    /* Scene preset chip-grid */
     .scene-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -332,110 +358,45 @@
       border: 1px solid rgba(0,0,0,0.15);
     }
 
-    .floor-row {
+    .export-fmt-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 13px;
-      color: var(--color-text);
-      cursor: pointer;
+      margin-bottom: 8px;
     }
-    .floor-row input { accent-color: var(--color-accent); cursor: pointer; }
-    .floor-note {
-      display: block;
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--color-text-muted);
-    }
-
-    .custom-color-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--color-text-muted);
-    }
-    .custom-color-row input[type="color"] {
-      width: 32px;
-      height: 28px;
-      padding: 0;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      background: none;
-      cursor: pointer;
-    }
-
-    /* Unmapped row in materials list — slight muted styling so it's clearly separate */
-    .material-row.is-unmapped {
-      background: rgba(204, 0, 0, 0.06);
-      border-top: 1px solid var(--color-border);
-    }
-    .material-row.is-unmapped .material-name {
-      color: var(--color-text-muted);
-      font-style: italic;
-    }
-    .material-row.is-unmapped .material-name::before {
-      content: '! ';
-      color: var(--color-accent);
-      font-weight: 700;
-      font-style: normal;
-    }
-
-    .y-slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .y-slider-row label {
-      font-size: 12px;
-      color: var(--color-text-muted);
-      min-width: 56px;
-    }
-    .y-slider-row input[type="range"] {
+    .export-fmt-row label { font-size: 12px; color: var(--color-text-muted); min-width: 50px; }
+    .export-fmt-row select, .export-fmt-row input {
       flex: 1;
-      accent-color: var(--color-accent);
-    }
-
-    .material-toggle {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      color: var(--color-text);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 0;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .material-toggle:hover { color: var(--color-accent); }
-    .material-list {
-      margin-top: 10px;
-      max-height: 320px;
-      overflow-y: auto;
+      padding: 5px 8px;
+      background: #fff;
       border: 1px solid var(--color-border);
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.02);
+      color: var(--color-text);
+      font-size: 13px;
     }
-    .material-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 10px;
-      border-bottom: 1px solid var(--color-border);
+    .export-fmt-row input {
+      font-family: 'Consolas', 'Monaco', monospace;
       font-size: 12px;
     }
-    .material-row:last-child { border-bottom: none; }
-    .material-name { color: var(--color-text); }
-    .material-count { color: var(--color-text-muted); font-family: 'Consolas', 'Monaco', monospace; }
+    .export-btn {
+      display: block;
+      width: 100%;
+      padding: 9px 0;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .export-btn:hover { background: var(--color-accent-hover); }
+    .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Hide the file input visually but keep it in the accessibility tree
-       so the dropzone <label for> still opens the picker and assistive tech can use it. */
-    #file-input {
+    #file-input-rom {
       position: absolute;
       width: 1px; height: 1px;
       padding: 0; margin: -1px;
@@ -444,6 +405,18 @@
       white-space: nowrap;
       border: 0;
     }
+
+    .intro-band {
+      background: rgba(0,0,0,0.04);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.55;
+      margin: 0 16px 12px;
+    }
+    .intro-band strong { color: var(--color-text); }
   </style>
 </head>
 <body>
@@ -484,61 +457,116 @@
   </script>
 </header>
 
-<main class="viewer-main">
+<main class="rom-main">
 
-  <!-- Initial state: drop zone -->
+  <input id="file-input-rom" type="file">
+
   <section id="dropzone-wrap" class="dropzone-wrap">
-    <label class="dropzone" id="dropzone" for="file-input">
-      <h1>Schematic Viewer</h1>
-      <p>Drop a Minecraft schematic file here to preview it in 3D.</p>
+    <label class="dropzone" id="dropzone" for="file-input-rom">
+      <h1>Redstone ROM Builder</h1>
+      <p>Drop any file and get a working redstone ROM cartridge as a Minecraft schematic. Each byte becomes a row of redstone blocks on a stone substrate, ready to drop into your build and read with comparators or observers.</p>
       <p>Nothing uploaded, everything runs in your browser.</p>
-      <span class="formats">.litematic &nbsp;.schem &nbsp;.schematic &nbsp;.nbt</span>
+      <span class="formats">.bin &nbsp;.rom &nbsp;any binary</span>
       <div>
         <span class="dropzone-btn">Choose a file</span>
       </div>
-      <p class="hint">Fly around with WASD, drag to look, scroll to zoom.</p>
-      <p class="hint" style="margin-top:6px;font-style:italic;">Large builds will take a second to load.</p>
-      <input id="file-input" type="file" accept=".litematic,.schem,.schematic,.nbt">
+      <p class="hint">Soft cap of 4,096 rows (32 KB at 8-bit). Increase word size for larger inputs.</p>
     </label>
   </section>
 
-  <!-- Loaded state: 3D viewer + sidebar -->
-  <section id="viewer-stage" class="viewer-stage" hidden>
+  <section id="rom-stage" class="rom-stage" hidden>
+    <div class="opts-panel">
+      <div class="opts-panel-header">
+        <h2>Source</h2>
+        <div class="file-row">
+          <span class="file-name-display" id="file-name">file.bin</span>
+          <button type="button" class="change-file-btn" id="change-file-btn">Change</button>
+        </div>
+      </div>
+
+      <div class="opts-list">
+        <div class="opt-row">
+          <label for="opt-wordbits">Word size</label>
+          <select id="opt-wordbits">
+            <option value="4">4-bit (nibble)</option>
+            <option value="8" selected>8-bit (byte)</option>
+            <option value="16">16-bit</option>
+            <option value="24">24-bit</option>
+            <option value="32">32-bit</option>
+          </select>
+          <div class="opt-help">Number of data bits per row. Wider word = fewer rows.</div>
+        </div>
+
+        <div class="opt-row">
+          <label for="opt-bitorder">Bit order along +X</label>
+          <select id="opt-bitorder">
+            <option value="lsb" selected>LSB first (bit 0 at X=0)</option>
+            <option value="msb">MSB first (bit 0 at X=max)</option>
+          </select>
+        </div>
+
+        <div class="opt-row">
+          <label for="opt-zspacing">Row spacing (Z)</label>
+          <select id="opt-zspacing">
+            <option value="0" selected>0 (dense)</option>
+            <option value="1">1 block gap</option>
+            <option value="2">2 block gap</option>
+            <option value="3">3 block gap</option>
+          </select>
+          <div class="opt-help">Gap between word rows. Useful for repeater placement.</div>
+        </div>
+
+        <div class="opt-row">
+          <label for="opt-substrate">Substrate block</label>
+          <select id="opt-substrate">
+            <option value="minecraft:stone" selected>Stone</option>
+            <option value="minecraft:cobblestone">Cobblestone</option>
+            <option value="minecraft:smooth_stone">Smooth Stone</option>
+            <option value="minecraft:polished_andesite">Polished Andesite</option>
+            <option value="minecraft:polished_blackstone">Polished Blackstone</option>
+            <option value="minecraft:iron_block">Iron Block</option>
+            <option value="minecraft:gray_concrete">Gray Concrete</option>
+          </select>
+        </div>
+
+        <div class="opt-row">
+          <label for="opt-on">ON-bit block</label>
+          <select id="opt-on">
+            <option value="minecraft:redstone_block" selected>Redstone Block</option>
+            <option value="minecraft:redstone_lamp[lit=true]">Redstone Lamp (lit)</option>
+            <option value="minecraft:emerald_block">Emerald Block</option>
+            <option value="minecraft:diamond_block">Diamond Block</option>
+            <option value="minecraft:gold_block">Gold Block</option>
+            <option value="minecraft:lime_concrete">Lime Concrete</option>
+          </select>
+          <div class="opt-help">Block placed where a bit is 1. OFF bits are left empty.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="canvas-wrap" id="canvas-wrap">
-      <canvas id="viewer-canvas"></canvas>
-
-      <div id="atmosphere-overlay" class="atmosphere-overlay"></div>
-
-      <div class="hud-help">
-        WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down
+      <canvas id="rom-canvas"></canvas>
+      <div id="atmo-overlay" style="position:absolute;inset:0;pointer-events:none;border-radius:inherit;"></div>
+      <div class="hud-help">WASD fly &nbsp;|&nbsp; drag look &nbsp;|&nbsp; scroll zoom &nbsp;|&nbsp; shift/space up-down</div>
+      <div id="overlay-building" class="overlay-center" hidden>
+        <span class="status-text">Building cartridge...</span>
       </div>
-
-      <div id="hud-info" class="hud-info" hidden></div>
-
-      <div id="overlay-loading" class="overlay-center" hidden>
-        <span class="status-text">Loading schematic...</span>
-      </div>
-
       <div id="overlay-error" class="overlay-center" hidden>
         <span class="error-text" id="error-text"></span>
-        <button class="retry-btn" id="error-retry">Pick another file</button>
       </div>
     </div>
 
     <aside class="sidebar">
       <div class="sidebar-section">
-        <h2>File</h2>
-        <div class="file-name" id="file-name"></div>
-        <div class="file-stats" id="file-stats"></div>
-        <button type="button" class="new-file-btn" id="new-file-btn">Open a different file</button>
-        <span class="floor-note" style="font-style:italic;">Large builds will take a second to load.</span>
+        <h2>Cartridge</h2>
+        <div class="stats-list" id="stats-list">No file loaded.</div>
       </div>
 
       <div class="sidebar-section">
         <h2>Y limit</h2>
         <div class="y-slider-row">
-          <label for="y-slider">Y: <span id="y-value">0</span></label>
-          <input type="range" id="y-slider" min="0" max="1" step="1" value="0">
+          <label for="y-slider">Y: <span id="y-value">1</span></label>
+          <input type="range" id="y-slider" min="0" max="1" step="1" value="1">
         </div>
       </div>
 
@@ -564,28 +592,22 @@
             <span class="scene-swatch" style="background:#5a8b4f;"></span>Meadow
           </button>
         </div>
-        <div class="custom-color-row">
-          <input type="color" id="custom-color" value="#1a1510" title="Custom background">
-          <span>Custom background</span>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Export</h2>
+        <div class="export-fmt-row">
+          <label for="export-name">Name</label>
+          <input type="text" id="export-name" value="rom" autocomplete="off" spellcheck="false">
         </div>
-        <span class="floor-note">Atmosphere is a background + soft tint, not real lighting.</span>
-      </div>
-
-      <div class="sidebar-section">
-        <h2>Floor</h2>
-        <label class="floor-row">
-          <input type="checkbox" id="floor-toggle">
-          <span>Show grass floor under the build</span>
-        </label>
-        <span class="floor-note">Adds a grass plane below the structure for scale and color. Excluded from material counts.</span>
-      </div>
-
-      <div class="sidebar-section">
-        <button class="material-toggle" id="material-toggle" aria-expanded="false">
-          <span>Materials (<span id="material-count">0</span>)</span>
-          <span id="material-chevron">+</span>
-        </button>
-        <div class="material-list" id="material-list" hidden></div>
+        <div class="export-fmt-row">
+          <label for="export-fmt">Format</label>
+          <select id="export-fmt">
+            <option value="litematic">.litematic</option>
+            <option value="schem">.schem v2</option>
+          </select>
+        </div>
+        <button type="button" class="export-btn" id="export-btn" disabled>Export cartridge</button>
       </div>
     </aside>
   </section>
@@ -637,6 +659,6 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/viewer/viewer.js"></script>
+<script type="module" src="/assets/js/redstone/rom.js"></script>
 </body>
 </html>
