@@ -1,5 +1,5 @@
 /* ============================================================
-   site.css - BlockForge
+   site.css - my site BlockForge
    Cozy Minecraft + warm modern web.
    Blurred MC vista background, floating translucent cards,
    pixel-button CTAs, sign-style nav with stone button PNGs.
@@ -25,7 +25,7 @@
 }
 
 :root {
-  /* Palette - warmer/brighter Minecraft-inspired surface with Saturnity-red accents */
+  /* Palette - warmer/brighter Minecraft-inspired surface with red accents */
   --color-bg:           #2a2318;
   --color-bg-deep:      #1a1510;
   --color-bg-surface:   #f5f0e8;
@@ -289,12 +289,15 @@ img { max-width: 100%; height: auto; display: block; }
   background-image: url('/assets/img/nav/StoneMenuButton_Active.png');
   color: var(--mc-yellow);
 }
+.nav-dropdown {
+  width: var(--nav-btn-w);
+}
 .nav-dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: var(--nav-btn-w);
+  left: 0;
+  right: auto;
+  width: min(var(--nav-btn-w), calc(100vw - 32px));
   min-width: 0;
   background: rgba(20, 16, 12, 0.95);
   border: 2px solid rgba(255,255,255,0.12);
@@ -305,11 +308,14 @@ img { max-width: 100%; height: auto; display: block; }
   gap: 4px;
   z-index: 200;
   margin-top: 4px;
+  box-sizing: border-box;
 }
-.nav-dropdown-menu a {
-  display: block;
+.site-header nav .nav-dropdown-menu a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 6px 12px;
+  padding: 6px 10px;
   font-family: var(--font-display);
   font-size: 0.78rem;
   color: #fff;
@@ -322,6 +328,7 @@ img { max-width: 100%; height: auto; display: block; }
   background-size: 100% 100%;
   border-radius: 2px;
   image-rendering: pixelated;
+  line-height: 1;
 }
 .nav-dropdown-menu a:hover {
   background-image: url('/assets/img/nav/StoneMenuButton_HoverOver.png');
