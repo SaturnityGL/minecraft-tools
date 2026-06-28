@@ -895,6 +895,7 @@
         <label><input type="radio" name="exportFmt" value="datapack"> Datapack (.zip)</label>
         <label><input type="radio" name="exportFmt" value="schem"> Sponge Schematic (.schem)</label>
         <label><input type="radio" name="exportFmt" value="litematic"> Litematica (.litematic)</label>
+        <label><input type="radio" name="exportFmt" value="png"> PNG Image (.png)</label>
       </div>
     </div>
     <div class="modal-row" id="exportOrientRow">
@@ -1872,6 +1873,9 @@ async function doExport() {
 
   } else if (fmt === 'litematic') {
     await exportLitematic();
+
+  } else if (fmt === 'png') {
+    exportPng();
   }
 
   closeModal('exportOverlay');
@@ -1967,6 +1971,47 @@ function packBlockStates(indices, paletteSize) {
     pairs.push([Number(lo), Number(hi)]);
   }
   return pairs;
+}
+
+function exportPng() {
+  const { grid, palette, gridW, gridH } = result;
+  const oc = document.createElement('canvas');
+  oc.width = gridW * TILE;
+  oc.height = gridH * TILE;
+  const ctx = oc.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  if (showTextures && sprite && sprite.complete) {
+    for (let r = 0; r < gridH; r++) {
+      for (let c = 0; c < gridW; c++) {
+        const idx = grid[r * gridW + c];
+        if (idx < 0) continue;
+        const blockId = palette[idx].id;
+        const slot = blockIndex[blockId];
+        if (slot == null) {
+          const col2 = palette[idx].color;
+          ctx.fillStyle = `rgb(${col2[0]},${col2[1]},${col2[2]})`;
+          ctx.fillRect(c*TILE, r*TILE, TILE, TILE);
+        } else {
+          const sc = slot % SPRITE_COLS;
+          const sr = Math.floor(slot / SPRITE_COLS);
+          ctx.drawImage(sprite, sc*16, sr*16, 16, 16, c*TILE, r*TILE, TILE, TILE);
+        }
+      }
+    }
+  } else {
+    for (let r = 0; r < gridH; r++) {
+      for (let c = 0; c < gridW; c++) {
+        const idx = grid[r * gridW + c];
+        if (idx < 0) continue;
+        const col3 = palette[idx].color;
+        ctx.fillStyle = `rgb(${col3[0]},${col3[1]},${col3[2]})`;
+        ctx.fillRect(c*TILE, r*TILE, TILE, TILE);
+      }
+    }
+  }
+
+  oc.toBlob(blob => downloadBlob(blob, 'blockforge_pixelart.png'), 'image/png');
 }
 
 async function exportSchem() {
@@ -2407,7 +2452,7 @@ function setupListeners() {
   document.querySelectorAll('input[name="exportFmt"]').forEach(r => r.addEventListener('change', () => {
     if (!r.checked) return;
     const nbt = r.value === 'schem' || r.value === 'litematic';
-    const noOrient = r.value === 'blocklist' || nbt;
+    const noOrient = r.value === 'blocklist' || r.value === 'png' || nbt;
     document.getElementById('exportVersionRow').style.display = (r.value === 'datapack') ? 'flex' : 'none';
     document.getElementById('exportOrientRow').style.display = noOrient ? 'none' : 'flex';
     document.getElementById('exportFacingRow').style.display = noOrient ? 'none' : 'flex';
