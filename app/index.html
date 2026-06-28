@@ -571,6 +571,24 @@
       z-index: 300; opacity: 0; transition: opacity 0.2s; pointer-events: none;
     }
     #toast.show { opacity: 1; }
+.mode-toggle-row { display:flex; gap:10px; padding:10px 12px 8px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.mode-toggle-opt { display:flex; align-items:center; gap:5px; font-size:13px; cursor:pointer; user-select:none; }
+.mode-toggle-opt input { cursor:pointer; }
+.pixel-art-option-row { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; font-size:13px; }
+.pixel-art-option-row select { padding:4px 8px; border:1px solid var(--border); border-radius:4px; background:var(--surface); color:var(--text); font-size:12px; }
+#paColorDock { display:none; flex-direction:column; gap:8px; padding:10px; border-top:1px solid var(--border); }
+#paColorDock.visible { display:flex; }
+.pa-hsv-row { display:flex; gap:8px; align-items:flex-start; }
+#paHsvWheel { cursor:crosshair; border-radius:50%; }
+#paSvSquare { cursor:crosshair; }
+.pa-rgb-row { display:flex; gap:4px; align-items:center; font-size:11px; }
+.pa-rgb-row label { width:12px; text-align:center; font-weight:600; }
+.pa-rgb-row input[type=number] { width:48px; padding:2px 4px; border:1px solid var(--border); border-radius:3px; background:var(--surface); color:var(--text); font-size:11px; }
+.pa-hex-row { display:flex; gap:6px; align-items:center; font-size:11px; }
+.pa-hex-row input[type=text] { width:80px; padding:2px 4px; border:1px solid var(--border); border-radius:3px; background:var(--surface); color:var(--text); font-size:11px; font-family:monospace; }
+.pa-swatch { width:28px; height:28px; border-radius:3px; border:1px solid var(--border); flex-shrink:0; cursor:pointer; }
+.pa-recent-row { display:flex; flex-wrap:wrap; gap:3px; }
+.pa-recent-swatch { width:18px; height:18px; border-radius:2px; border:1px solid var(--border); cursor:pointer; flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -731,6 +749,15 @@
 
     <!-- SETUP RIGHT PANEL: Block palette -->
     <div class="right-panel" id="setupRightPanel">
+      <div class="mode-toggle-row">
+        <label class="mode-toggle-opt">
+          <input type="radio" name="appMode" value="blocks" checked> Minecraft Blocks
+        </label>
+        <label class="mode-toggle-opt">
+          <input type="radio" name="appMode" value="pixel-art"> Pixel Art
+        </label>
+      </div>
+      <div id="setupBlocksPanel">
       <div class="rp-hdr">
         <div class="rp-title">Block Palette</div>
         <div class="rp-sub">Choose which blocks are available for conversion.</div>
@@ -747,6 +774,27 @@
       <div id="setupBlockCount">0 blocks</div>
       <div class="pal-scroll">
         <div class="pal-grid" id="setupPalGrid"></div>
+      </div>
+      </div><!-- #setupBlocksPanel -->
+      <div id="setupPixelPanel" style="display:none">
+        <div class="rp-hdr">
+          <div class="rp-title">Pixel Art</div>
+          <div class="rp-sub">Downscales your image to true color pixels, no block matching.</div>
+        </div>
+        <div class="rp-hdr" style="margin-top:8px">
+          <div class="rp-sub" style="font-size:12px">Target size and lock ratio are set in the left panel. Use the Convert button when ready.</div>
+        </div>
+        <div class="pixel-art-option-row">
+          <label for="paUpscale" style="font-size:13px">Export upscale</label>
+          <select id="paUpscale">
+            <option value="1">1x (original)</option>
+            <option value="2">2x</option>
+            <option value="4">4x</option>
+            <option value="8">8x</option>
+            <option value="16">16x</option>
+          </select>
+        </div>
+        <div id="paPreScaleNote" style="display:none;font-size:11px;color:var(--text-muted);margin-top:8px;padding:0 4px"></div>
       </div>
     </div>
 
@@ -851,6 +899,24 @@
           </div>
         </div>
         <div id="palFooter"></div>
+      </div>
+      <div id="paColorDock">
+        <div style="font-size:11px;font-weight:600;padding:0 2px">Color</div>
+        <div class="pa-hsv-row">
+          <canvas id="paHsvWheel" width="110" height="110"></canvas>
+          <canvas id="paSvSquare" width="110" height="110"></canvas>
+        </div>
+        <div class="pa-rgb-row">
+          <label>R</label><input type="number" id="paRed" value="0" min="0" max="255">
+          <label>G</label><input type="number" id="paGreen" value="0" min="0" max="255">
+          <label>B</label><input type="number" id="paBlue" value="0" min="0" max="255">
+          <div id="paCurrentSwatch" class="pa-swatch" style="background:#000"></div>
+        </div>
+        <div class="pa-hex-row">
+          <span>HEX</span>
+          <input type="text" id="paHex" value="#000000" maxlength="7">
+        </div>
+        <div class="pa-recent-row" id="paRecentRow"></div>
       </div>
 
     </div><!-- #editorBody -->
@@ -991,6 +1057,29 @@ const WORKER_SRC = `
       const di=(dy*dw+dx)*4;
       for(let c=0;c<4;c++)
         dst[di+c]=Math.round(src[i00+c]*(1-fx)*(1-fy)+src[i10+c]*fx*(1-fy)+src[i01+c]*(1-fx)*fy+src[i11+c]*fx*fy);
+    }
+    return dst;
+  }
+  function resizeBox(src,sw,sh,dw,dh,alphaThreshold){
+    const dst=new Uint8ClampedArray(dw*dh*4);
+    const thresh=alphaThreshold!=null?alphaThreshold:128;
+    for(let dy=0;dy<dh;dy++) for(let dx=0;dx<dw;dx++){
+      const x0=dx*sw/dw,x1=(dx+1)*sw/dw;
+      const y0=dy*sh/dh,y1=(dy+1)*sh/dh;
+      let sr=0,sg=0,sb=0,sa=0,n=0;
+      for(let iy=Math.floor(y0);iy<Math.ceil(y1);iy++){
+        const wy=Math.min(iy+1,y1)-Math.max(iy,y0);
+        for(let ix=Math.floor(x0);ix<Math.ceil(x1);ix++){
+          const wx=Math.min(ix+1,x1)-Math.max(ix,x0);
+          const pi=(iy*sw+ix)*4;
+          if(src[pi+3]<thresh) continue;
+          const w=wx*wy;
+          sr+=src[pi]*w;sg+=src[pi+1]*w;sb+=src[pi+2]*w;sa+=src[pi+3]*w;n+=w;
+        }
+      }
+      const di=(dy*dw+dx)*4;
+      if(n===0){dst[di+3]=0;}
+      else{dst[di]=Math.round(sr/n);dst[di+1]=Math.round(sg/n);dst[di+2]=Math.round(sb/n);dst[di+3]=Math.round(sa/n);}
     }
     return dst;
   }
@@ -1174,6 +1263,10 @@ let buildMarks = null;
 
 let lockRatio = true;
 let worker = null;
+let currentMode = 'blocks';
+let paCurrentColor = { r: 0, g: 0, b: 0, a: 255 };
+let paRecentColors = [];
+let paHsvDragging = null;
 let palMode = 'all'; // 'all' | 'survival' | 'custom'
 let customSet = new Set();
 
@@ -1200,6 +1293,20 @@ async function init() {
   buildSetupPalGrid();
   createWorker();
   setupListeners();
+  setupColorPicker();
+  // Restore app mode
+  try {
+    const saved = localStorage.getItem('bf_mode');
+    if (saved === 'pixel-art') {
+      currentMode = 'pixel-art';
+      const radio = document.querySelector('input[name="appMode"][value="pixel-art"]');
+      if (radio) radio.checked = true;
+      document.getElementById('setupBlocksPanel').style.display = 'none';
+      document.getElementById('setupPixelPanel').style.display = '';
+    }
+    const savedColors = localStorage.getItem('bf_recentColors');
+    if (savedColors) { paRecentColors = JSON.parse(savedColors); renderRecentColors(); }
+  } catch(_) {}
 }
 
 function loadSprite() {
@@ -1403,10 +1510,23 @@ function switchToEditor() {
   const ev = document.getElementById('editorView');
   ev.classList.remove('hidden');
   ev.style.flexDirection = 'column';
-  buildEditorPalGrid();
-  updateActiveBlockDisplay();
-  updateSizeInfo();
-  fitCanvas();
+  const isPixelArt = result && result.mode === 'pixel-art';
+  document.getElementById('editorPalScroll').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('activeSection').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('palFooter').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('texToggleBtn').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('costBtn').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('buildModeBtn').style.display = isPixelArt ? 'none' : '';
+  document.getElementById('paColorDock').classList.toggle('visible', isPixelArt);
+  if (isPixelArt) {
+    updateSizeInfo();
+    fitCanvas();
+  } else {
+    buildEditorPalGrid();
+    updateActiveBlockDisplay();
+    updateSizeInfo();
+    fitCanvas();
+  }
 }
 
 function switchToSetup() {
@@ -1418,13 +1538,18 @@ function switchToSetup() {
 
 function updateSizeInfo() {
   if (!result) return;
-  document.getElementById('sizeInfo').textContent =
-    `${result.gridW} x ${result.gridH} blocks | ${(result.gridW * result.gridH).toLocaleString()} total`;
+  if (result.mode === 'pixel-art') {
+    document.getElementById('sizeInfo').textContent = `${result.gridW} x ${result.gridH} px`;
+  } else {
+    document.getElementById('sizeInfo').textContent =
+      `${result.gridW} x ${result.gridH} blocks | ${(result.gridW * result.gridH).toLocaleString()} total`;
+  }
 }
 
 // â”€â”€ CONVERSION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function doConvert() {
+async function doConvert() {
   if (!sourceImage) return;
+  if (currentMode === 'pixel-art') { await doConvertPixelArt(); return; }
   const palette = getActivePalette();
   if (!palette.length) { showToast('No blocks in palette. Enable at least one category.'); return; }
 
@@ -1463,6 +1588,93 @@ function doConvert() {
   worker._palette = palForWorker;
 }
 
+async function doConvertPixelArt() {
+  const targetW = parseInt(document.getElementById('targetW').value) || 128;
+  const targetH = parseInt(document.getElementById('targetH').value) || 128;
+  const noteEl = document.getElementById('paPreScaleNote');
+
+  let imgSrc = sourceImage;
+  let sw = srcW, sh = srcH;
+
+  if (sw * sh > 4000000) {
+    const longEdge = Math.max(sw, sh);
+    const scale = 2048 / longEdge;
+    const rw = Math.round(sw * scale), rh = Math.round(sh * scale);
+    imgSrc = await createImageBitmap(sourceImage, { resizeWidth: rw, resizeHeight: rh, resizeQuality: 'high' });
+    sw = rw; sh = rh;
+    noteEl.style.display = 'block';
+    noteEl.textContent = `Source pre-scaled to ${rw}x${rh} (high-quality) for pixel art.`;
+  } else {
+    noteEl.style.display = 'none';
+  }
+
+  let dw = targetW, dh = targetH;
+  if (lockRatio) {
+    const r = Math.min(targetW / sw, targetH / sh);
+    dw = Math.max(1, Math.round(sw * r));
+    dh = Math.max(1, Math.round(sh * r));
+  }
+
+  const oc = document.createElement('canvas');
+  oc.width = sw; oc.height = sh;
+  oc.getContext('2d').drawImage(imgSrc, 0, 0);
+  const flat = oc.getContext('2d').getImageData(0, 0, sw, sh).data;
+
+  let pixels;
+  if (sw / dw >= 2 || sh / dh >= 2) {
+    pixels = resizeBox(flat, sw, sh, dw, dh, 128);
+  } else {
+    pixels = resizeBilinear(flat, sw, sh, dw, dh);
+  }
+
+  result = { mode: 'pixel-art', pixels, gridW: dw, gridH: dh };
+  history = []; redoStack = [];
+  updateUndoRedo();
+  renderPixelArtResult();
+  switchToEditor();
+  document.getElementById('statusSize').textContent = `${dw} x ${dh} px`;
+}
+
+function resizeBox(src, sw, sh, dw, dh, alphaThreshold) {
+  const dst = new Uint8ClampedArray(dw * dh * 4);
+  const thresh = alphaThreshold != null ? alphaThreshold : 128;
+  for (let dy = 0; dy < dh; dy++) for (let dx = 0; dx < dw; dx++) {
+    const x0 = dx * sw / dw, x1 = (dx + 1) * sw / dw;
+    const y0 = dy * sh / dh, y1 = (dy + 1) * sh / dh;
+    let sr = 0, sg = 0, sb = 0, sa = 0, n = 0;
+    for (let iy = Math.floor(y0); iy < Math.ceil(y1); iy++) {
+      const wy = Math.min(iy + 1, y1) - Math.max(iy, y0);
+      for (let ix = Math.floor(x0); ix < Math.ceil(x1); ix++) {
+        const wx = Math.min(ix + 1, x1) - Math.max(ix, x0);
+        const pi = (iy * sw + ix) * 4;
+        if (src[pi + 3] < thresh) continue;
+        const w = wx * wy;
+        sr += src[pi] * w; sg += src[pi + 1] * w; sb += src[pi + 2] * w; sa += src[pi + 3] * w; n += w;
+      }
+    }
+    const di = (dy * dw + dx) * 4;
+    if (n === 0) { dst[di + 3] = 0; }
+    else { dst[di] = Math.round(sr / n); dst[di + 1] = Math.round(sg / n); dst[di + 2] = Math.round(sb / n); dst[di + 3] = Math.round(sa / n); }
+  }
+  return dst;
+}
+
+function resizeBilinear(src, sw, sh, dw, dh) {
+  const dst = new Uint8ClampedArray(dw * dh * 4);
+  const xr = sw / dw, yr = sh / dh;
+  for (let dy = 0; dy < dh; dy++) for (let dx = 0; dx < dw; dx++) {
+    const sx = (dx + 0.5) * xr - 0.5, sy = (dy + 0.5) * yr - 0.5;
+    const x0 = Math.max(0, Math.floor(sx)), y0 = Math.max(0, Math.floor(sy));
+    const x1 = Math.min(sw - 1, x0 + 1), y1 = Math.min(sh - 1, y0 + 1);
+    const fx = sx - x0, fy = sy - y0;
+    const i00 = (y0 * sw + x0) * 4, i10 = (y0 * sw + x1) * 4, i01 = (y1 * sw + x0) * 4, i11 = (y1 * sw + x1) * 4;
+    const di = (dy * dw + dx) * 4;
+    for (let c = 0; c < 4; c++)
+      dst[di + c] = Math.round(src[i00 + c] * (1 - fx) * (1 - fy) + src[i10 + c] * fx * (1 - fy) + src[i01 + c] * (1 - fx) * fy + src[i11 + c] * fx * fy);
+  }
+  return dst;
+}
+
 function onWorkerMessage(e) {
   const { type } = e.data;
   if (type === 'progress') {
@@ -1470,7 +1682,7 @@ function onWorkerMessage(e) {
     document.getElementById('progressLabel').textContent = e.data.step;
   } else if (type === 'done') {
     const { grid, gridW, gridH } = e.data;
-    result = { grid: new Int32Array(grid), palette: worker._palette, gridW, gridH };
+    result = { grid: new Int32Array(grid), palette: worker._palette, gridW, gridH, mode: 'blocks' };
     buildMarks = new Int8Array(gridH * gridW);
     buildCurrentRow = 0;
     history = []; redoStack = [];
@@ -1495,6 +1707,7 @@ function setConverting(active) {
 // â”€â”€ RENDERING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderResult() {
   if (!result) return;
+  if (result.mode === 'pixel-art') { renderPixelArtResult(); return; }
   const { grid, palette, gridW, gridH } = result;
   const canvas = document.getElementById('resultCanvas');
   canvas.width = gridW * TILE;
@@ -1649,6 +1862,7 @@ function cellInBounds(row, col) {
 
 function paint(row, col) {
   if (!cellInBounds(row, col)) return;
+  if (result.mode === 'pixel-art') { paintPixel(row, col); return; }
   if (currentTool === 'pencil') {
     if (result.grid[row * result.gridW + col] !== paintBlockIdx) {
       pushHistory();
@@ -1671,6 +1885,7 @@ function paint(row, col) {
 
 function floodFill(row, col) {
   if (!cellInBounds(row, col)) return;
+  if (result.mode === 'pixel-art') { floodFillPixel(row, col); return; }
   const target = result.grid[row * result.gridW + col];
   if (target === paintBlockIdx) return;
   pushHistory();
@@ -1693,6 +1908,7 @@ function floodFill(row, col) {
 
 function dropper(row, col) {
   if (!cellInBounds(row, col)) return;
+  if (result.mode === 'pixel-art') { dropperPixel(row, col); return; }
   const idx = result.grid[row * result.gridW + col];
   if (idx < 0) return;
   paintBlockIdx = idx;
@@ -1703,7 +1919,11 @@ function dropper(row, col) {
 
 // â”€â”€ UNDO / REDO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function pushHistory() {
-  history.push(new Int32Array(result.grid));
+  if (result && result.mode === 'pixel-art') {
+    history.push(new Uint8ClampedArray(result.pixels));
+  } else {
+    history.push(new Int32Array(result.grid));
+  }
   if (history.length > 50) history.shift();
   redoStack = [];
   updateUndoRedo();
@@ -1711,16 +1931,26 @@ function pushHistory() {
 
 function undo() {
   if (!history.length) return;
-  redoStack.push(new Int32Array(result.grid));
-  result.grid = history.pop();
+  if (result && result.mode === 'pixel-art') {
+    redoStack.push(new Uint8ClampedArray(result.pixels));
+    result.pixels = history.pop();
+  } else {
+    redoStack.push(new Int32Array(result.grid));
+    result.grid = history.pop();
+  }
   renderResult();
   updateUndoRedo();
 }
 
 function redo() {
   if (!redoStack.length) return;
-  history.push(new Int32Array(result.grid));
-  result.grid = redoStack.pop();
+  if (result && result.mode === 'pixel-art') {
+    history.push(new Uint8ClampedArray(result.pixels));
+    result.pixels = redoStack.pop();
+  } else {
+    history.push(new Int32Array(result.grid));
+    result.grid = redoStack.pop();
+  }
   renderResult();
   updateUndoRedo();
 }
@@ -1813,6 +2043,7 @@ function blockCoords(row, col, H, W, orientation, facing) {
 
 async function doExport() {
   if (!result) return;
+  if (result.mode === 'pixel-art') { exportPixelArtPng(); return; }
   const fmt    = document.querySelector('input[name="exportFmt"]:checked').value;
   const orient = document.querySelector('input[name="exportOrient"]:checked').value;
   const facing = document.getElementById('exportFacing').value;
@@ -1889,6 +2120,295 @@ function downloadBlob(blob, filename) {
   a.href = URL.createObjectURL(blob);
   a.download = filename; a.click();
   URL.revokeObjectURL(a.href);
+}
+
+// ── PIXEL ART RENDER ──────────────────────────────────────────────────────────────────────────────────
+function renderPixelArtResult() {
+  if (!result || result.mode !== 'pixel-art') return;
+  const { pixels, gridW, gridH } = result;
+  const canvas = document.getElementById('resultCanvas');
+  canvas.width = gridW;
+  canvas.height = gridH;
+  canvas.style.imageRendering = 'pixelated';
+  const ctx = canvas.getContext('2d');
+  const id = ctx.createImageData(gridW, gridH);
+  id.data.set(pixels);
+  ctx.putImageData(id, 0, 0);
+  applyTransform();
+}
+
+// ── PIXEL ART TOOLS ───────────────────────────────────────────────────────────────────────────────────
+function paintPixel(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const { pixels, gridW } = result;
+  const pi = (row * gridW + col) * 4;
+  const { r, g, b, a } = paCurrentColor;
+  if (pixels[pi] === r && pixels[pi+1] === g && pixels[pi+2] === b && pixels[pi+3] === a) return;
+  pushHistory();
+  pixels[pi] = r; pixels[pi+1] = g; pixels[pi+2] = b; pixels[pi+3] = a;
+  renderPixelArtResult();
+  pushRecentColor(paCurrentColor);
+}
+
+function erasePixel(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const { pixels, gridW } = result;
+  const pi = (row * gridW + col) * 4;
+  if (pixels[pi+3] === 0) return;
+  pushHistory();
+  pixels[pi+3] = 0;
+  renderPixelArtResult();
+}
+
+function floodFillPixel(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const { pixels, gridW, gridH } = result;
+  const pi = (row * gridW + col) * 4;
+  const tr = pixels[pi], tg = pixels[pi+1], tb = pixels[pi+2], ta = pixels[pi+3];
+  const { r, g, b, a } = paCurrentColor;
+  if (tr === r && tg === g && tb === b && ta === a) return;
+  pushHistory();
+  const visited = new Uint8Array(gridH * gridW);
+  const queue = [[row, col]];
+  while (queue.length) {
+    const [cr, cc] = queue.pop();
+    const i = cr * gridW + cc;
+    if (cr < 0 || cr >= gridH || cc < 0 || cc >= gridW) continue;
+    if (visited[i]) continue;
+    const ci = i * 4;
+    if (pixels[ci] !== tr || pixels[ci+1] !== tg || pixels[ci+2] !== tb || pixels[ci+3] !== ta) continue;
+    visited[i] = 1;
+    pixels[ci] = r; pixels[ci+1] = g; pixels[ci+2] = b; pixels[ci+3] = a;
+    queue.push([cr-1, cc], [cr+1, cc], [cr, cc-1], [cr, cc+1]);
+  }
+  renderPixelArtResult();
+  pushRecentColor(paCurrentColor);
+}
+
+function dropperPixel(row, col) {
+  if (!cellInBounds(row, col)) return;
+  const { pixels, gridW } = result;
+  const pi = (row * gridW + col) * 4;
+  setCurrentColor({ r: pixels[pi], g: pixels[pi+1], b: pixels[pi+2], a: pixels[pi+3] });
+  setTool('pencil');
+}
+
+// ── PIXEL ART EXPORT ─────────────────────────────────────────────────────────────────────────────────
+function exportPixelArtPng() {
+  if (!result || result.mode !== 'pixel-art') return;
+  const { pixels, gridW, gridH } = result;
+  const upscale = parseInt(document.getElementById('paUpscale').value) || 1;
+  const src = document.createElement('canvas');
+  src.width = gridW; src.height = gridH;
+  const id = src.getContext('2d').createImageData(gridW, gridH);
+  id.data.set(pixels);
+  src.getContext('2d').putImageData(id, 0, 0);
+
+  let out = src;
+  if (upscale > 1) {
+    out = document.createElement('canvas');
+    out.width = gridW * upscale; out.height = gridH * upscale;
+    const octx = out.getContext('2d');
+    octx.imageSmoothingEnabled = false;
+    octx.drawImage(src, 0, 0, gridW * upscale, gridH * upscale);
+  }
+
+  out.toBlob(blob => {
+    const suffix = upscale > 1 ? `_${upscale}x` : '';
+    downloadBlob(blob, `pixelart_${gridW}x${gridH}${suffix}.png`);
+    closeModal('exportOverlay');
+  });
+}
+
+// ── HSV COLOR PICKER ──────────────────────────────────────────────────────────────────────────────────
+function hsvToRgb(h, s, v) {
+  const i = Math.floor(h / 60) % 6;
+  const f = h / 60 - Math.floor(h / 60);
+  const p = v * (1 - s), q = v * (1 - f * s), t2 = v * (1 - (1 - f) * s);
+  const pairs = [[v,t2,p],[q,v,p],[p,v,t2],[p,q,v],[t2,p,v],[v,p,q]];
+  const [r,g,b] = pairs[i];
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+}
+
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + 6) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h, s: max === 0 ? 0 : d / max, v: max };
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToRgb(hex) {
+  const m = hex.replace('#', '').match(/.{2}/g);
+  if (!m || m.length < 3) return null;
+  return { r: parseInt(m[0], 16), g: parseInt(m[1], 16), b: parseInt(m[2], 16) };
+}
+
+let paHsvState = { h: 0, s: 1, v: 1 };
+
+function drawHsvWheel(canvas) {
+  const sz = canvas.width;
+  const ctx = canvas.getContext('2d');
+  const cx = sz / 2, cy = sz / 2, r = sz / 2 - 2;
+  ctx.clearRect(0, 0, sz, sz);
+  for (let i = 0; i < 360; i++) {
+    const a1 = (i - 1) * Math.PI / 180, a2 = (i + 1) * Math.PI / 180;
+    const { r: rr, g, b } = hsvToRgb(i, 1, 1);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a1, a2);
+    ctx.fillStyle = `rgb(${rr},${g},${b})`;
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.6, 0, Math.PI * 2);
+  ctx.fillStyle = 'var(--bg)';
+  ctx.fill();
+  const hRad = paHsvState.h * Math.PI / 180;
+  const ir = r * 0.8;
+  const ix = cx + Math.cos(hRad) * ir, iy = cy + Math.sin(hRad) * ir;
+  ctx.beginPath();
+  ctx.arc(ix, iy, 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function drawSvSquare(canvas) {
+  const sz = canvas.width;
+  const ctx = canvas.getContext('2d');
+  const { r, g, b } = hsvToRgb(paHsvState.h, 1, 1);
+  const hGrad = ctx.createLinearGradient(0, 0, sz, 0);
+  hGrad.addColorStop(0, '#fff');
+  hGrad.addColorStop(1, `rgb(${r},${g},${b})`);
+  ctx.fillStyle = hGrad;
+  ctx.fillRect(0, 0, sz, sz);
+  const vGrad = ctx.createLinearGradient(0, 0, 0, sz);
+  vGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  vGrad.addColorStop(1, '#000');
+  ctx.fillStyle = vGrad;
+  ctx.fillRect(0, 0, sz, sz);
+  const cx = paHsvState.s * sz, cy = (1 - paHsvState.v) * sz;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function redrawColorPicker() {
+  const wh = document.getElementById('paHsvWheel');
+  const sq = document.getElementById('paSvSquare');
+  if (wh) drawHsvWheel(wh);
+  if (sq) drawSvSquare(sq);
+}
+
+function setCurrentColor(rgba, source) {
+  paCurrentColor = { r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.a != null ? rgba.a : 255 };
+  const { r, g, b } = rgba;
+  const hsv = rgbToHsv(r, g, b);
+  if (source !== 'wheel') paHsvState.h = hsv.h;
+  if (source !== 'sv') { paHsvState.s = hsv.s; paHsvState.v = hsv.v; }
+  const hex = rgbToHex(r, g, b);
+
+  if (source !== 'rgb') {
+    const ri = document.getElementById('paRed'), gi = document.getElementById('paGreen'), bi2 = document.getElementById('paBlue');
+    if (ri) { ri.value = r; gi.value = g; bi2.value = b; }
+  }
+  if (source !== 'hex') {
+    const hi = document.getElementById('paHex');
+    if (hi) hi.value = hex;
+  }
+  const sw = document.getElementById('paCurrentSwatch');
+  if (sw) sw.style.background = `rgb(${r},${g},${b})`;
+  redrawColorPicker();
+}
+
+function pushRecentColor(rgba) {
+  const hex = rgbToHex(rgba.r, rgba.g, rgba.b);
+  paRecentColors = paRecentColors.filter(h => h !== hex);
+  paRecentColors.unshift(hex);
+  if (paRecentColors.length > 12) paRecentColors = paRecentColors.slice(0, 12);
+  try { localStorage.setItem('bf_recentColors', JSON.stringify(paRecentColors)); } catch(_) {}
+  renderRecentColors();
+}
+
+function renderRecentColors() {
+  const row = document.getElementById('paRecentRow');
+  if (!row) return;
+  row.innerHTML = '';
+  paRecentColors.forEach(hex => {
+    const sw = document.createElement('div');
+    sw.className = 'pa-recent-swatch';
+    sw.style.background = hex;
+    sw.title = hex;
+    sw.addEventListener('click', () => {
+      const rgb = hexToRgb(hex);
+      if (rgb) setCurrentColor({ ...rgb, a: 255 });
+    });
+    row.appendChild(sw);
+  });
+}
+
+function setupColorPicker() {
+  const wh = document.getElementById('paHsvWheel');
+  const sq = document.getElementById('paSvSquare');
+  if (!wh || !sq) return;
+
+  function wheelXY(e) {
+    const r2 = wh.getBoundingClientRect();
+    const cx = r2.left + r2.width / 2, cy2 = r2.top + r2.height / 2;
+    const dx = e.clientX - cx, dy = e.clientY - cy2;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const maxR = r2.width / 2;
+    if (dist > maxR) return;
+    paHsvState.h = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360;
+    const { r, g, b } = hsvToRgb(paHsvState.h, paHsvState.s, paHsvState.v);
+    setCurrentColor({ r, g, b, a: paCurrentColor.a }, 'wheel');
+  }
+
+  function svXY(e) {
+    const r2 = sq.getBoundingClientRect();
+    paHsvState.s = Math.max(0, Math.min(1, (e.clientX - r2.left) / r2.width));
+    paHsvState.v = Math.max(0, Math.min(1, 1 - (e.clientY - r2.top) / r2.height));
+    const { r, g, b } = hsvToRgb(paHsvState.h, paHsvState.s, paHsvState.v);
+    setCurrentColor({ r, g, b, a: paCurrentColor.a }, 'sv');
+  }
+
+  let draggingWheel = false, draggingSv = false;
+  wh.addEventListener('mousedown', e => { draggingWheel = true; wheelXY(e); });
+  sq.addEventListener('mousedown', e => { draggingSv = true; svXY(e); });
+  document.addEventListener('mousemove', e => {
+    if (draggingWheel) wheelXY(e);
+    if (draggingSv) svXY(e);
+  });
+  document.addEventListener('mouseup', () => { draggingWheel = false; draggingSv = false; });
+
+  document.getElementById('paRed').addEventListener('input', function() {
+    setCurrentColor({ r: parseInt(this.value)||0, g: parseInt(document.getElementById('paGreen').value)||0, b: parseInt(document.getElementById('paBlue').value)||0, a: paCurrentColor.a }, 'rgb');
+  });
+  document.getElementById('paGreen').addEventListener('input', function() {
+    setCurrentColor({ r: parseInt(document.getElementById('paRed').value)||0, g: parseInt(this.value)||0, b: parseInt(document.getElementById('paBlue').value)||0, a: paCurrentColor.a }, 'rgb');
+  });
+  document.getElementById('paBlue').addEventListener('input', function() {
+    setCurrentColor({ r: parseInt(document.getElementById('paRed').value)||0, g: parseInt(document.getElementById('paGreen').value)||0, b: parseInt(this.value)||0, a: paCurrentColor.a }, 'rgb');
+  });
+  document.getElementById('paHex').addEventListener('input', function() {
+    const rgb = hexToRgb(this.value);
+    if (rgb) setCurrentColor({ ...rgb, a: paCurrentColor.a }, 'hex');
+  });
+
+  drawHsvWheel(wh);
+  drawSvSquare(sq);
 }
 
 // â”€â”€ NBT HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -2241,7 +2761,10 @@ function onVpDown(e) {
     document.getElementById('viewport').classList.add('panning');
     return;
   }
-  if (e.button === 2) { dropper(row, col); return; }
+  if (e.button === 2) {
+    if (result && result.mode === 'pixel-art') { erasePixel(row, col); return; }
+    dropper(row, col); return;
+  }
   if (!cellInBounds(row, col)) return;
   if (buildModeActive && buildMarks) {
     const i = row * result.gridW + col;
@@ -2278,8 +2801,14 @@ function onVpMove(e) {
   }
   if (cellInBounds(row, col)) {
     document.getElementById('statusCoords').textContent = `x: ${col}, y: ${row}`;
-    const idx = result.grid[row * result.gridW + col];
-    document.getElementById('statusBlock').textContent = idx >= 0 ? result.palette[idx].name : '-';
+    if (result.mode === 'pixel-art') {
+      const pi = (row * result.gridW + col) * 4;
+      const p = result.pixels;
+      document.getElementById('statusBlock').textContent = `rgba(${p[pi]},${p[pi+1]},${p[pi+2]},${p[pi+3]})`;
+    } else {
+      const idx = result.grid[row * result.gridW + col];
+      document.getElementById('statusBlock').textContent = idx >= 0 ? result.palette[idx].name : '-';
+    }
   }
   if (isPainting && (currentTool === 'pencil' || currentTool === 'brush')) {
     if (!lastPaintCell || lastPaintCell.row !== row || lastPaintCell.col !== col) {
@@ -2393,6 +2922,15 @@ function setupListeners() {
   // Version change
   document.getElementById('versionSelect').addEventListener('change', () => buildSetupPalGrid());
 
+  // App mode toggle
+  document.querySelectorAll('input[name="appMode"]').forEach(r => r.addEventListener('change', () => {
+    if (!r.checked) return;
+    currentMode = r.value;
+    try { localStorage.setItem('bf_mode', currentMode); } catch(_) {}
+    document.getElementById('setupBlocksPanel').style.display = currentMode === 'blocks' ? '' : 'none';
+    document.getElementById('setupPixelPanel').style.display = currentMode === 'pixel-art' ? '' : 'none';
+  }));
+
   // Convert
   document.getElementById('convertBtn').addEventListener('click', doConvert);
 
@@ -2446,6 +2984,7 @@ function setupListeners() {
 
   // Export
   document.getElementById('exportBtn').addEventListener('click', () => {
+    if (result && result.mode === 'pixel-art') { exportPixelArtPng(); return; }
     document.getElementById('exportVersionRow').style.display = 'none';
     openModal('exportOverlay');
   });
