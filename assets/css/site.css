@@ -359,6 +359,9 @@ img { max-width: 100%; height: auto; display: block; }
   font-family: var(--font-display);
   color: rgba(255,255,255,0.5);
   font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1;
 }
 .pixel-art-subnav a {
   font-family: var(--font-display);
