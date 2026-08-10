@@ -1,0 +1,815 @@
+<!-- ============================================================
+     banner/index.html - BlockForge Banner Designer
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Banner Designer: Free Give-Command Generator</title>
+  <meta name="description" content="Design a Minecraft banner in your browser. Pick a base color, layer up to six patterns from the full vanilla palette, and copy a ready-to-paste /give command. Runs entirely in your browser, no signup.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/banner/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/banner/">
+  <meta property="og:title" content="Minecraft Banner Designer: Free Give-Command Generator">
+  <meta property="og:description" content="Design a Minecraft banner in your browser and copy a ready-to-paste /give command.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Minecraft Banner Designer: Free Give-Command Generator">
+  <meta name="twitter:description" content="Design a Minecraft banner and copy a ready-to-paste /give command.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/banner/#banner-designer",
+    "name": "BlockForge Banner Designer",
+    "url": "https://blockforge.saturnitystools.com/banner/",
+    "description": "Free browser tool for designing Minecraft banners with layered patterns and generating a ready-to-paste /give command.",
+    "applicationCategory": "MultimediaApplication",
+    "applicationSubCategory": "Minecraft banner designer",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Modern browser with JavaScript enabled",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" },
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+    "isPartOf": { "@id": "https://blockforge.saturnitystools.com/#website" }
+  }
+  </script>
+
+  <style>
+    main.banner-main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 28px auto 48px;
+      padding: 0 20px;
+    }
+    .banner-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .banner-header h1 {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .banner-header p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .designer {
+      display: grid;
+      grid-template-columns: 220px 1fr 300px;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1000px) {
+      .designer { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 16px 18px;
+    }
+    .panel h3 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      color: var(--color-text);
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    /* Color pickers */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    .swatch {
+      appearance: none;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      padding: 0;
+      cursor: pointer;
+      aspect-ratio: 1 / 1;
+      background: currentColor;
+      transition: transform 0.08s, border-color 0.12s;
+    }
+    .swatch:hover { transform: scale(1.08); }
+    .swatch.is-active {
+      border-color: #000;
+      box-shadow: 0 0 0 1px #fff inset;
+    }
+    .swatch-label {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 8px;
+      min-height: 14px;
+    }
+
+    /* Center preview + output */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .preview-frame {
+      background: repeating-conic-gradient(#e6dfd0 0 25%, #f5f0e8 0 50%) 0 0 / 20px 20px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 340px;
+    }
+    .banner-svg {
+      width: 160px;
+      height: 320px;
+      display: block;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
+    }
+
+    .give-out {
+      background: #0f0f0f;
+      color: #d0d5dc;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      user-select: all;
+    }
+    .give-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn {
+      appearance: none;
+      background: var(--color-accent);
+      border: 1px solid var(--color-accent-deep);
+      border-radius: 5px;
+      padding: 7px 12px;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .btn:hover { background: var(--color-accent-hover); }
+    .btn.btn-secondary {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+    .btn.btn-secondary:hover { background: var(--color-border); }
+    .btn.is-copied {
+      background: var(--color-mc-green);
+      border-color: var(--color-mc-green);
+    }
+    .btn.btn-mini {
+      padding: 3px 6px;
+      font-size: 11px;
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .btn.btn-mini:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+    .btn.btn-danger { background: transparent; color: var(--color-accent); border-color: var(--color-accent); }
+    .btn.btn-danger:hover { background: var(--color-accent); color: #fff; }
+
+    .format-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .format-toggle button {
+      flex: 1;
+      appearance: none;
+      background: var(--color-bg-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+    }
+    .format-toggle button.is-active {
+      background: var(--color-text);
+      color: #fff;
+      border-color: var(--color-text);
+    }
+
+    /* Right panel: layers */
+    .layers-panel { min-height: 200px; }
+    .layers-empty {
+      color: var(--color-text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 12px 0;
+    }
+    .layer-item {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 6px;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      margin-bottom: 6px;
+    }
+    .layer-thumb {
+      width: 32px;
+      height: 32px;
+      background: #000;
+      border-radius: 3px;
+      display: block;
+    }
+    .layer-info {
+      font-size: 12.5px;
+      color: var(--color-text);
+      line-height: 1.35;
+    }
+    .layer-info .pname { font-weight: 600; }
+    .layer-info .pcolor { color: var(--color-text-muted); font-size: 11.5px; }
+    .layer-controls {
+      display: flex;
+      gap: 3px;
+    }
+
+    /* Pattern picker */
+    .pattern-picker {
+      margin-top: 16px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 18px 20px;
+    }
+    .pattern-picker h3 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      color: var(--color-text);
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .pattern-picker .sub {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+    }
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+    }
+    .pattern-tile {
+      appearance: none;
+      background: #d4c8b0;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      padding: 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.12s, transform 0.08s;
+    }
+    .pattern-tile:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-1px);
+    }
+    .pattern-tile .thumb {
+      width: 100%;
+      aspect-ratio: 1 / 2;
+      max-height: 80px;
+      background: #b02e26; /* red base */
+    }
+    .pattern-tile .name {
+      font-size: 10.5px;
+      color: var(--color-text);
+      text-align: center;
+      line-height: 1.15;
+      min-height: 24px;
+      word-break: break-word;
+    }
+
+    .notice {
+      color: var(--color-text-muted);
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .primer {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 22px 26px;
+      margin-top: 24px;
+    }
+    .primer h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .primer h3 {
+      font-size: 15px;
+      margin: 14px 0 6px;
+    }
+    .primer p { line-height: 1.65; margin-bottom: 10px; color: var(--color-text); }
+    .primer ul { margin: 0 0 10px 20px; line-height: 1.65; }
+    .primer code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+      </div>
+    </div>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="banner-main">
+
+  <div class="banner-header">
+    <h1>Banner Designer</h1>
+    <p>Pick a base color, stack up to six patterns, copy the give command. Straight to the point.</p>
+  </div>
+
+  <div class="designer">
+
+    <div class="panel">
+      <h3>Base color</h3>
+      <div class="swatch-grid" id="base-swatches"></div>
+      <div class="swatch-label" id="base-label">white</div>
+
+      <div style="margin-top:16px;">
+        <h3>Pattern color</h3>
+        <div class="swatch-grid" id="pattern-swatches"></div>
+        <div class="swatch-label" id="pattern-label">black</div>
+      </div>
+    </div>
+
+    <div class="center-panel">
+      <div class="preview-frame">
+        <svg class="banner-svg" viewBox="0 0 20 40" preserveAspectRatio="none" shape-rendering="crispEdges" id="preview-svg">
+          <rect id="preview-base" x="0" y="0" width="20" height="40" fill="#F9FFFE"/>
+          <g id="preview-layers"></g>
+        </svg>
+      </div>
+      <div>
+        <div class="format-toggle">
+          <button type="button" data-fmt="modern" class="is-active" id="fmt-modern">1.20.5+ component</button>
+          <button type="button" data-fmt="legacy" id="fmt-legacy">1.20.4 and older</button>
+        </div>
+        <div class="give-out" id="give-cmd">/give @p white_banner 1</div>
+        <div class="give-actions">
+          <button type="button" class="btn" id="btn-copy">Copy command</button>
+          <button type="button" class="btn btn-secondary" id="btn-reset">Reset</button>
+        </div>
+        <div class="notice">Paste in a Minecraft chat. Java Edition; Bedrock uses a different syntax.</div>
+      </div>
+    </div>
+
+    <div class="panel layers-panel">
+      <h3>Layers (top of list = drawn last)</h3>
+      <div id="layers-list"><div class="layers-empty">No patterns yet. Click one below to add it in the current pattern color.</div></div>
+    </div>
+
+  </div>
+
+  <div class="pattern-picker">
+    <h3>Patterns</h3>
+    <div class="sub">Thumbnails preview each pattern in the current pattern color on a red base for contrast.</div>
+    <div class="pattern-grid" id="pattern-grid"></div>
+  </div>
+
+  <div class="primer">
+    <h2>How this works</h2>
+    <p>A Minecraft banner is a base-colored cloth with up to six pattern overlays. Each overlay is a mask (like a stripe or triangle) tinted with a dye color. The order matters: later layers paint on top of earlier ones.</p>
+
+    <h3>What you copy is what you get</h3>
+    <p>The output is a full <code>/give</code> command targeting yourself (<code>@p</code>) with the base banner item and a <code>banner_patterns</code> component (or <code>BlockEntityTag</code> for older versions) that reproduces exactly what is in the preview.</p>
+
+    <h3>Version compatibility</h3>
+    <ul>
+      <li><strong>Modern (1.20.5+):</strong> uses the component format with pattern IDs like <code>minecraft:stripe_bottom</code> and color names like <code>red</code>. Works in current Java Edition.</li>
+      <li><strong>Legacy (1.20.4 and older):</strong> uses the SNBT <code>BlockEntityTag.Patterns</code> array with short codes like <code>bs</code> and numeric colors 0 to 15. Toggle to this if you are on an older server.</li>
+    </ul>
+
+    <h3>Special charges</h3>
+    <p>Creeper, Skull, Flower, and Mojang charges normally need a matching special item to craft on a loom (Creeper head, Wither skull, Oxeye daisy, Enchanted golden apple). The command output bypasses that requirement.</p>
+
+    <h3>Nothing is uploaded</h3>
+    <p>The whole tool runs in your browser. No signup, no server round-trip, nothing tracked beyond the site-wide analytics you already consented to in the cookie popup.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 16 dye colors: id, display name, hex, legacy numeric ID (0-15, inverted from color slot)
+  var DYES = [
+    { id:'white',      name:'White',       hex:'#F9FFFE', legacy:15 },
+    { id:'orange',     name:'Orange',      hex:'#F9801D', legacy:14 },
+    { id:'magenta',    name:'Magenta',     hex:'#C74EBD', legacy:13 },
+    { id:'light_blue', name:'Light Blue',  hex:'#3AB3DA', legacy:12 },
+    { id:'yellow',     name:'Yellow',      hex:'#FED83D', legacy:11 },
+    { id:'lime',       name:'Lime',        hex:'#80C71F', legacy:10 },
+    { id:'pink',       name:'Pink',        hex:'#F38BAA', legacy:9  },
+    { id:'gray',       name:'Gray',        hex:'#474F52', legacy:8  },
+    { id:'light_gray', name:'Light Gray',  hex:'#9D9D97', legacy:7  },
+    { id:'cyan',       name:'Cyan',        hex:'#169C9C', legacy:6  },
+    { id:'purple',     name:'Purple',      hex:'#8932B8', legacy:5  },
+    { id:'blue',       name:'Blue',        hex:'#3C44AA', legacy:4  },
+    { id:'brown',      name:'Brown',       hex:'#835432', legacy:3  },
+    { id:'green',      name:'Green',       hex:'#5E7C16', legacy:2  },
+    { id:'red',        name:'Red',         hex:'#B02E26', legacy:1  },
+    { id:'black',      name:'Black',       hex:'#1D1D21', legacy:0  }
+  ];
+  function dyeById(id) { for (var i=0;i<DYES.length;i++) if (DYES[i].id===id) return DYES[i]; return DYES[0]; }
+
+  // Patterns: id (modern), legacy short code, human name, svg body (uses fill="currentColor" via a wrapping <g>)
+  // viewBox 20x40. Overdraw is fine because base is drawn behind.
+  var PATTERNS = [
+    { id:'stripe_bottom',        legacy:'bs',  name:'Stripe Bottom',        svg:'<rect x="0" y="27" width="20" height="13"/>' },
+    { id:'stripe_top',           legacy:'ts',  name:'Stripe Top',           svg:'<rect x="0" y="0" width="20" height="13"/>' },
+    { id:'stripe_left',          legacy:'ls',  name:'Stripe Left',          svg:'<rect x="0" y="0" width="7" height="40"/>' },
+    { id:'stripe_right',         legacy:'rs',  name:'Stripe Right',         svg:'<rect x="13" y="0" width="7" height="40"/>' },
+    { id:'stripe_center',        legacy:'cs',  name:'Stripe Center',        svg:'<rect x="8" y="0" width="4" height="40"/>' },
+    { id:'stripe_middle',        legacy:'ms',  name:'Stripe Middle',        svg:'<rect x="0" y="17" width="20" height="6"/>' },
+    { id:'stripe_downright',     legacy:'drs', name:'Stripe Downright',     svg:'<polygon points="0,0 4,0 20,36 20,40 16,40 0,4"/>' },
+    { id:'stripe_downleft',      legacy:'dls', name:'Stripe Downleft',      svg:'<polygon points="16,0 20,0 20,4 4,40 0,40 0,36"/>' },
+    { id:'small_stripes',        legacy:'ss',  name:'Small Stripes',        svg:'<rect x="0" y="0" width="2" height="18"/><rect x="4" y="0" width="2" height="18"/><rect x="8" y="0" width="2" height="18"/><rect x="12" y="0" width="2" height="18"/><rect x="16" y="0" width="2" height="18"/>' },
+    { id:'cross',                legacy:'cr',  name:'Cross',                svg:'<polygon points="0,0 4,0 20,36 20,40 16,40 0,4"/><polygon points="16,0 20,0 20,4 4,40 0,40 0,36"/>' },
+    { id:'straight_cross',       legacy:'sc',  name:'Straight Cross',       svg:'<rect x="8" y="0" width="4" height="40"/><rect x="0" y="17" width="20" height="6"/>' },
+    { id:'triangle_bottom',      legacy:'bt',  name:'Triangle Bottom',      svg:'<polygon points="0,40 20,40 10,24"/>' },
+    { id:'triangle_top',         legacy:'tt',  name:'Triangle Top',         svg:'<polygon points="0,0 20,0 10,16"/>' },
+    { id:'triangles_bottom',     legacy:'bts', name:'Triangles Bottom',     svg:'<polygon points="0,40 4,32 8,40"/><polygon points="8,40 12,32 16,40"/><polygon points="16,40 20,34 20,40"/><polygon points="0,34 0,40 4,40"/>' },
+    { id:'triangles_top',        legacy:'tts', name:'Triangles Top',        svg:'<polygon points="0,0 4,8 8,0"/><polygon points="8,0 12,8 16,0"/><polygon points="16,0 20,6 20,0"/><polygon points="0,0 0,6 4,0"/>' },
+    { id:'diagonal_left',        legacy:'ld',  name:'Diagonal Left',        svg:'<polygon points="0,0 20,0 0,40"/>' },
+    { id:'diagonal_right',       legacy:'rd',  name:'Diagonal Right',       svg:'<polygon points="20,0 20,40 0,40"/>' },
+    { id:'diagonal_up_left',     legacy:'lud', name:'Diagonal Up Left',     svg:'<polygon points="0,0 20,40 0,40"/>' },
+    { id:'diagonal_up_right',    legacy:'rud', name:'Diagonal Up Right',    svg:'<polygon points="0,0 20,0 20,40"/>' },
+    { id:'circle',               legacy:'mc',  name:'Circle Middle',        svg:'<circle cx="10" cy="20" r="6"/>' },
+    { id:'rhombus',              legacy:'mr',  name:'Rhombus Middle',       svg:'<polygon points="10,12 18,20 10,28 2,20"/>' },
+    { id:'half_vertical',        legacy:'vh',  name:'Half Vertical',        svg:'<rect x="0" y="0" width="10" height="40"/>' },
+    { id:'half_vertical_right',  legacy:'vhr', name:'Half Vertical Right',  svg:'<rect x="10" y="0" width="10" height="40"/>' },
+    { id:'half_horizontal',      legacy:'hh',  name:'Half Horizontal',      svg:'<rect x="0" y="0" width="20" height="20"/>' },
+    { id:'half_horizontal_bottom', legacy:'hhb', name:'Half Horizontal Bottom', svg:'<rect x="0" y="20" width="20" height="20"/>' },
+    { id:'square_bottom_left',   legacy:'bl',  name:'Square Bottom Left',   svg:'<rect x="0" y="20" width="10" height="20"/>' },
+    { id:'square_bottom_right',  legacy:'br',  name:'Square Bottom Right',  svg:'<rect x="10" y="20" width="10" height="20"/>' },
+    { id:'square_top_left',      legacy:'tl',  name:'Square Top Left',      svg:'<rect x="0" y="0" width="10" height="20"/>' },
+    { id:'square_top_right',     legacy:'tr',  name:'Square Top Right',     svg:'<rect x="10" y="0" width="10" height="20"/>' },
+    { id:'border',               legacy:'bo',  name:'Border',               svg:'<path d="M0,0 H20 V40 H0 Z M2,2 V38 H18 V2 Z" fill-rule="evenodd"/>' },
+    { id:'curly_border',         legacy:'cbo', name:'Curly Border',         svg:'<path d="M0,0 H20 V40 H0 Z M3,3 V37 H17 V3 Z M2,4 L4,2 M6,4 L8,2 M10,4 L12,2 M14,4 L16,2 M2,36 L4,38 M6,36 L8,38 M10,36 L12,38 M14,36 L16,38" fill-rule="evenodd" stroke="currentColor" stroke-width="1"/>' },
+    { id:'bricks',               legacy:'bri', name:'Bricks',               svg:'<rect x="0" y="4" width="20" height="1"/><rect x="0" y="12" width="20" height="1"/><rect x="0" y="20" width="20" height="1"/><rect x="0" y="28" width="20" height="1"/><rect x="0" y="36" width="20" height="1"/><rect x="4" y="0" width="1" height="4"/><rect x="10" y="0" width="1" height="4"/><rect x="16" y="0" width="1" height="4"/><rect x="0" y="5" width="1" height="7"/><rect x="6" y="5" width="1" height="7"/><rect x="12" y="5" width="1" height="7"/><rect x="18" y="5" width="1" height="7"/><rect x="4" y="13" width="1" height="7"/><rect x="10" y="13" width="1" height="7"/><rect x="16" y="13" width="1" height="7"/><rect x="0" y="21" width="1" height="7"/><rect x="6" y="21" width="1" height="7"/><rect x="12" y="21" width="1" height="7"/><rect x="18" y="21" width="1" height="7"/><rect x="4" y="29" width="1" height="7"/><rect x="10" y="29" width="1" height="7"/><rect x="16" y="29" width="1" height="7"/><rect x="0" y="37" width="1" height="3"/><rect x="6" y="37" width="1" height="3"/><rect x="12" y="37" width="1" height="3"/><rect x="18" y="37" width="1" height="3"/>' },
+    { id:'gradient',             legacy:'gra', name:'Gradient',             svg:'<polygon points="0,0 20,0 18,10 15,18 12,24 8,24 5,18 2,10"/>' },
+    { id:'gradient_up',          legacy:'gru', name:'Gradient Up',          svg:'<polygon points="0,40 20,40 18,30 15,22 12,16 8,16 5,22 2,30"/>' },
+    { id:'flower',               legacy:'flo', name:'Flower Charge',        svg:'<circle cx="10" cy="12" r="3"/><circle cx="6" cy="20" r="3"/><circle cx="14" cy="20" r="3"/><circle cx="10" cy="28" r="3"/><circle cx="10" cy="20" r="1.5"/>' },
+    { id:'creeper',              legacy:'cre', name:'Creeper Charge',       svg:'<rect x="4" y="12" width="4" height="6"/><rect x="12" y="12" width="4" height="6"/><rect x="8" y="20" width="4" height="4"/><rect x="6" y="24" width="8" height="4"/><rect x="6" y="28" width="3" height="4"/><rect x="11" y="28" width="3" height="4"/>' },
+    { id:'skull',                legacy:'sku', name:'Skull Charge',         svg:'<ellipse cx="10" cy="16" rx="5" ry="5"/><rect x="7" y="21" width="6" height="3"/><rect x="8" y="24" width="4" height="4"/><rect x="6" y="14" width="2" height="2" fill="#F9FFFE"/><rect x="12" y="14" width="2" height="2" fill="#F9FFFE"/>' },
+    { id:'mojang',               legacy:'moj', name:'Mojang Thing',         svg:'<path d="M10,10 Q6,10 6,15 Q6,20 10,22 Q14,20 14,15 Q14,10 10,10 Z M8,24 L10,28 L12,24 Z"/>' },
+    { id:'globe',                legacy:'glb', name:'Globe',                svg:'<circle cx="10" cy="20" r="7"/><path d="M3,20 Q10,10 17,20 Q10,30 3,20 Z M10,13 V27 M4,20 H16" stroke="currentColor" stroke-width="0.6" fill="none"/>' },
+    { id:'piglin',               legacy:'pig', name:'Piglin Snout',         svg:'<rect x="7" y="16" width="6" height="8" rx="1"/><rect x="8" y="18" width="1.5" height="1.5" fill="#1D1D21"/><rect x="10.5" y="18" width="1.5" height="1.5" fill="#1D1D21"/>' },
+    { id:'flow',                 legacy:'flw', name:'Flow',                 svg:'<path d="M2,14 Q10,8 18,14 Q10,20 2,14 Z M2,26 Q10,20 18,26 Q10,32 2,26 Z" fill="currentColor"/>' },
+    { id:'guster',               legacy:'gus', name:'Guster',               svg:'<circle cx="6" cy="16" r="3"/><circle cx="14" cy="16" r="3"/><circle cx="10" cy="22" r="3.5"/><circle cx="6" cy="28" r="2.5"/><circle cx="14" cy="28" r="2.5"/>' }
+  ];
+
+  // State
+  var state = {
+    baseColor: 'white',
+    patternColor: 'black',
+    layers: [], // { pattern:id, color:id }
+    format: 'modern'
+  };
+  var MAX_LAYERS = 6;
+
+  // Build swatch grids
+  function buildSwatches(container, group) {
+    container.innerHTML = '';
+    DYES.forEach(function(d){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'swatch';
+      b.style.color = d.hex;
+      b.title = d.name;
+      b.dataset.id = d.id;
+      b.dataset.group = group;
+      container.appendChild(b);
+    });
+  }
+  var baseGrid = document.getElementById('base-swatches');
+  var patternGrid = document.getElementById('pattern-swatches');
+  buildSwatches(baseGrid, 'base');
+  buildSwatches(patternGrid, 'pattern');
+
+  function refreshSwatchActive() {
+    Array.prototype.forEach.call(baseGrid.children, function(b){
+      b.classList.toggle('is-active', b.dataset.id === state.baseColor);
+    });
+    Array.prototype.forEach.call(patternGrid.children, function(b){
+      b.classList.toggle('is-active', b.dataset.id === state.patternColor);
+    });
+    document.getElementById('base-label').textContent = state.baseColor;
+    document.getElementById('pattern-label').textContent = state.patternColor;
+  }
+
+  baseGrid.addEventListener('click', function(e){
+    var t = e.target;
+    if (!t.classList.contains('swatch')) return;
+    state.baseColor = t.dataset.id;
+    renderAll();
+  });
+  patternGrid.addEventListener('click', function(e){
+    var t = e.target;
+    if (!t.classList.contains('swatch')) return;
+    state.patternColor = t.dataset.id;
+    renderAll();
+  });
+
+  // Build pattern picker grid
+  var picker = document.getElementById('pattern-grid');
+  function buildPatternPicker() {
+    picker.innerHTML = '';
+    PATTERNS.forEach(function(p){
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'pattern-tile';
+      tile.dataset.pattern = p.id;
+      tile.title = p.name;
+
+      var thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      thumb.innerHTML =
+        '<svg viewBox="0 0 20 40" preserveAspectRatio="none" shape-rendering="crispEdges" style="width:100%;height:100%;display:block;">' +
+          '<rect x="0" y="0" width="20" height="40" fill="#B02E26"/>' +
+          '<g style="color:' + dyeById(state.patternColor).hex + '" fill="currentColor">' + p.svg + '</g>' +
+        '</svg>';
+      tile.appendChild(thumb);
+
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = p.name;
+      tile.appendChild(name);
+
+      picker.appendChild(tile);
+    });
+  }
+  picker.addEventListener('click', function(e){
+    var t = e.target.closest('.pattern-tile');
+    if (!t) return;
+    if (state.layers.length >= MAX_LAYERS) return;
+    state.layers.push({ pattern: t.dataset.pattern, color: state.patternColor });
+    renderAll();
+  });
+
+  // Render banner preview + layers list
+  var previewBase = document.getElementById('preview-base');
+  var previewLayers = document.getElementById('preview-layers');
+  var layersList = document.getElementById('layers-list');
+
+  function patternById(id) { for (var i=0;i<PATTERNS.length;i++) if (PATTERNS[i].id===id) return PATTERNS[i]; return null; }
+
+  function renderPreview() {
+    previewBase.setAttribute('fill', dyeById(state.baseColor).hex);
+    var s = '';
+    state.layers.forEach(function(L){
+      var p = patternById(L.pattern);
+      if (!p) return;
+      s += '<g style="color:' + dyeById(L.color).hex + '" fill="currentColor">' + p.svg + '</g>';
+    });
+    previewLayers.innerHTML = s;
+  }
+
+  function renderLayersList() {
+    if (state.layers.length === 0) {
+      layersList.innerHTML = '<div class="layers-empty">No patterns yet. Click one below to add it in the current pattern color.</div>';
+      return;
+    }
+    var html = '';
+    // Show top-of-list = last drawn (top-most visually)
+    for (var i = state.layers.length - 1; i >= 0; i--) {
+      var L = state.layers[i];
+      var p = patternById(L.pattern);
+      if (!p) continue;
+      html +=
+        '<div class="layer-item">' +
+          '<svg class="layer-thumb" viewBox="0 0 20 40" preserveAspectRatio="none" shape-rendering="crispEdges">' +
+            '<rect x="0" y="0" width="20" height="40" fill="' + dyeById(state.baseColor).hex + '"/>' +
+            '<g style="color:' + dyeById(L.color).hex + '" fill="currentColor">' + p.svg + '</g>' +
+          '</svg>' +
+          '<div class="layer-info">' +
+            '<div class="pname">' + p.name + '</div>' +
+            '<div class="pcolor">' + L.color + '</div>' +
+          '</div>' +
+          '<div class="layer-controls">' +
+            '<button type="button" class="btn btn-mini" data-act="up" data-idx="' + i + '" title="Move up (later)">&uarr;</button>' +
+            '<button type="button" class="btn btn-mini" data-act="down" data-idx="' + i + '" title="Move down (earlier)">&darr;</button>' +
+            '<button type="button" class="btn btn-mini btn-danger" data-act="del" data-idx="' + i + '" title="Remove">&times;</button>' +
+          '</div>' +
+        '</div>';
+    }
+    layersList.innerHTML = html;
+  }
+  layersList.addEventListener('click', function(e){
+    var t = e.target.closest('button[data-act]');
+    if (!t) return;
+    var idx = parseInt(t.dataset.idx, 10);
+    var act = t.dataset.act;
+    if (act === 'del') {
+      state.layers.splice(idx, 1);
+    } else if (act === 'up' && idx < state.layers.length - 1) {
+      var tmp = state.layers[idx];
+      state.layers[idx] = state.layers[idx+1];
+      state.layers[idx+1] = tmp;
+    } else if (act === 'down' && idx > 0) {
+      var tmp2 = state.layers[idx];
+      state.layers[idx] = state.layers[idx-1];
+      state.layers[idx-1] = tmp2;
+    }
+    renderAll();
+  });
+
+  // Give command
+  var giveOut = document.getElementById('give-cmd');
+  function buildGive() {
+    if (state.format === 'modern') {
+      if (state.layers.length === 0) {
+        return '/give @p ' + state.baseColor + '_banner 1';
+      }
+      var parts = state.layers.map(function(L){
+        return '{pattern:"minecraft:' + L.pattern + '",color:"' + L.color + '"}';
+      });
+      return '/give @p ' + state.baseColor + '_banner[banner_patterns=[' + parts.join(',') + ']] 1';
+    } else {
+      // Legacy 1.20.4 and earlier
+      if (state.layers.length === 0) {
+        return '/give @p white_banner{Damage:' + (15 - dyeById(state.baseColor).legacy) + '} 1';
+      }
+      // Legacy uses white_banner + Damage sets base color (0=white, 15=black) in very old versions,
+      // but 1.13+ uses per-color banner items. Emit per-color item + patterns array.
+      var patParts = state.layers.map(function(L){
+        return '{Pattern:"' + patternById(L.pattern).legacy + '",Color:' + (15 - dyeById(L.color).legacy) + '}';
+      });
+      return '/give @p ' + state.baseColor + '_banner{BlockEntityTag:{Patterns:[' + patParts.join(',') + ']}} 1';
+    }
+  }
+  function renderGive() { giveOut.textContent = buildGive(); }
+
+  // Format toggle
+  var fmtModern = document.getElementById('fmt-modern');
+  var fmtLegacy = document.getElementById('fmt-legacy');
+  fmtModern.addEventListener('click', function(){ state.format = 'modern'; fmtModern.classList.add('is-active'); fmtLegacy.classList.remove('is-active'); renderGive(); });
+  fmtLegacy.addEventListener('click', function(){ state.format = 'legacy'; fmtLegacy.classList.add('is-active'); fmtModern.classList.remove('is-active'); renderGive(); });
+
+  // Copy + reset
+  var btnCopy = document.getElementById('btn-copy');
+  var btnReset = document.getElementById('btn-reset');
+  btnCopy.addEventListener('click', function(){
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(giveOut.textContent).then(function(){
+        var orig = btnCopy.textContent;
+        btnCopy.textContent = 'Copied';
+        btnCopy.classList.add('is-copied');
+        setTimeout(function(){ btnCopy.textContent = orig; btnCopy.classList.remove('is-copied'); }, 1400);
+      });
+    }
+  });
+  btnReset.addEventListener('click', function(){
+    state.layers = [];
+    renderAll();
+  });
+
+  function renderAll() {
+    refreshSwatchActive();
+    renderPreview();
+    renderLayersList();
+    renderGive();
+    // Rebuild pattern picker so thumbnails reflect current pattern color
+    buildPatternPicker();
+  }
+  renderAll();
+})();
+</script>
+
+</body>
+</html>

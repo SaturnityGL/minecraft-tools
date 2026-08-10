@@ -1,0 +1,733 @@
+<!-- ============================================================
+     redstone/sequencer/index.html - BlockForge Redstone Sequencer
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redstone Sequencer Generator: Design Stepped Note Grids for Minecraft</title>
+  <meta name="description" content="Design a stepped redstone sequencer in your browser. Toggle cells on a lanes-by-steps grid, pick your substrate and on-block, and export a ready-to-place Minecraft schematic in .litematic or .schem. Nothing uploaded.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/redstone/sequencer/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/redstone/sequencer/">
+  <meta property="og:title" content="Redstone Sequencer Generator for Minecraft">
+  <meta property="og:description" content="Design a stepped redstone sequencer in your browser and export a ready-to-place Minecraft schematic.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Redstone Sequencer Generator for Minecraft">
+  <meta name="twitter:description" content="Design a stepped redstone sequencer and export a schematic.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/redstone/sequencer/#sequencer",
+    "name": "BlockForge Redstone Sequencer",
+    "url": "https://blockforge.saturnitystools.com/redstone/sequencer/",
+    "description": "Free browser tool for designing stepped redstone sequencers on a lanes-by-steps grid and exporting them as Minecraft schematics in .litematic or .schem format.",
+    "applicationCategory": "MultimediaApplication",
+    "applicationSubCategory": "Minecraft redstone schematic generator",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Modern browser with JavaScript enabled",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" },
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+    "isPartOf": { "@id": "https://blockforge.saturnitystools.com/#website" }
+  }
+  </script>
+
+  <style>
+    main.seq-main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 28px auto 48px;
+      padding: 0 20px;
+    }
+    .seq-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .seq-header h1 {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .seq-header p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .seq-body {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .seq-body { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 16px 18px;
+    }
+    .panel h3 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: var(--color-text);
+      margin-bottom: 10px;
+    }
+    .opt-row { margin-bottom: 12px; }
+    .opt-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .opt-row select, .opt-row input[type="number"], .opt-row input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+    .opt-row input[type="text"] {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+    }
+    .opt-help {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .btn {
+      appearance: none;
+      background: var(--color-accent);
+      border: 1px solid var(--color-accent-deep);
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .btn:hover { background: var(--color-accent-hover); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.btn-secondary {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+    .btn.btn-secondary:hover { background: var(--color-border); }
+    .btn.is-copied, .btn.is-exported {
+      background: var(--color-mc-green);
+      border-color: var(--color-mc-green);
+    }
+    .btn-block { display: block; width: 100%; margin-top: 4px; }
+
+    /* Center grid area */
+    .grid-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .grid-wrap {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 18px 20px;
+      overflow-x: auto;
+    }
+    .grid-legend {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .grid-legend .axis-x {
+      font-family: var(--font-display);
+      letter-spacing: 0.5px;
+      color: var(--color-text);
+      font-size: 12px;
+    }
+
+    .step-grid {
+      display: grid;
+      gap: 3px;
+      user-select: none;
+    }
+    .step-cell {
+      background: #d4c8b0;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 3px;
+      aspect-ratio: 1 / 1;
+      min-width: 22px;
+      cursor: pointer;
+      transition: background 0.06s, transform 0.06s;
+    }
+    .step-cell:hover { transform: scale(1.06); }
+    .step-cell.is-on {
+      background: var(--color-accent);
+      border-color: var(--color-accent-deep);
+    }
+    .step-cell.is-downbeat {
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+    }
+
+    .grid-labels-x {
+      display: grid;
+      gap: 3px;
+      margin-bottom: 4px;
+      font-size: 10px;
+      color: var(--color-text-muted);
+      text-align: center;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+    .grid-body {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 4px;
+      align-items: center;
+    }
+    .grid-labels-y {
+      display: grid;
+      gap: 3px;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-align: right;
+      padding-right: 4px;
+      font-family: var(--font-display);
+      letter-spacing: 0.5px;
+    }
+    .grid-labels-y span {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--color-text);
+    }
+    .stats-bar .stat { display: flex; flex-direction: column; }
+    .stats-bar .stat .lab {
+      font-size: 10.5px;
+      color: var(--color-text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .stats-bar .stat .val {
+      font-family: 'Consolas', 'Monaco', monospace;
+      color: var(--color-text);
+      font-size: 14px;
+    }
+
+    .export-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+    @media (max-width: 600px) {
+      .export-row { grid-template-columns: 1fr; }
+    }
+
+    .primer {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 22px 26px;
+      margin-top: 24px;
+    }
+    .primer h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .primer h3 { font-size: 15px; margin: 14px 0 6px; }
+    .primer p { line-height: 1.65; margin-bottom: 10px; color: var(--color-text); }
+    .primer ul { margin: 0 0 10px 20px; line-height: 1.65; }
+    .primer code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+      </div>
+    </div>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="seq-main">
+
+  <div class="seq-header">
+    <h1>Redstone Sequencer</h1>
+    <p>Click cells to set which lanes fire on each step. Pick your substrate and on-block, then export the schematic. Reads out as a stepped ROM: one step per row along +Z, one lane per column along +X.</p>
+  </div>
+
+  <div class="seq-body">
+
+    <aside class="panel">
+      <h3>Grid</h3>
+      <div class="opt-row">
+        <label for="opt-lanes">Lanes (X)</label>
+        <input type="number" id="opt-lanes" min="1" max="16" step="1" value="8">
+      </div>
+      <div class="opt-row">
+        <label for="opt-steps">Steps (Z)</label>
+        <input type="number" id="opt-steps" min="1" max="64" step="1" value="16">
+      </div>
+      <div class="opt-row">
+        <label for="opt-zspacing">Step spacing (Z gap)</label>
+        <select id="opt-zspacing">
+          <option value="0" selected>0 (dense)</option>
+          <option value="1">1 block gap</option>
+          <option value="2">2 block gap</option>
+          <option value="3">3 block gap</option>
+        </select>
+        <div class="opt-help">Extra blocks between rows for repeaters or dust runs.</div>
+      </div>
+
+      <h3 style="margin-top:18px;">Blocks</h3>
+      <div class="opt-row">
+        <label for="opt-substrate">Substrate</label>
+        <select id="opt-substrate">
+          <option value="minecraft:stone" selected>Stone</option>
+          <option value="minecraft:smooth_stone">Smooth Stone</option>
+          <option value="minecraft:polished_andesite">Polished Andesite</option>
+          <option value="minecraft:polished_blackstone">Polished Blackstone</option>
+          <option value="minecraft:iron_block">Iron Block</option>
+          <option value="minecraft:gray_concrete">Gray Concrete</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <label for="opt-on">ON block</label>
+        <select id="opt-on">
+          <option value="minecraft:redstone_block" selected>Redstone Block</option>
+          <option value="minecraft:redstone_lamp[lit=true]">Redstone Lamp (lit)</option>
+          <option value="minecraft:emerald_block">Emerald Block</option>
+          <option value="minecraft:diamond_block">Diamond Block</option>
+          <option value="minecraft:gold_block">Gold Block</option>
+          <option value="minecraft:lime_concrete">Lime Concrete</option>
+        </select>
+        <div class="opt-help">Placed where a cell is on. Off cells are left empty.</div>
+      </div>
+
+      <h3 style="margin-top:18px;">Presets</h3>
+      <div class="preset-row">
+        <button type="button" class="btn btn-secondary" data-preset="clear">Clear</button>
+        <button type="button" class="btn btn-secondary" data-preset="fill">Fill</button>
+        <button type="button" class="btn btn-secondary" data-preset="checker">Checker</button>
+        <button type="button" class="btn btn-secondary" data-preset="diagonal">Diagonal</button>
+        <button type="button" class="btn btn-secondary" data-preset="downbeats">Downbeats</button>
+        <button type="button" class="btn btn-secondary" data-preset="kick_snare">Kick+Snare</button>
+      </div>
+    </aside>
+
+    <div class="grid-panel">
+      <div class="grid-wrap">
+        <div class="grid-legend">
+          <span class="axis-x">Lanes (X) &rarr;</span>
+          <span>&darr; Steps (Z) play top to bottom</span>
+        </div>
+        <div class="grid-body">
+          <div class="grid-labels-y" id="grid-labels-y"></div>
+          <div>
+            <div class="grid-labels-x" id="grid-labels-x"></div>
+            <div class="step-grid" id="step-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat"><span class="lab">Dimensions</span><span class="val" id="stat-dim">-</span></div>
+        <div class="stat"><span class="lab">Volume</span><span class="val" id="stat-vol">-</span></div>
+        <div class="stat"><span class="lab">Substrate blocks</span><span class="val" id="stat-sub">-</span></div>
+        <div class="stat"><span class="lab">ON blocks</span><span class="val" id="stat-on">-</span></div>
+        <div class="stat"><span class="lab">Total blocks</span><span class="val" id="stat-total">-</span></div>
+      </div>
+
+      <div class="panel">
+        <h3>Export</h3>
+        <div class="export-row">
+          <div class="opt-row" style="margin:0;">
+            <label for="opt-name">Filename</label>
+            <input type="text" id="opt-name" value="sequencer" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="opt-row" style="margin:0;">
+            <label for="opt-fmt">Format</label>
+            <select id="opt-fmt">
+              <option value="litematic">.litematic</option>
+              <option value="schem">.schem v2</option>
+            </select>
+          </div>
+          <button type="button" class="btn" id="btn-export">Export schematic</button>
+        </div>
+        <div class="opt-help" style="margin-top:8px;">Drop the file into your world with Litematica or WorldEdit. Substrate goes at Y=0, on-blocks at Y=1.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="primer">
+    <h2>How this reads out in-game</h2>
+    <p>The schematic places a two-layer strip: substrate blocks at Y=0 across the full grid, and on-blocks at Y=1 only where you clicked a cell. Each row along +Z is one step; each column along +X is one lane (one output).</p>
+    <p>To sequence it, run a moving pulse along +Z on top of the strip (an observer clock, a comparator loop, or a mob head on ice pushed by pistons). At each step position, a comparator or observer above the on-block turns the cell into a pulse on that lane's output line.</p>
+
+    <h3>Common uses</h3>
+    <ul>
+      <li><strong>Note block songs.</strong> Each lane feeds a note block tuned to a different pitch. Steps = beats.</li>
+      <li><strong>Firework shows.</strong> Each lane triggers a different color launcher.</li>
+      <li><strong>Farm cycles.</strong> Lanes drive dispensers, pistons, or bone-meal for staggered plant tick timing.</li>
+      <li><strong>Assembly programs.</strong> A read pulse across the whole strip pulls out one instruction word at a time.</li>
+    </ul>
+
+    <h3>Related</h3>
+    <p>If you want to load a fixed lookup table straight from a file, the <a href="/redstone/rom/">Redstone ROM Builder</a> uses the same layout and reads binary input directly.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script type="module">
+  import { BlockGrid } from '/assets/js/viewer/blockgrid.js';
+  import { exportLitematic, exportSchemV2, triggerDownload } from '/assets/js/merger/export.js';
+
+  var state = {
+    lanes: 8,
+    steps: 16,
+    zSpacing: 0,
+    substrate: 'minecraft:stone',
+    onBlock: 'minecraft:redstone_block',
+    // cells[step][lane] = 0/1
+    cells: null
+  };
+
+  function makeCells(steps, lanes, fillFn) {
+    var arr = new Array(steps);
+    for (var s = 0; s < steps; s++) {
+      arr[s] = new Uint8Array(lanes);
+      if (fillFn) {
+        for (var l = 0; l < lanes; l++) arr[s][l] = fillFn(s, l) ? 1 : 0;
+      }
+    }
+    return arr;
+  }
+
+  function resizeCells(newSteps, newLanes) {
+    var out = makeCells(newSteps, newLanes);
+    if (state.cells) {
+      var oldSteps = state.cells.length;
+      var oldLanes = state.cells[0] ? state.cells[0].length : 0;
+      for (var s = 0; s < Math.min(oldSteps, newSteps); s++) {
+        for (var l = 0; l < Math.min(oldLanes, newLanes); l++) {
+          out[s][l] = state.cells[s][l];
+        }
+      }
+    }
+    state.cells = out;
+  }
+
+  var stepGrid = document.getElementById('step-grid');
+  var labelsX = document.getElementById('grid-labels-x');
+  var labelsY = document.getElementById('grid-labels-y');
+
+  function renderGrid() {
+    var lanes = state.lanes;
+    var steps = state.steps;
+    stepGrid.style.gridTemplateColumns = 'repeat(' + lanes + ', minmax(22px, 32px))';
+    labelsX.style.gridTemplateColumns = 'repeat(' + lanes + ', minmax(22px, 32px))';
+    labelsY.style.gridTemplateRows = 'repeat(' + steps + ', minmax(22px, 32px))';
+
+    var xh = '';
+    for (var l = 0; l < lanes; l++) xh += '<span>' + (l+1) + '</span>';
+    labelsX.innerHTML = xh;
+
+    var yh = '';
+    for (var s = 0; s < steps; s++) yh += '<span>' + (s+1) + '</span>';
+    labelsY.innerHTML = yh;
+
+    var h = '';
+    for (var s2 = 0; s2 < steps; s2++) {
+      for (var l2 = 0; l2 < lanes; l2++) {
+        var on = state.cells[s2][l2];
+        var downbeat = (s2 % 4 === 0) ? ' is-downbeat' : '';
+        h += '<div class="step-cell' + (on ? ' is-on' : '') + downbeat + '" data-s="' + s2 + '" data-l="' + l2 + '"></div>';
+      }
+    }
+    stepGrid.innerHTML = h;
+    renderStats();
+  }
+
+  // Click + drag to paint
+  var painting = false;
+  var paintValue = 1;
+  stepGrid.addEventListener('mousedown', function(e){
+    var t = e.target.closest('.step-cell');
+    if (!t) return;
+    var s = +t.dataset.s, l = +t.dataset.l;
+    painting = true;
+    paintValue = state.cells[s][l] ? 0 : 1;
+    state.cells[s][l] = paintValue;
+    t.classList.toggle('is-on', paintValue === 1);
+    renderStats();
+    e.preventDefault();
+  });
+  stepGrid.addEventListener('mouseover', function(e){
+    if (!painting) return;
+    var t = e.target.closest('.step-cell');
+    if (!t) return;
+    var s = +t.dataset.s, l = +t.dataset.l;
+    if (state.cells[s][l] !== paintValue) {
+      state.cells[s][l] = paintValue;
+      t.classList.toggle('is-on', paintValue === 1);
+      renderStats();
+    }
+  });
+  window.addEventListener('mouseup', function(){ painting = false; });
+
+  // Options
+  document.getElementById('opt-lanes').addEventListener('change', function(e){
+    var v = Math.max(1, Math.min(16, parseInt(e.target.value, 10) || 8));
+    e.target.value = v;
+    state.lanes = v;
+    resizeCells(state.steps, state.lanes);
+    renderGrid();
+  });
+  document.getElementById('opt-steps').addEventListener('change', function(e){
+    var v = Math.max(1, Math.min(64, parseInt(e.target.value, 10) || 16));
+    e.target.value = v;
+    state.steps = v;
+    resizeCells(state.steps, state.lanes);
+    renderGrid();
+  });
+  document.getElementById('opt-zspacing').addEventListener('change', function(e){
+    state.zSpacing = parseInt(e.target.value, 10) || 0;
+    renderStats();
+  });
+  document.getElementById('opt-substrate').addEventListener('change', function(e){ state.substrate = e.target.value; });
+  document.getElementById('opt-on').addEventListener('change', function(e){ state.onBlock = e.target.value; });
+
+  // Presets
+  document.querySelectorAll('[data-preset]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var p = btn.dataset.preset;
+      if (p === 'clear') state.cells = makeCells(state.steps, state.lanes);
+      else if (p === 'fill') state.cells = makeCells(state.steps, state.lanes, function(){ return 1; });
+      else if (p === 'checker') state.cells = makeCells(state.steps, state.lanes, function(s,l){ return (s+l)%2 === 0; });
+      else if (p === 'diagonal') state.cells = makeCells(state.steps, state.lanes, function(s,l){ return (s % state.lanes) === l; });
+      else if (p === 'downbeats') state.cells = makeCells(state.steps, state.lanes, function(s,l){ return l === 0 && s % 4 === 0; });
+      else if (p === 'kick_snare') state.cells = makeCells(state.steps, state.lanes, function(s,l){
+        if (l === 0) return s % 4 === 0;              // kick lane on beat 1
+        if (l === 1 && state.lanes >= 2) return s % 4 === 2; // snare lane on beat 3
+        return false;
+      });
+      renderGrid();
+    });
+  });
+
+  // Stats
+  function currentOnCount() {
+    var n = 0;
+    for (var s = 0; s < state.cells.length; s++) {
+      for (var l = 0; l < state.cells[s].length; l++) n += state.cells[s][l];
+    }
+    return n;
+  }
+  function currentDims() {
+    var W = state.lanes;
+    var H = 2;
+    var step = 1 + state.zSpacing;
+    var D = Math.max(1, state.steps * step - state.zSpacing);
+    return { W: W, H: H, D: D };
+  }
+  function renderStats() {
+    var d = currentDims();
+    var onCount = currentOnCount();
+    var subCount = d.W * state.steps; // one substrate per lane per step, gaps have no substrate
+    document.getElementById('stat-dim').textContent = d.W + ' x ' + d.H + ' x ' + d.D;
+    document.getElementById('stat-vol').textContent = (d.W * d.H * d.D).toLocaleString();
+    document.getElementById('stat-sub').textContent = subCount.toLocaleString();
+    document.getElementById('stat-on').textContent = onCount.toLocaleString();
+    document.getElementById('stat-total').textContent = (subCount + onCount).toLocaleString();
+  }
+
+  // Build BlockGrid from state
+  function buildBlockGrid() {
+    var d = currentDims();
+    var grid = new BlockGrid(d.W, d.H, d.D);
+    var step = 1 + state.zSpacing;
+    for (var s = 0; s < state.steps; s++) {
+      var z = s * step;
+      for (var l = 0; l < state.lanes; l++) {
+        grid.set(l, 0, z, state.substrate);
+        if (state.cells[s][l]) {
+          grid.set(l, 1, z, state.onBlock);
+        }
+      }
+    }
+    return grid;
+  }
+
+  // Export
+  var btnExport = document.getElementById('btn-export');
+  btnExport.addEventListener('click', function(){
+    var grid = buildBlockGrid();
+    var fmt = document.getElementById('opt-fmt').value;
+    var name = (document.getElementById('opt-name').value || 'sequencer').replace(/[^A-Za-z0-9_.-]/g, '_');
+    try {
+      var bytes;
+      if (fmt === 'litematic') {
+        bytes = exportLitematic(grid, name);
+        triggerDownload(bytes, name + '.litematic');
+      } else {
+        bytes = exportSchemV2(grid);
+        triggerDownload(bytes, name + '.schem');
+      }
+      var orig = btnExport.textContent;
+      btnExport.textContent = 'Exported';
+      btnExport.classList.add('is-exported');
+      setTimeout(function(){ btnExport.textContent = orig; btnExport.classList.remove('is-exported'); }, 1400);
+    } catch (err) {
+      alert('Export failed: ' + err.message);
+    }
+  });
+
+  // Boot
+  resizeCells(state.steps, state.lanes);
+  renderGrid();
+</script>
+
+</body>
+</html>
