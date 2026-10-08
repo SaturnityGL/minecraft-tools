@@ -3,7 +3,7 @@ build_blocks_page.py
 Generates blocks/index.html from assets/blocks.json and assets/blocks_index.json.
 Run from the repo root: python build_blocks_page.py
 """
-import json, math, html as html_mod
+import json, math, sys, html as html_mod
 
 BASE = "D:/Projects/minecraft-tools"
 
@@ -87,7 +87,7 @@ page = f"""<!DOCTYPE html>
   <meta property="og:title" content="All Minecraft Blocks BlockForge Supports ({total_blocks} Block Palette)">
   <meta property="og:description" content="Complete reference of every Minecraft block BlockForge can target, grouped by material. {total_blocks} blocks across wool, concrete, terracotta, wood, stone, more.">
   <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
-  <meta property="og:site_name" content="Saturnity Minecraft Tools">
+  <meta property="og:site_name" content="BlockForge">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="All Minecraft Blocks BlockForge Supports ({total_blocks} Block Palette)">
@@ -100,7 +100,7 @@ page = f"""<!DOCTYPE html>
   <link rel="manifest" href="/site.webmanifest">
 
   <script src="/assets/js/consent.js?v=2" defer></script>
-  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
 
   <script type="application/ld+json">
   {{
@@ -116,19 +116,50 @@ page = f"""<!DOCTYPE html>
 <body>
 
 <header class="site-header">
-  <a href="/" class="brand">
-    <img src="/favicon.svg" alt="" width="28" height="28">
-    <span>Saturnity Minecraft Tools</span>
-  </a>
+  <a href="/" class="brand">BlockForge</a>
   <nav>
     <a href="/">Home</a>
-    <a href="/app/">BlockForge</a>
-    <a href="/guide/">Guide</a>
-    <a href="/showcase/">Showcase</a>
-    <a href="/blocks/" class="active">Blocks</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+      </div>
+    </div>
     <a href="/faq/">FAQ</a>
   </nav>
+  <script>
+  (function(){{
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){{
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    }});
+    document.addEventListener('click', function(){{
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    }});
+    menu.addEventListener('click', function(e){{ e.stopPropagation(); }});
+  }})();
+  </script>
 </header>
+<div class="pixel-art-subnav">
+  <span class="pixel-art-subnav__label">Pixel Art:</span>
+  <a href="/app/">Generator</a>
+  <a href="/guide/">Guide</a>
+  <a href="/blocks/" class="active">Block reference</a>
+</div>
 
 <main>
   <h1>All Blocks BlockForge Supports</h1>
@@ -152,13 +183,21 @@ page = f"""<!DOCTYPE html>
 <footer class="site-footer">
   <div class="footer-cols">
     <div>
-      <strong>Saturnity Minecraft Tools</strong>
+      <strong>BlockForge</strong>
       <p>Free browser tools for Minecraft builders.</p>
     </div>
     <div>
       <strong>Tools</strong>
       <ul>
-        <li><a href="/app/">BlockForge</a></li>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
         <li><a href="/guide/">How-to guide</a></li>
         <li><a href="/blocks/">Block reference</a></li>
       </ul>
@@ -166,7 +205,12 @@ page = f"""<!DOCTYPE html>
     <div>
       <strong>From Saturnity</strong>
       <ul>
-        <li><a href="https://saturnitystools.com/" rel="noopener">All Saturnity tools</a></li>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
         <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
         <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
       </ul>
@@ -181,14 +225,14 @@ page = f"""<!DOCTYPE html>
     </div>
   </div>
   <div class="footer-credit">
-    Made by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>.
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
   </div>
 </footer>
 </body>
 </html>
 """
 
-out_path = f"{BASE}/blocks/index.html"
+out_path = sys.argv[1] if len(sys.argv) > 1 else f"{BASE}/blocks/index.html"
 with open(out_path, "w", encoding="utf-8") as f:
     f.write(page)
 
