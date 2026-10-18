@@ -199,12 +199,14 @@ export function initExtras(ed) {
 
   const viewport = ed.viewport;
   const refInput = document.getElementById('reference-input');
+  const refBtn = document.getElementById('reference-btn');
   let reference = null;
 
   function removeReference() {
     if (!reference) return;
     reference.remove();
     reference = null;
+    refBtn.textContent = 'Add reference image';
   }
 
   async function addReference(file) {
@@ -265,10 +267,11 @@ export function initExtras(ed) {
     bar.addEventListener('pointercancel', stop);
     for (const type of ['pointerdown', 'wheel']) reference.addEventListener(type, e => e.stopPropagation());
     viewport.append(reference);
+    refBtn.textContent = 'Change reference image';
     ed.setStatus('Reference added. Drag its bar to move it, drag its corner to resize, click it to pick a color. It is not saved with the skin.');
   }
 
-  document.getElementById('reference-btn').addEventListener('click', () => {
+  refBtn.addEventListener('click', () => {
     ed.closeMenus(false);
     refInput.click();
   });

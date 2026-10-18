@@ -62,13 +62,26 @@
     }
     .skins-header {
       display: flex;
-      align-items: baseline;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 4px 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
       margin-bottom: 12px;
-      text-align: center;
+      padding: 0 2px;
     }
+    .skins-title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .skins-badge {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      color: var(--color-text-muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .skins-badge svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
     .skins-header h1 {
       font-family: var(--font-display);
       font-size: 24px;
@@ -80,8 +93,10 @@
     .skins-header p {
       color: var(--color-text-muted);
       font-size: 14px;
-      line-height: 1.55;
+      line-height: 1.4;
       margin: 0;
+      padding-left: 14px;
+      border-left: 1px solid var(--color-border);
     }
 
     .editor {
@@ -732,6 +747,9 @@
 
     @media (max-width: 999px) {
       main.skins-main { padding: 0 12px; margin-bottom: 20px; }
+      .skins-header { flex-direction: column; align-items: center; text-align: center; padding-top: 12px; }
+      .skins-title { flex-direction: column; gap: 4px; }
+      .skins-header p { padding-left: 0; border-left: 0; }
       .editor { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "drawer" "rail"; }
       .rail {
         position: sticky;
@@ -814,8 +832,11 @@
 <main class="skins-main">
 
   <div class="skins-header">
-    <h1>Skin Editor</h1>
-    <p>Paint a Minecraft skin right on the 3D model, then download the PNG. Nothing is uploaded anywhere.</p>
+    <div class="skins-title">
+      <h1>Skin Editor</h1>
+      <p>Paint a Minecraft skin right on the 3D model, then download the PNG.</p>
+    </div>
+    <span class="skins-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Runs in your browser. Nothing is uploaded.</span>
   </div>
 
   <div class="editor">
@@ -1168,37 +1189,37 @@
 <script type="importmap">
 {
   "imports": {
-    "/assets/js/skins/checker.js": "/assets/js/skins/checker.js?v=20261017",
-    "/assets/js/skins/color.js": "/assets/js/skins/color.js?v=20261017",
-    "/assets/js/skins/colorpicker.js": "/assets/js/skins/colorpicker.js?v=20261017",
-    "/assets/js/skins/convert.js": "/assets/js/skins/convert.js?v=20261017",
-    "/assets/js/skins/doc.js": "/assets/js/skins/doc.js?v=20261017",
-    "/assets/js/skins/io.js": "/assets/js/skins/io.js?v=20261017",
-    "/assets/js/skins/paint.js": "/assets/js/skins/paint.js?v=20261017",
-    "/assets/js/skins/parts.js": "/assets/js/skins/parts.js?v=20261017",
-    "/assets/js/skins/png.js": "/assets/js/skins/png.js?v=20261017",
-    "/assets/js/skins/recolor.js": "/assets/js/skins/recolor.js?v=20261017",
-    "/assets/js/skins/select.js": "/assets/js/skins/select.js?v=20261017",
-    "/assets/js/skins/share.js": "/assets/js/skins/share.js?v=20261017",
-    "/assets/js/skins/skinmap.js": "/assets/js/skins/skinmap.js?v=20261017",
-    "/assets/js/skins/store.js": "/assets/js/skins/store.js?v=20261017",
-    "/assets/js/skins/tools-brushes.js": "/assets/js/skins/tools-brushes.js?v=20261017",
-    "/assets/js/skins/tools.js": "/assets/js/skins/tools.js?v=20261017",
-    "/assets/js/skins/ui-color.js": "/assets/js/skins/ui-color.js?v=20261017",
-    "/assets/js/skins/ui-dom.js": "/assets/js/skins/ui-dom.js?v=20261017",
-    "/assets/js/skins/ui-donor.js": "/assets/js/skins/ui-donor.js?v=20261017",
-    "/assets/js/skins/ui-drawer.js": "/assets/js/skins/ui-drawer.js?v=20261017",
-    "/assets/js/skins/ui-extras.js": "/assets/js/skins/ui-extras.js?v=20261017",
-    "/assets/js/skins/ui-pointer.js": "/assets/js/skins/ui-pointer.js?v=20261017",
-    "/assets/js/skins/ui-select.js": "/assets/js/skins/ui-select.js?v=20261017",
-    "/assets/js/skins/ui-store.js": "/assets/js/skins/ui-store.js?v=20261017",
-    "/assets/js/skins/view2d.js": "/assets/js/skins/view2d.js?v=20261017",
-    "/assets/js/skins/view3d.js": "/assets/js/skins/view3d.js?v=20261017",
-    "/assets/js/lib/three.core.min.js": "/assets/js/lib/three.core.min.js?v=20261017",
-    "/assets/js/lib/three.module.min.js": "/assets/js/lib/three.module.min.js?v=20261017"
+    "/assets/js/skins/checker.js": "/assets/js/skins/checker.js?v=20261017b",
+    "/assets/js/skins/color.js": "/assets/js/skins/color.js?v=20261017b",
+    "/assets/js/skins/colorpicker.js": "/assets/js/skins/colorpicker.js?v=20261017b",
+    "/assets/js/skins/convert.js": "/assets/js/skins/convert.js?v=20261017b",
+    "/assets/js/skins/doc.js": "/assets/js/skins/doc.js?v=20261017b",
+    "/assets/js/skins/io.js": "/assets/js/skins/io.js?v=20261017b",
+    "/assets/js/skins/paint.js": "/assets/js/skins/paint.js?v=20261017b",
+    "/assets/js/skins/parts.js": "/assets/js/skins/parts.js?v=20261017b",
+    "/assets/js/skins/png.js": "/assets/js/skins/png.js?v=20261017b",
+    "/assets/js/skins/recolor.js": "/assets/js/skins/recolor.js?v=20261017b",
+    "/assets/js/skins/select.js": "/assets/js/skins/select.js?v=20261017b",
+    "/assets/js/skins/share.js": "/assets/js/skins/share.js?v=20261017b",
+    "/assets/js/skins/skinmap.js": "/assets/js/skins/skinmap.js?v=20261017b",
+    "/assets/js/skins/store.js": "/assets/js/skins/store.js?v=20261017b",
+    "/assets/js/skins/tools-brushes.js": "/assets/js/skins/tools-brushes.js?v=20261017b",
+    "/assets/js/skins/tools.js": "/assets/js/skins/tools.js?v=20261017b",
+    "/assets/js/skins/ui-color.js": "/assets/js/skins/ui-color.js?v=20261017b",
+    "/assets/js/skins/ui-dom.js": "/assets/js/skins/ui-dom.js?v=20261017b",
+    "/assets/js/skins/ui-donor.js": "/assets/js/skins/ui-donor.js?v=20261017b",
+    "/assets/js/skins/ui-drawer.js": "/assets/js/skins/ui-drawer.js?v=20261017b",
+    "/assets/js/skins/ui-extras.js": "/assets/js/skins/ui-extras.js?v=20261017b",
+    "/assets/js/skins/ui-pointer.js": "/assets/js/skins/ui-pointer.js?v=20261017b",
+    "/assets/js/skins/ui-select.js": "/assets/js/skins/ui-select.js?v=20261017b",
+    "/assets/js/skins/ui-store.js": "/assets/js/skins/ui-store.js?v=20261017b",
+    "/assets/js/skins/view2d.js": "/assets/js/skins/view2d.js?v=20261017b",
+    "/assets/js/skins/view3d.js": "/assets/js/skins/view3d.js?v=20261017b",
+    "/assets/js/lib/three.core.min.js": "/assets/js/lib/three.core.min.js?v=20261017b",
+    "/assets/js/lib/three.module.min.js": "/assets/js/lib/three.module.min.js?v=20261017b"
   }
 }
 </script>
-<script type="module" src="/assets/js/skins/ui.js?v=20261017"></script>
+<script type="module" src="/assets/js/skins/ui.js?v=20261017b"></script>
 </body>
 </html>
