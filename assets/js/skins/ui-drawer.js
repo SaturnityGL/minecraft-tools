@@ -1,4 +1,4 @@
-export function createDrawer(root) {
+export function createDrawer(root, { canClose = () => true } = {}) {
   const tabs = [...root.querySelectorAll('[role="tab"]')];
   const panels = new Map(tabs.map(t => [t, document.getElementById(t.getAttribute('aria-controls'))]));
   let active = null;
@@ -18,7 +18,7 @@ export function createDrawer(root) {
   }
 
   for (const t of tabs) {
-    t.addEventListener('click', () => show(active === t ? null : t));
+    t.addEventListener('click', () => show(active === t && canClose() ? null : t));
   }
 
   root.addEventListener('keydown', e => {

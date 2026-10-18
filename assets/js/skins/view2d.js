@@ -217,7 +217,7 @@ export function createView2D(canvas, { doc, state }) {
       doc.version, doc.model, scale, offX, offY, cssW, cssH, dpr,
       state.grid ? 1 : 0, state.layer, state.show.body ? 1 : 0, state.show.outer ? 1 : 0,
       pv.head ? 1 : 0, pv.torso ? 1 : 0, pv.rightArm ? 1 : 0, pv.leftArm ? 1 : 0, pv.rightLeg ? 1 : 0, pv.leftLeg ? 1 : 0,
-      state.backdrop, previewVersion, highlightVersion,
+      state.backdrop, state.backdropLight ? 1 : 0, previewVersion, highlightVersion,
       selection ? `${selection.x},${selection.y},${selection.w},${selection.h},${Math.floor(performance.now() / ANT_SPEED)}` : ''
     ].join('|');
   }
@@ -232,7 +232,7 @@ export function createView2D(canvas, { doc, state }) {
 
   function draw() {
     ensureFaces();
-    const light = state.backdrop === 'light';
+    const light = state.backdrop === 'custom' ? state.backdropLight : state.backdrop === 'light';
     const size = SIZE * scale;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssW, cssH);

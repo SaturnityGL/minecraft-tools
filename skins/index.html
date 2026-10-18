@@ -56,35 +56,45 @@
     main.skins-main {
       flex: 1;
       max-width: 1400px;
-      width: 100%;
-      margin: 14px auto 40px;
-      padding: 0 20px;
+      width: calc(100% - 32px);
+      margin: 14px auto 24px;
+      padding: 14px 20px 20px;
     }
     .skins-header {
-      text-align: center;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px 16px;
       margin-bottom: 12px;
+      text-align: center;
     }
     .skins-header h1 {
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: 24px;
+      line-height: 1.3;
       color: var(--color-text);
       letter-spacing: 1px;
-      margin-bottom: 6px;
+      margin: 0;
     }
     .skins-header p {
       color: var(--color-text-muted);
       font-size: 14px;
       line-height: 1.55;
-      max-width: 660px;
-      margin: 0 auto;
+      margin: 0;
     }
 
     .editor {
       display: grid;
       grid-template-columns: 56px minmax(0, 1fr) 300px;
+      grid-template-areas: "rail stage side" ". drawer drawer";
       gap: 16px;
       align-items: start;
     }
+    .rail { grid-area: rail; }
+    .stage { grid-area: stage; }
+    .side { grid-area: side; }
+    .drawer { grid-area: drawer; }
 
     .panel {
       background: var(--color-bg-surface);
@@ -262,11 +272,13 @@
       font-weight: 600;
     }
 
-    .side { padding: 4px 16px; }
-    .side section {
-      padding: 14px 0;
+    .side { padding: 2px 16px; }
+    main .side section {
+      margin: 0;
+      padding: 12px 0;
       border-top: 1px solid var(--color-border);
     }
+    main .side section::before { display: none; }
     .side section:first-child { border-top: 0; }
     .side h2 {
       font-family: var(--font-display);
@@ -274,11 +286,14 @@
       font-weight: normal;
       letter-spacing: 0.6px;
       color: var(--color-text);
-      margin-bottom: 10px;
+      text-shadow: none;
+      margin-bottom: 8px;
     }
+    .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .sec-head .link-btn { margin: 0; }
 
-    .cp { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .cp-canvas { width: 100%; max-width: 220px; height: auto; touch-action: none; cursor: crosshair; display: block; }
+    .cp { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .cp-canvas { width: 100%; max-width: 190px; height: auto; touch-action: none; cursor: crosshair; display: block; }
     .cp-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 220px; }
     .cp-swatch {
       width: 34px;
@@ -342,7 +357,7 @@
     .parts {
       display: grid;
       grid-template-columns: repeat(16, 10px);
-      grid-template-rows: 34px 54px 54px;
+      grid-template-rows: 28px 44px 44px;
       gap: 2px;
       justify-content: center;
     }
@@ -365,7 +380,7 @@
     .parts [data-part="leftArm"] { grid-column: 13 / 17; grid-row: 2; }
     .parts [data-part="rightLeg"] { grid-column: 5 / 9; grid-row: 3; }
     .parts [data-part="leftLeg"] { grid-column: 9 / 13; grid-row: 3; }
-    .parts-note { margin-top: 8px; font-size: 11.5px; color: var(--color-text-muted); text-align: center; line-height: 1.45; }
+    .parts-note { margin: 6px 0 0; font-size: 11.5px; color: var(--color-text-muted); text-align: center; line-height: 1.45; }
     .link-btn {
       appearance: none;
       display: block;
@@ -388,7 +403,7 @@
       appearance: none;
       border: 0;
       border-radius: 8px;
-      padding: 8px 14px;
+      padding: 8px 12px;
       background: none;
       color: var(--color-text);
       font-family: var(--font-body);
@@ -459,12 +474,29 @@
       font-size: 13px;
     }
     .text-input { min-width: 0; }
-    .tool-options {
+    .toolrow {
       flex: 1 1 100%;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 16px;
       min-height: 34px;
       padding-top: 8px;
       border-top: 1px solid var(--color-border);
     }
+    .view-opts { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; margin-left: auto; }
+    .backdrop-custom { display: inline-flex; align-items: center; gap: 6px; }
+    .backdrop-custom input[type="color"] {
+      width: 34px;
+      height: 30px;
+      padding: 2px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .model-menu { left: 0; right: auto; }
+    .viewport[data-backdrop="custom"] { background-position: center; background-size: cover; background-repeat: no-repeat; }
     .tool-opt input[type="checkbox"] { accent-color: var(--color-accent); }
     .tool-opt label { display: inline-flex; align-items: center; gap: 6px; }
     .tool-opt .seg button { padding: 5px 11px; }
@@ -571,7 +603,7 @@
       align-items: baseline;
       justify-content: space-between;
       gap: 8px;
-      margin: 12px 0 6px;
+      margin: 10px 0 5px;
       font-size: 11px;
       color: var(--color-text-muted);
       text-transform: uppercase;
@@ -579,7 +611,7 @@
     }
     .mini-head .link-btn { margin: 0; font-size: 11.5px; text-transform: none; letter-spacing: 0; }
     .empty-note { font-size: 12px; color: var(--color-text-muted); line-height: 1.5; }
-    .fold { margin-top: 12px; border-top: 1px solid var(--color-border); padding-top: 10px; }
+    .fold { margin-top: 10px; border-top: 1px solid var(--color-border); padding-top: 8px; }
     .fold summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--color-text); }
     .fold-body { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; font-size: 13px; }
     .recolor-pair { display: flex; align-items: center; gap: 8px; }
@@ -588,8 +620,8 @@
     .row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .row.spread { justify-content: space-between; }
     .col { display: flex; flex-direction: column; gap: 8px; }
-    .side .part-actions { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .side .part-actions .sk-btn { width: 100%; }
+    .side .part-actions { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .side .part-actions .sk-btn { width: 100%; padding: 6px 6px; font-size: 12px; }
 
     .px-canvas { image-rendering: pixelated; display: block; }
     .card-list { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -669,12 +701,39 @@
     .menu-anchor { position: relative; display: inline-flex; }
     .drawer-panel { max-height: 460px; overflow: auto; }
 
+    @media (min-width: 1360px) {
+      main.skins-main { max-width: 1880px; }
+      .editor {
+        grid-template-columns: minmax(250px, 300px) 56px minmax(0, 1fr) 300px;
+        grid-template-areas: "drawer rail stage side";
+        gap: 14px;
+        align-items: stretch;
+        height: max(640px, calc(100vh - 162px));
+      }
+      .editor > * { min-height: 0; }
+      .rail { overflow-y: auto; }
+      .stage .viewport { flex: 1 1 auto; height: auto; min-height: 320px; }
+      .side { overflow-y: auto; }
+      main .side section { padding: 8px 0; }
+      main .side h2 { margin-bottom: 6px; }
+      .side .cp-canvas { max-width: 156px; }
+      .side .mini-head { margin-top: 7px; }
+      .side .palette, .side .fold { margin-top: 7px; }
+      .drawer { display: flex; flex-direction: column; }
+      .drawer-tabs { flex: none; }
+      .drawer-panel { flex: 1 1 auto; min-height: 0; max-height: none; }
+      .drawer .card { width: 100%; }
+      .drawer .drawer-cols { flex-direction: column; gap: 12px; }
+      .drawer .donor-views { flex-wrap: wrap; }
+      .drawer .donor-views canvas { width: calc(50% - 4px); height: 220px; }
+      .drawer .donor-views canvas.flat { width: calc(50% - 4px); }
+      .drawer .donor-controls { flex: none; width: 100%; }
+    }
+
     @media (max-width: 999px) {
       main.skins-main { padding: 0 12px; margin-bottom: 20px; }
-      .editor { grid-template-columns: minmax(0, 1fr); }
-      .stage { order: 1; }
+      .editor { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "drawer" "rail"; }
       .rail {
-        order: 2;
         position: sticky;
         bottom: 0;
         z-index: 20;
@@ -688,6 +747,7 @@
       .viewport { height: 58vh; min-height: 340px; }
       #side-toggle { display: inline-flex; }
       .side {
+        grid-area: auto;
         position: fixed;
         left: 0;
         right: 0;
@@ -760,6 +820,19 @@
 
   <div class="editor">
 
+    <aside class="drawer panel" id="drawer" aria-label="Drafts, parts and checks">
+      <div class="drawer-tabs" role="tablist" aria-label="Panels">
+        <button type="button" role="tab" id="tab-drafts" data-drawer="drafts" aria-controls="panel-drafts" aria-selected="false" tabindex="0">Drafts</button>
+        <button type="button" role="tab" id="tab-parts" data-drawer="parts" aria-controls="panel-parts" aria-selected="false" tabindex="0">Parts shelf</button>
+        <button type="button" role="tab" id="tab-donor" data-drawer="donor" aria-controls="panel-donor" aria-selected="false" tabindex="0">Donor skin</button>
+        <button type="button" role="tab" id="tab-check" data-drawer="check" aria-controls="panel-check" aria-selected="false" tabindex="0">Check</button>
+      </div>
+      <div class="drawer-panel" id="panel-drafts" role="tabpanel" aria-labelledby="tab-drafts" hidden><div id="drawer-drafts"></div></div>
+      <div class="drawer-panel" id="panel-parts" role="tabpanel" aria-labelledby="tab-parts" hidden><div id="drawer-parts"></div></div>
+      <div class="drawer-panel" id="panel-donor" role="tabpanel" aria-labelledby="tab-donor" hidden><div id="drawer-donor"></div></div>
+      <div class="drawer-panel" id="panel-check" role="tabpanel" aria-labelledby="tab-check" hidden><div id="drawer-check"></div></div>
+    </aside>
+
     <div class="rail panel" id="tool-rail" role="toolbar" aria-label="Tools">
       <button type="button" data-tool="pencil" title="Pencil (B)" aria-label="Pencil" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 013 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
@@ -826,13 +899,22 @@
           <button type="button" data-view="2d" aria-pressed="false" title="Flat texture view (Tab cycles views)">Flat</button>
           <button type="button" data-view="split" id="view-split" aria-pressed="false" title="3D and flat side by side (Tab cycles views)">Split</button>
         </div>
-        <select class="bar-select" id="pose-select" aria-label="Pose" title="Pose the model to check how the skin looks in motion">
-          <option value="stand">Standing</option>
-          <option value="walk">Walking</option>
-          <option value="run">Running</option>
-          <option value="sneak">Sneaking</option>
-          <option value="armsOut">Arms out</option>
-        </select>
+        <span class="menu-anchor">
+          <div class="seg" id="model-seg" role="group" aria-label="Skin model">
+            <button type="button" data-model="classic" aria-pressed="true" title="Classic model, 4 pixel wide arms">Classic</button>
+            <button type="button" data-model="slim" aria-pressed="false" title="Slim model, 3 pixel wide arms">Slim</button>
+          </div>
+          <div class="more-menu model-menu" id="model-confirm" hidden>
+            <div class="confirm-row">
+              <span id="model-confirm-text"></span>
+              <div class="btn-col">
+                <button type="button" class="sk-btn primary" id="model-convert">Convert arms</button>
+                <button type="button" class="sk-btn" id="model-keep">Only change type</button>
+                <button type="button" class="sk-btn" id="model-cancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </span>
         <div class="topbar-right">
           <button type="button" class="sk-btn small" id="side-toggle" aria-expanded="false" aria-controls="side">Colors and layers</button>
           <button type="button" class="sk-btn small" id="upload-btn" title="Open a skin PNG as a new draft">Upload</button>
@@ -850,7 +932,6 @@
             <button type="button" class="sk-btn small" id="more-btn" data-menu="more-menu" aria-haspopup="true" aria-expanded="false" aria-controls="more-menu" title="More actions">More</button>
             <div class="more-menu" id="more-menu" hidden>
               <div class="btn-col">
-                <button type="button" class="sk-btn" id="backdrop-btn" aria-pressed="false">Light backdrop</button>
                 <button type="button" class="sk-btn" id="inset-btn" aria-pressed="false">Show actual-size preview</button>
                 <button type="button" class="sk-btn" id="reference-btn">Add reference image</button>
                 <input type="file" id="reference-input" accept="image/*" hidden>
@@ -867,6 +948,7 @@
             </div>
           </span>
         </div>
+        <div class="toolrow">
         <div class="tool-options" id="tool-options" role="group" aria-label="Tool options">
           <div class="tool-opt" data-tools="pencil eraser autotone blend shade">
             <span>Size</span>
@@ -930,9 +1012,34 @@
             <button type="button" class="sk-btn small" data-select="cancel" title="Put the pixels back (Esc)">Cancel</button>
           </div>
         </div>
+        <div class="view-opts" role="group" aria-label="View options">
+          <label class="tool-opt">Pose
+            <select class="bar-select" id="pose-select" title="Pose the model to check how the skin looks in motion">
+              <option value="stand">Standing</option>
+              <option value="walk">Walking</option>
+              <option value="run">Running</option>
+              <option value="sneak">Sneaking</option>
+              <option value="armsOut">Arms out</option>
+            </select>
+          </label>
+          <label class="tool-opt">Background
+            <select class="bar-select" id="backdrop-select" title="What shows behind the model">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <span class="backdrop-custom" id="backdrop-custom" hidden>
+            <input type="color" id="backdrop-color" value="#7fa7d9" aria-label="Background color" title="Background color">
+            <button type="button" class="sk-btn small" id="backdrop-image-btn" title="Use a picture behind the model. It is not uploaded anywhere.">Image</button>
+            <button type="button" class="sk-btn small" id="backdrop-image-clear" hidden title="Stop using the picture">Remove image</button>
+            <input type="file" id="backdrop-input" accept="image/*" hidden>
+          </span>
+        </div>
+        </div>
       </div>
 
-      <div class="viewport" id="viewport" data-backdrop="dark">
+      <div class="viewport" id="viewport" data-backdrop="light">
         <div class="pane" id="pane-3d">
           <canvas id="skin-canvas" tabindex="-1" role="img" aria-label="3D skin viewport. Drag on the model to paint, drag empty space to rotate."></canvas>
         </div>
@@ -947,18 +1054,6 @@
         <span class="status" id="status" role="status" aria-live="polite"></span>
       </div>
 
-      <div class="drawer panel" id="drawer">
-        <div class="drawer-tabs" role="tablist" aria-label="Panels">
-          <button type="button" role="tab" id="tab-drafts" data-drawer="drafts" aria-controls="panel-drafts" aria-selected="false" tabindex="0">Drafts</button>
-          <button type="button" role="tab" id="tab-parts" data-drawer="parts" aria-controls="panel-parts" aria-selected="false" tabindex="0">Parts shelf</button>
-          <button type="button" role="tab" id="tab-donor" data-drawer="donor" aria-controls="panel-donor" aria-selected="false" tabindex="0">Donor skin</button>
-          <button type="button" role="tab" id="tab-check" data-drawer="check" aria-controls="panel-check" aria-selected="false" tabindex="0">Check</button>
-        </div>
-        <div class="drawer-panel" id="panel-drafts" role="tabpanel" aria-labelledby="tab-drafts" hidden><div id="drawer-drafts"></div></div>
-        <div class="drawer-panel" id="panel-parts" role="tabpanel" aria-labelledby="tab-parts" hidden><div id="drawer-parts"></div></div>
-        <div class="drawer-panel" id="panel-donor" role="tabpanel" aria-labelledby="tab-donor" hidden><div id="drawer-donor"></div></div>
-        <div class="drawer-panel" id="panel-check" role="tabpanel" aria-labelledby="tab-check" hidden><div id="drawer-check"></div></div>
-      </div>
       <noscript><p class="stage-notes">The skin editor needs JavaScript and WebGL.</p></noscript>
     </div>
 
@@ -967,22 +1062,6 @@
         <h2>Color</h2>
         <div id="color-picker"></div>
         <div class="palette" id="palette" aria-label="Palette"></div>
-      </section>
-
-      <section>
-        <h2>Model</h2>
-        <select id="model-select" aria-label="Skin model">
-          <option value="classic">Classic (4px arms)</option>
-          <option value="slim">Slim (3px arms)</option>
-        </select>
-        <div class="confirm-row" id="model-confirm" hidden style="margin-top:10px">
-          <span id="model-confirm-text"></span>
-          <div class="btn-col">
-            <button type="button" class="sk-btn primary" id="model-convert">Convert arms</button>
-            <button type="button" class="sk-btn" id="model-keep">Only change type</button>
-            <button type="button" class="sk-btn" id="model-cancel">Cancel</button>
-          </div>
-        </div>
       </section>
 
       <section>
@@ -1001,7 +1080,7 @@
       </section>
 
       <section>
-        <h2>Parts</h2>
+        <div class="sec-head"><h2>Parts</h2><button type="button" class="link-btn" id="parts-show-all">Show all</button></div>
         <div class="parts" role="group" aria-label="Show or hide body parts">
           <button type="button" data-part="head" aria-pressed="true" aria-label="Head" title="Head">Head</button>
           <button type="button" data-part="rightArm" aria-pressed="true" aria-label="Right arm" title="Right arm">R arm</button>
@@ -1010,8 +1089,7 @@
           <button type="button" data-part="rightLeg" aria-pressed="true" aria-label="Right leg" title="Right leg">R leg</button>
           <button type="button" data-part="leftLeg" aria-pressed="true" aria-label="Left leg" title="Left leg">L leg</button>
         </div>
-        <p class="parts-note">Click a part to hide it. Double-click or Alt+click shows only that part, again to restore all.</p>
-        <button type="button" class="link-btn" id="parts-show-all">Show all</button>
+        <p class="parts-note">Click to hide a part. Double-click to show only that part.</p>
         <div class="part-actions">
           <select id="part-target" aria-label="Part to change">
             <option value="head">Head</option>

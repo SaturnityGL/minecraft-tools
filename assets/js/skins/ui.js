@@ -93,7 +93,9 @@ function start() {
     bucketScope: 'face',
     view: '3d',
     pose: 'stand',
-    backdrop: 'dark',
+    backdrop: 'light',
+    backdropColor: '#7fa7d9',
+    backdropLight: true,
     touchRotate: false
   };
 
@@ -110,7 +112,7 @@ function start() {
   const hintEl = $('stage-hint');
   const noticeEl = $('notice');
   const rail = $('tool-rail');
-  const modelSelect = $('model-select');
+  const modelButtons = [...document.querySelectorAll('[data-model]')];
   const modelConfirm = $('model-confirm');
   const fileInput = $('file-input');
   const undoBtn = rail.querySelector('[data-action="undo"]');
@@ -123,7 +125,11 @@ function start() {
   const viewSeg = $('view-seg');
   const splitBtn = $('view-split');
   const poseSelect = $('pose-select');
-  const backdropBtn = $('backdrop-btn');
+  const backdropSelect = $('backdrop-select');
+  const backdropCustom = $('backdrop-custom');
+  const backdropColor = $('backdrop-color');
+  const backdropInput = $('backdrop-input');
+  const backdropClear = $('backdrop-image-clear');
   const resetBtn = $('reset-btn');
   const resetConfirm = $('reset-confirm');
   const showAllBtn = $('parts-show-all');
@@ -439,12 +445,85 @@ function start() {
     state.pose = poseSelect.value;
   });
 
-  function syncBackdrop() {
-    viewport.dataset.backdrop = state.backdrop;
-    const light = state.backdrop === 'light';
-    backdropBtn.setAttribute('aria-pressed', String(light));
-    backdropBtn.textContent = light ? 'Dark backdrop' : 'Light backdrop';
+  let backdropImage = null;
+  let backdropImageTone = null;
+
+  function isLightColor(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    return 0.299 * r + 0.587 * g + 0.114 * b > 140;
   }
+
+  function syncBackdrop() {
+    const custom = state.backdrop === 'custom';
+    viewport.dataset.backdrop = state.backdrop;
+    viewport.style.backgroundColor = custom ? state.backdropColor : '';
+    viewport.style.backgroundImage = custom && backdropImage ? `url("${backdropImage}")` : '';
+    state.backdropLight = custom
+      ? (backdropImage && backdropImageTone !== null ? backdropImageTone : isLightColor(state.backdropColor))
+      : state.backdrop === 'light';
+    backdropSelect.value = state.backdrop;
+    backdropCustom.hidden = !custom;
+    backdropColor.value = state.backdropColor;
+    backdropClear.hidden = !backdropImage;
+  }
+
+  function saveBackdrop() {
+    if (!ed.store) return;
+    ed.store.prefs.set('backdrop', state.backdrop);
+    ed.store.prefs.set('backdropColor', state.backdropColor);
+  }
+
+  function imageTone(img) {
+    const c = document.createElement('canvas');
+    c.width = 1;
+    c.height = 1;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, 1, 1);
+    const [r, gr, b] = g.getImageData(0, 0, 1, 1).data;
+    return 0.299 * r + 0.587 * gr + 0.114 * b > 140;
+  }
+
+  backdropSelect.addEventListener('change', () => {
+    state.backdrop = backdropSelect.value;
+    syncBackdrop();
+    saveBackdrop();
+  });
+
+  backdropColor.addEventListener('input', () => {
+    state.backdropColor = backdropColor.value;
+    syncBackdrop();
+  });
+  backdropColor.addEventListener('change', saveBackdrop);
+
+  $('backdrop-image-btn').addEventListener('click', () => backdropInput.click());
+
+  backdropInput.addEventListener('change', () => {
+    const file = backdropInput.files[0];
+    backdropInput.value = '';
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      if (backdropImage) URL.revokeObjectURL(backdropImage);
+      backdropImage = url;
+      backdropImageTone = imageTone(img);
+      syncBackdrop();
+      setStatus('Background image set. It stays on this device and is not saved with the skin.');
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setStatus('That file could not be opened as an image.');
+    };
+    img.src = url;
+  });
+
+  backdropClear.addEventListener('click', () => {
+    if (backdropImage) URL.revokeObjectURL(backdropImage);
+    backdropImage = null;
+    backdropImageTone = null;
+    syncBackdrop();
+  });
 
   function undo() {
     finishStroke();
@@ -596,12 +675,6 @@ function start() {
     }
   });
 
-  backdropBtn.addEventListener('click', () => {
-    state.backdrop = state.backdrop === 'light' ? 'dark' : 'light';
-    syncBackdrop();
-    closeMenus(true);
-  });
-
   touchBtn.addEventListener('click', () => {
     state.touchRotate = !state.touchRotate;
     syncToggles();
@@ -707,7 +780,7 @@ function start() {
   function syncUi() {
     undoBtn.disabled = !doc.canUndo;
     redoBtn.disabled = !doc.canRedo;
-    modelSelect.value = doc.model;
+    for (const b of modelButtons) b.setAttribute('aria-pressed', String(b.dataset.model === doc.model));
     modelConfirm.hidden = true;
   }
 
@@ -720,22 +793,32 @@ function start() {
     syncUi();
   });
 
-  modelSelect.addEventListener('change', () => {
-    const next = modelSelect.value;
-    if (next === doc.model) {
-      modelConfirm.hidden = true;
-      return;
-    }
-    $('model-confirm-text').textContent = next === 'slim'
-      ? 'Switch to slim arms. Convert the arm pixels to fit, or only change the type?'
-      : 'Switch to classic arms. Convert the arm pixels to fit, or only change the type?';
-    modelConfirm.hidden = false;
+  let pendingModel = null;
+
+  for (const b of modelButtons) {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const next = b.dataset.model;
+      if (next === doc.model) {
+        modelConfirm.hidden = true;
+        return;
+      }
+      pendingModel = next;
+      $('model-confirm-text').textContent = next === 'slim'
+        ? 'Switch to slim arms. Convert the arm pixels to fit, or only change the type?'
+        : 'Switch to classic arms. Convert the arm pixels to fit, or only change the type?';
+      modelConfirm.hidden = false;
+    });
+  }
+
+  document.addEventListener('click', e => {
+    if (!modelConfirm.hidden && !modelConfirm.contains(e.target)) modelConfirm.hidden = true;
   });
 
   function switchModel(convert) {
-    const next = modelSelect.value;
+    const next = pendingModel;
     modelConfirm.hidden = true;
-    if (next === doc.model) return;
+    if (!next || next === doc.model) return;
     finishStroke();
     select.clear();
     const pixels = convert ? convertModel(doc.pixels, doc.model, next) : doc.pixels.slice();
@@ -746,7 +829,6 @@ function start() {
   $('model-convert').addEventListener('click', () => switchModel(true));
   $('model-keep').addEventListener('click', () => switchModel(false));
   $('model-cancel').addEventListener('click', () => {
-    modelSelect.value = doc.model;
     modelConfirm.hidden = true;
   });
 
@@ -905,7 +987,11 @@ function start() {
   observer.observe(canvas3d);
   observer.observe(canvas2d);
 
-  const drawer = createDrawer($('drawer'));
+  const wide = window.matchMedia('(min-width: 1360px)');
+  const drawer = createDrawer($('drawer'), { canClose: () => !wide.matches });
+  wide.addEventListener('change', () => {
+    if (wide.matches && !drawer.active) $('tab-drafts').click();
+  });
   const frameHooks = [];
 
   function refresh() {
@@ -973,6 +1059,12 @@ function start() {
     initExtras(ed);
     initDonor(ed);
     initStore(ed);
+    const saved = store.prefs.get('backdrop', 'light');
+    if (saved === 'light' || saved === 'dark' || saved === 'custom') state.backdrop = saved;
+    const color = store.prefs.get('backdropColor', state.backdropColor);
+    if (/^#[0-9a-f]{6}$/i.test(color)) state.backdropColor = color;
+    syncBackdrop();
+    if (wide.matches && !drawer.active) $('tab-drafts').click();
   });
 }
 

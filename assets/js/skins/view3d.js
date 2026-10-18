@@ -363,7 +363,8 @@ export function createView3D(canvas, { doc, state }) {
     }
     if (clearKey !== state.backdrop) {
       clearKey = state.backdrop;
-      renderer.setClearColor(BACKDROPS[state.backdrop] ?? BACKDROPS.dark, 1);
+      if (state.backdrop in BACKDROPS) renderer.setClearColor(BACKDROPS[state.backdrop], 1);
+      else renderer.setClearColor(0x000000, 0);
     }
     if (poseName !== state.pose) applyPose();
     applyVisibility();
