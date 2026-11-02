@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Is Eaglercraft? Browser Minecraft, Explained</title>
+  <meta name="description" content="Eaglercraft is Minecraft 1.8 running in a browser tab. What it is, why it only joins Eaglercraft servers, what&#x27;s missing, and whether it&#x27;s safe or legal.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/blog/what-is-eaglercraft/">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/blog/what-is-eaglercraft/">
+  <meta property="og:title" content="What Is Eaglercraft? Browser Minecraft, Explained">
+  <meta property="og:description" content="Eaglercraft is Minecraft 1.8 running in a browser tab. What it is, why it only joins Eaglercraft servers, what&#x27;s missing, and whether it&#x27;s safe or legal.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What Is Eaglercraft? Browser Minecraft, Explained">
+  <meta name="twitter:description" content="Eaglercraft is Minecraft 1.8 running in a browser tab. What it is, why it only joins Eaglercraft servers, what&#x27;s missing, and whether it&#x27;s safe or legal.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+  <style>
+    .post-meta { font-size: 0.85rem; color: var(--color-text-muted); margin: -4px 0 24px; }
+    .post-body h2 { margin-top: 36px; }
+    .post-body ul { margin: 0 0 18px 22px; line-height: 1.7; }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font-family: Consolas, 'Courier New', monospace; font-size: 0.9em; background: var(--color-bg-hover); border: 1px solid var(--color-border); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+    .snippet-box { background: var(--color-bg-hover); border: 1px solid var(--color-border); border-left: 4px solid var(--color-accent); border-radius: 8px; padding: 16px 20px; margin: 0 0 24px; }
+    .snippet-box p { margin: 0; }
+    .post-faq { margin-top: 40px; }
+    .post-faq .faq-item h3 { margin-top: 0; }
+    .post-list { display: grid; gap: 16px; margin-top: 24px; }
+    .post-card { display: block; border: 1px solid var(--color-border); border-radius: var(--card-radius); padding: 18px 20px; color: var(--color-text); text-decoration: none; background: var(--color-bg-hover); }
+    .post-card:hover { border-color: var(--color-accent); }
+    .post-card strong { display: block; font-size: 1.05rem; margin-bottom: 6px; }
+    .post-card span { color: var(--color-text-muted); font-size: 0.95rem; }
+  </style>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What is Eaglercraft, and why can't it join normal servers?",
+  "description": "Eaglercraft is Minecraft 1.8 running in a browser tab. What it is, why it only joins Eaglercraft servers, what's missing, and whether it's safe or legal.",
+  "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+  "datePublished": "2026-11-01",
+  "dateModified": "2026-11-01",
+  "author": {
+    "@type": "Person",
+    "name": "Kody (Saturnity)"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BlockForge",
+    "url": "https://blockforge.saturnitystools.com/"
+  },
+  "mainEntityOfPage": "https://blockforge.saturnitystools.com/blog/what-is-eaglercraft/"
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What version of Minecraft is Eaglercraft?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The main version, EaglercraftX, is Minecraft Java 1.8.8. The original release was 1.5.2, and there's also a 1.12.2 build."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can Eaglercraft join Hypixel or normal servers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Eaglercraft connects over WebSockets and has no Microsoft login, so it can only join servers running the EaglerXServer plugin. Hypixel, Realms, and normal servers don't accept it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Eaglercraft save my worlds?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Singleplayer worlds save in your browser's storage. Clearing site data or switching browsers can lose them, so export a backup if you care about a world."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Eaglercraft a virus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The real client is a webpage that runs in your browser, which is fairly low risk. The risk is the mirror sites, which are often covered in aggressive ads. If an Eaglercraft site hands you an .exe or a browser extension, don't run it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do Eaglercraft sites keep disappearing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mojang has sent repeated DMCA takedowns at Eaglercraft repos and asked search engines to delist sites, so links move around a lot."
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+        <a href="/motd/">MOTD Generator</a>
+        <a href="/commands/">Command Generator</a>
+      </div>
+    </div>
+    <a href="/blog/" class="active">Blog</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main>
+  <p class="post-meta"><a href="/blog/">Blog</a> &middot; 6 min read &middot; November 1, 2026</p>
+  <h1>What is Eaglercraft, and why can&#x27;t it join normal servers?</h1>
+  <div class="post-body">
+<div class="snippet-box">
+  <p><strong>Short version:</strong> Eaglercraft is old Minecraft Java (mainly 1.8.8) ported to run in a web browser. Singleplayer works in the tab. Multiplayer only works on servers running the Eaglercraft plugin, so it can't join Hypixel, Realms, or normal servers. It isn't official, and Mojang has been sending takedowns at it for years.</p>
+</div>
+
+<p>If you've been near a school Chromebook in the last few years, you've probably seen someone playing Minecraft in a browser tab. That's Eaglercraft. It's not a knockoff or a "Minecraft-like" game, it's the real old game running somewhere it was never meant to run.</p>
+
+<h2>What it actually is</h2>
+<p>A dev who goes by lax1dude took the Minecraft Java code and compiled it into something a browser can run (using a tool called TeaVM, if you care). The first version was 1.5.2. The big one is EaglercraftX, which is 1.8.8, and there's a 1.12.2 build floating around too.</p>
+<p>So you get the actual 1.8 game. Same physics, same redstone, same mobs, same world gen. Your singleplayer worlds save into the browser's own storage, and you can export them as a file if you want a backup.</p>
+<p>Because it's just a webpage (sometimes literally one HTML file), it runs on stuff that can't run normal Java Minecraft, like locked-down Chromebooks. That's the whole reason it blew up.</p>
+
+<h2>Why it can't join normal servers</h2>
+<p>This is the question everyone ends up asking, so here's the deal.</p>
+<p>Regular Minecraft talks to servers over a plain network connection. Browsers aren't allowed to open those, so Eaglercraft uses WebSockets instead, which is the same kind of connection a web chat uses. A normal Minecraft server has no idea what to do with that.</p>
+<p>For an Eaglercraft player to get in, the server has to install a plugin (EaglerXServer, it runs on BungeeCord, Velocity, or Spigot) that translates between the two. Most servers don't have it, and big ones aren't going to add it.</p>
+<p>Then there's the login problem. Eaglercraft has no Microsoft account sign-in, so servers that accept it are letting people in without Mojang checking who they are. Same deal as cracked servers: anyone can type any name, so those servers usually make you <code>/register</code> a password the first time you join.</p>
+<p>Put together:</p>
+<ul>
+  <li>Eaglercraft servers: yes</li>
+  <li>Hypixel, Realms, your friend's normal server: no</li>
+  <li>Bedrock servers and consoles: no</li>
+</ul>
+
+<h2>What's missing compared to the real current game</h2>
+<p>1.8.8 came out in 2015. A lot has happened since. No elytra, no shields, no Nether update, no caves and cliffs, no axolotls, no copper anything. Combat is the old spam-click style from before 1.9, which some PvP players actually prefer, so that one's a wash.</p>
+
+<h2>Is it legal? Is it safe?</h2>
+<p><strong>Legal:</strong> it's Mojang's code being used without Mojang's permission. Mojang has sent waves of DMCA takedowns at the GitHub repos and asked Google to drop sites from search. That's why the "official" links keep dying and the mirrors keep moving. Nobody's coming after a kid on a Chromebook, but it's not a legit product and I'm not going to pretend it is.</p>
+<p><strong>Safe:</strong> the client itself is a webpage running in your browser's sandbox, so it's way less risky than downloading some random cracked launcher <code>.exe</code>. The danger is the mirror sites. Lots of them are wrapped in aggressive ads, popups, and fake download buttons. Real Eaglercraft is HTML. If an "Eaglercraft" site hands you an <code>.exe</code> or a browser extension, close the tab.</p>
+
+<h2>Running a server that lets Eaglercraft players in</h2>
+<p>If you run a Java server and your friends are stuck on Chromebooks, EaglerXServer can put both kinds of players on the same server. Big caveat: you're letting in players that Mojang hasn't verified, so you need a login plugin and you should assume people will try to join under other people's names. Read the project's own setup docs, the config changes between versions.</p>
+
+<h2>Should you play it?</h2>
+<p>If you're on a device that can't run the real thing and you just want to build some stuff, sure, it's a neat piece of engineering. If you can buy the actual game, do that. You get the current version, the real server list, and your own skin that other people can see.</p>
+<p>If you're trying to figure out what your free options even are, I went through all of them in <a href="/blog/minecraft-for-free/">you won't find Minecraft for free</a>.</p>
+
+<div class="post-faq">
+  <h2>Questions people ask</h2>
+  <div class="faq-item">
+    <h3>What version of Minecraft is Eaglercraft?</h3>
+    <p>The main version, EaglercraftX, is Minecraft Java 1.8.8. The original release was 1.5.2, and there&#x27;s also a 1.12.2 build.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Can Eaglercraft join Hypixel or normal servers?</h3>
+    <p>No. Eaglercraft connects over WebSockets and has no Microsoft login, so it can only join servers running the EaglerXServer plugin. Hypixel, Realms, and normal servers don&#x27;t accept it.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Does Eaglercraft save my worlds?</h3>
+    <p>Singleplayer worlds save in your browser&#x27;s storage. Clearing site data or switching browsers can lose them, so export a backup if you care about a world.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Is Eaglercraft a virus?</h3>
+    <p>The real client is a webpage that runs in your browser, which is fairly low risk. The risk is the mirror sites, which are often covered in aggressive ads. If an Eaglercraft site hands you an .exe or a browser extension, don&#x27;t run it.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Why do Eaglercraft sites keep disappearing?</h3>
+    <p>Mojang has sent repeated DMCA takedowns at Eaglercraft repos and asked search engines to delist sites, so links move around a lot.</p>
+  </div>
+</div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/motd/">MOTD Generator</a></li>
+        <li><a href="/commands/">Command Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Command Generator: Summon, Potion, Effect</title>
+  <meta name="description" content="Free Minecraft command generator for Java Edition. Build summon commands, custom potion /give commands and effect commands for 1.13 through 1.21.5 and newer.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/commands/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/commands/">
+  <meta property="og:title" content="Minecraft Command Generator: Summon, Potion, Effect">
+  <meta property="og:description" content="Build summon, custom potion and effect commands for Java Edition, with the right syntax for your game version. Runs in your browser.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Minecraft Command Generator: Summon, Potion, Effect">
+  <meta name="twitter:description" content="Build summon, custom potion and effect commands for Java Edition, with the right syntax for your game version.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/commands/#command-generator",
+    "name": "BlockForge Minecraft Command Generator",
+    "url": "https://blockforge.saturnitystools.com/commands/",
+    "description": "Free browser tool that builds Minecraft Java Edition summon commands, custom potion give commands and effect commands, with the correct syntax for each game version.",
+    "applicationCategory": "UtilitiesApplication",
+    "applicationSubCategory": "Minecraft command generator",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Modern browser with JavaScript enabled",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" },
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+    "isPartOf": { "@id": "https://blockforge.saturnitystools.com/#website" }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How do I use the command in Minecraft?", "acceptedAnswer": { "@type": "Answer", "text": "Open chat with T or the slash key, paste the command and press Enter. You need cheats turned on in your world, or operator permission on a server. If the command is over 256 characters, put it in a command block instead." } },
+      { "@type": "Question", "name": "Why does the tool warn about 256 characters?", "acceptedAnswer": { "@type": "Answer", "text": "The chat box stops at 256 characters, so long summon and potion commands get cut off. A command block holds far more. Paste the command in without the leading slash and power the block." } },
+      { "@type": "Question", "name": "Which game version should I pick?", "acceptedAnswer": { "@type": "Answer", "text": "Pick the one that matches your game. 1.21.5 and newer uses SNBT text components, 1.20.5 to 1.21.4 uses item components with JSON-string names, and 1.13 to 1.20.4 uses the old NBT tags. If a command fails with a parse error, the version is the first thing to check." } },
+      { "@type": "Question", "name": "Can I make an effect last forever?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, on Java 1.19.4 and newer. The effect command takes the word infinite instead of a number of seconds, and potion effects use a duration of -1. On older versions use a long duration instead, up to 1000000 seconds in the effect command." } },
+      { "@type": "Question", "name": "Does this work for Bedrock Edition?", "acceptedAnswer": { "@type": "Answer", "text": "No. Bedrock uses different command syntax and does not take NBT or item components in these commands. This generator only writes Java Edition commands." } },
+      { "@type": "Question", "name": "Why is my custom potion name in italics?", "acceptedAnswer": { "@type": "Answer", "text": "Items with a custom name show in italics by default. The generator adds italic false to the name unless you tick the italic box." } }
+    ]
+  }
+  </script>
+
+  <style>
+    main.cmd-main {
+      flex: 1;
+      max-width: 1080px;
+      width: 100%;
+      margin: 28px auto 48px;
+      padding: 0 20px;
+    }
+    .cmd-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .cmd-header h1 {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+    .cmd-header p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 16px 18px;
+      min-width: 0;
+    }
+    .panel h3 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      color: var(--color-text);
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 22px;
+      align-items: flex-end;
+      margin-bottom: 18px;
+    }
+    .top-bar .group { min-width: 0; }
+    .top-bar .group-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .seg {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .seg button {
+      appearance: none;
+      background: var(--color-bg-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      padding: 7px 12px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .seg button:hover:not(.is-active) {
+      border-color: var(--color-accent);
+    }
+    .seg button.is-active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tabs button {
+      appearance: none;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 9px 20px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .tabs button.is-active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+    .tabs button:hover:not(.is-active) {
+      background: var(--color-bg-hover);
+      border-color: var(--color-accent);
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .tool-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .tab-panel[hidden] { display: none; }
+
+    .field {
+      margin-bottom: 12px;
+      min-width: 0;
+    }
+    .field label,
+    .field .lbl {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field select {
+      width: 100%;
+      min-width: 0;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      padding: 7px 9px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--color-text);
+    }
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 0;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .hint {
+      font-size: 11.5px;
+      color: var(--color-text-muted);
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+    .hint.is-bad { color: var(--color-accent); }
+
+    .checks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 6px 12px;
+      margin-bottom: 12px;
+    }
+    .checks label,
+    .inline-check {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+    .checks input,
+    .inline-check input { margin: 0; flex: none; }
+    .inline-check.is-off { opacity: 0.5; cursor: not-allowed; }
+
+    .sub-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin: 16px 0 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .eff-row {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .eff-row .field { margin-bottom: 8px; }
+    .eff-row .eff-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+    }
+    .eff-row .eff-foot .spacer { flex: 1; }
+
+    .color-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-row input[type="color"] {
+      width: 44px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .out-card { margin-bottom: 16px; }
+    .out-card:last-child { margin-bottom: 0; }
+    .out-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      margin-bottom: 5px;
+    }
+    .give-out {
+      background: #0f0f0f;
+      color: #d0d5dc;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      user-select: all;
+      min-height: 44px;
+    }
+    .out-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .count {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .count.is-over { color: var(--color-accent); font-weight: 700; }
+    .warn {
+      margin-top: 8px;
+      background: #fff3e0;
+      border: 1px solid #e0a95a;
+      border-radius: 5px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #6a4210;
+    }
+    .warn[hidden] { display: none; }
+
+    .btn {
+      appearance: none;
+      background: var(--color-accent);
+      border: 1px solid var(--color-accent-deep);
+      border-radius: 5px;
+      padding: 7px 12px;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .btn:hover { background: var(--color-accent-hover); }
+    .btn.btn-secondary {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+    .btn.btn-secondary:hover { background: var(--color-border); }
+    .btn.is-copied {
+      background: var(--color-mc-green);
+      border-color: var(--color-mc-green);
+      color: #fff;
+    }
+    .btn.btn-mini {
+      padding: 3px 8px;
+      font-size: 11.5px;
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .btn.btn-mini:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+
+    .notice {
+      color: var(--color-text-muted);
+      font-size: 12px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .primer {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 22px 26px;
+      margin-top: 24px;
+    }
+    .primer h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .primer h3 {
+      font-size: 15px;
+      margin: 14px 0 6px;
+    }
+    .primer p { line-height: 1.65; margin-bottom: 10px; color: var(--color-text); }
+    .primer ul { margin: 0 0 10px 20px; line-height: 1.65; }
+    .primer code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      overflow-wrap: anywhere;
+    }
+    @media (max-width: 520px) {
+      .primer { padding: 18px 16px; }
+      .cmd-header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+        <a href="/motd/">MOTD Generator</a>
+        <a href="/commands/">Command Generator</a>
+      </div>
+    </div>
+    <a href="/blog/">Blog</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="cmd-main">
+
+  <div class="cmd-header">
+    <h1>Minecraft Command Generator</h1>
+    <p>Build summon, custom potion and effect commands for Java Edition. Pick your game version first, because the syntax changed a lot between 1.20 and 1.21.</p>
+  </div>
+
+  <div class="panel top-bar">
+    <div class="group">
+      <span class="group-label">Java Edition syntax</span>
+      <div class="seg" id="ver-btns">
+        <button type="button" data-syn="snbt" class="is-active">1.21.5 and newer</button>
+        <button type="button" data-syn="comp">1.20.5 to 1.21.4</button>
+        <button type="button" data-syn="legacy">1.13 to 1.20.4</button>
+      </div>
+    </div>
+    <div class="group">
+      <label class="group-label" for="ver-sel">Exact version</label>
+      <div class="field" style="margin:0;"><select id="ver-sel"></select></div>
+    </div>
+    <div class="group">
+      <label class="inline-check"><input type="checkbox" id="opt-slash" checked> Include leading slash</label>
+    </div>
+  </div>
+  <div class="hint" id="ver-hint" style="margin:-8px 0 16px;"></div>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button type="button" role="tab" data-tab="summon" class="is-active">Summon</button>
+    <button type="button" role="tab" data-tab="potion">Potion</button>
+    <button type="button" role="tab" data-tab="effect">Effect</button>
+  </div>
+
+  <div class="tool-grid">
+
+    <div class="panel">
+
+      <div class="tab-panel" id="panel-summon">
+        <h3>Summon a mob</h3>
+        <div class="field">
+          <label for="s-entity">Entity</label>
+          <select id="s-entity"></select>
+          <div class="hint" id="s-entity-hint"></div>
+        </div>
+        <div class="field">
+          <label for="s-pos">Position</label>
+          <input type="text" id="s-pos" value="~ ~ ~" autocomplete="off" spellcheck="false">
+          <div class="hint" id="s-pos-hint">Three values. Use ~ for relative to where the command runs, or plain numbers like 100 64 -20.</div>
+        </div>
+
+        <div class="sub-title">Name</div>
+        <div class="field">
+          <label for="s-name">Custom name</label>
+          <input type="text" id="s-name" maxlength="100" autocomplete="off" placeholder="Leave blank for no name">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-color">Name color</label>
+            <select id="s-color"></select>
+          </div>
+          <div class="field">
+            <span class="lbl">Style</span>
+            <label class="inline-check" style="margin-top:7px;"><input type="checkbox" id="s-bold"> Bold</label>
+          </div>
+        </div>
+
+        <div class="sub-title">Flags</div>
+        <div class="checks">
+          <label><input type="checkbox" id="s-vis"> Name always visible</label>
+          <label><input type="checkbox" id="s-noai"> No AI</label>
+          <label><input type="checkbox" id="s-silent"> Silent</label>
+          <label><input type="checkbox" id="s-invul"> Invulnerable</label>
+          <label><input type="checkbox" id="s-glow"> Glowing</label>
+          <label><input type="checkbox" id="s-persist"> Never despawn</label>
+          <label><input type="checkbox" id="s-nograv"> No gravity</label>
+          <label id="s-baby-wrap"><input type="checkbox" id="s-baby"> Baby</label>
+        </div>
+
+        <div class="sub-title">Stats and riders</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-hp">Max health (optional)</label>
+            <input type="number" id="s-hp" min="1" max="1024" step="1" placeholder="Default">
+          </div>
+          <div class="field">
+            <label for="s-pass">Passenger (one level)</label>
+            <select id="s-pass"></select>
+          </div>
+        </div>
+        <div class="hint" id="s-hp-hint">Sets the max health attribute and current health together. Hearts are half of this number.</div>
+      </div>
+
+      <div class="tab-panel" id="panel-potion" hidden>
+        <h3>Custom potion</h3>
+        <div class="field-row">
+          <div class="field">
+            <label for="p-item">Item</label>
+            <select id="p-item"></select>
+          </div>
+          <div class="field">
+            <label for="p-base">Base potion (optional)</label>
+            <select id="p-base"></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="p-target">Give to</label>
+            <input type="text" id="p-target" value="@p" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="p-count">Count</label>
+            <input type="number" id="p-count" value="1" min="1" max="999" step="1">
+          </div>
+        </div>
+
+        <div class="sub-title">Custom effects</div>
+        <div id="eff-list"></div>
+        <button type="button" class="btn btn-secondary" id="eff-add">Add effect</button>
+        <div class="hint" id="p-inf-hint"></div>
+
+        <div class="sub-title">Look</div>
+        <div class="field">
+          <span class="lbl">Liquid color</span>
+          <div class="color-row">
+            <label class="inline-check"><input type="checkbox" id="p-usecolor"> Custom color</label>
+            <input type="color" id="p-color" value="#ff4040" aria-label="Potion color">
+          </div>
+        </div>
+        <div class="field">
+          <label for="p-name">Custom name</label>
+          <input type="text" id="p-name" maxlength="100" autocomplete="off" placeholder="Leave blank to keep the default name">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="p-ncolor">Name color</label>
+            <select id="p-ncolor"></select>
+          </div>
+          <div class="field">
+            <span class="lbl">Style</span>
+            <div class="checks" style="margin:7px 0 0;">
+              <label><input type="checkbox" id="p-bold"> Bold</label>
+              <label><input type="checkbox" id="p-italic"> Italic</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-effect" hidden>
+        <h3>Effect command</h3>
+        <div class="field">
+          <label for="e-target">Target</label>
+          <input type="text" id="e-target" value="@p" autocomplete="off" spellcheck="false">
+          <div class="hint">A player name or a selector such as @a, @s or @e[type=zombie].</div>
+        </div>
+        <div class="field">
+          <label for="e-effect">Effect</label>
+          <select id="e-effect"></select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-seconds">Duration (seconds)</label>
+            <input type="number" id="e-seconds" value="60" min="0" max="1000000" step="1">
+          </div>
+          <div class="field">
+            <label for="e-level">Level (1 to 256)</label>
+            <input type="number" id="e-level" value="1" min="1" max="256" step="1">
+          </div>
+        </div>
+        <div class="checks">
+          <label class="inline-check" id="e-inf-wrap"><input type="checkbox" id="e-inf"> Infinite duration</label>
+          <label><input type="checkbox" id="e-hide"> Hide particles</label>
+        </div>
+        <div class="hint" id="e-inf-hint">Infinite needs Java 1.19.4 or newer. Instant effects like instant health use ticks, so 1 is plenty.</div>
+
+        <div class="sub-title">Clear effects</div>
+        <div class="field">
+          <label for="e-clear-effect">Effect to clear</label>
+          <select id="e-clear-effect"></select>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel">
+      <div id="out-summon-card">
+        <div class="out-card">
+          <div class="out-label">Summon command</div>
+          <div class="give-out" id="out-summon"></div>
+          <div class="out-meta">
+            <span class="count" id="cnt-out-summon"></span>
+            <button type="button" class="btn" data-copy="out-summon">Copy command</button>
+          </div>
+          <div class="warn" id="warn-out-summon" hidden></div>
+        </div>
+      </div>
+
+      <div id="out-potion-card" hidden>
+        <div class="out-card">
+          <div class="out-label">Give command</div>
+          <div class="give-out" id="out-potion"></div>
+          <div class="out-meta">
+            <span class="count" id="cnt-out-potion"></span>
+            <button type="button" class="btn" data-copy="out-potion">Copy command</button>
+          </div>
+          <div class="warn" id="warn-out-potion" hidden></div>
+        </div>
+      </div>
+
+      <div id="out-effect-card" hidden>
+        <div class="out-card">
+          <div class="out-label">Effect give</div>
+          <div class="give-out" id="out-give"></div>
+          <div class="out-meta">
+            <span class="count" id="cnt-out-give"></span>
+            <button type="button" class="btn" data-copy="out-give">Copy command</button>
+          </div>
+          <div class="warn" id="warn-out-give" hidden></div>
+        </div>
+        <div class="out-card">
+          <div class="out-label">Effect clear</div>
+          <div class="give-out" id="out-clear"></div>
+          <div class="out-meta">
+            <span class="count" id="cnt-out-clear"></span>
+            <button type="button" class="btn" data-copy="out-clear">Copy command</button>
+          </div>
+          <div class="warn" id="warn-out-clear" hidden></div>
+        </div>
+      </div>
+
+      <div class="notice">Using a command block? Untick the leading slash first, then paste the command into the block. Java Edition only; Bedrock uses different syntax.</div>
+    </div>
+
+  </div>
+
+  <div class="primer">
+    <h2>How to use these commands</h2>
+
+    <h3>Chat or command block</h3>
+    <p>For short commands, open chat with <code>T</code> or <code>/</code>, paste, and press Enter. Chat stops at 256 characters, so anything longer needs a command block. Get one with <code>/give @p command_block</code>, place it, paste the command without the leading slash, and power it with a button or lever.</p>
+
+    <h3>Cheats and permissions</h3>
+    <p>You need cheats enabled in a singleplayer world, or operator permission on a server. Command blocks also need creative mode to edit, and on a server <code>enable-command-block</code> has to be <code>true</code> in <code>server.properties</code>.</p>
+
+    <h3>Why the version matters</h3>
+    <ul>
+      <li><strong>1.21.5 and newer:</strong> names are written as SNBT, like <code>custom_name={text:"Hi",color:"red"}</code>. Entities take <code>CustomName:{text:"Hi"}</code> instead of a JSON string.</li>
+      <li><strong>1.20.5 to 1.21.4:</strong> items use bracket components, but names are still JSON strings like <code>custom_name='{"text":"Hi"}'</code>. The max health attribute lost its <code>generic.</code> prefix in 1.21.2.</li>
+      <li><strong>1.13 to 1.20.4:</strong> items use NBT tags like <code>potion{CustomPotionEffects:[...]}</code>. Effect ids in those tags were numbers until 1.20.2 and are namespaced names after.</li>
+    </ul>
+
+    <h3>Selectors and positions</h3>
+    <p><code>@p</code> is the nearest player, <code>@s</code> is whoever runs the command, <code>@a</code> is everyone. In a position, <code>~</code> means the spot where the command runs, and <code>~ ~1 ~</code> is one block up.</p>
+
+    <h3>Nothing leaves your browser</h3>
+    <p>The generator runs locally. No signup, no upload, nothing sent anywhere beyond the site-wide analytics you already agreed to in the cookie popup.</p>
+  </div>
+
+  <div class="primer" id="faq">
+    <h2>FAQ</h2>
+
+    <h3>How do I use the command in Minecraft?</h3>
+    <p>Open chat with T or the slash key, paste the command and press Enter. You need cheats turned on in your world, or operator permission on a server. If the command is over 256 characters, put it in a command block instead.</p>
+
+    <h3>Why does the tool warn about 256 characters?</h3>
+    <p>The chat box stops at 256 characters, so long summon and potion commands get cut off. A command block holds far more. Paste the command in without the leading slash and power the block.</p>
+
+    <h3>Which game version should I pick?</h3>
+    <p>Pick the one that matches your game. 1.21.5 and newer uses SNBT text components, 1.20.5 to 1.21.4 uses item components with JSON-string names, and 1.13 to 1.20.4 uses the old NBT tags. If a command fails with a parse error, the version is the first thing to check.</p>
+
+    <h3>Can I make an effect last forever?</h3>
+    <p>Yes, on Java 1.19.4 and newer. The effect command takes the word infinite instead of a number of seconds, and potion effects use a duration of -1. On older versions use a long duration instead, up to 1000000 seconds in the effect command.</p>
+
+    <h3>Does this work for Bedrock Edition?</h3>
+    <p>No. Bedrock uses different command syntax and does not take NBT or item components in these commands. This generator only writes Java Edition commands.</p>
+
+    <h3>Why is my custom potion name in italics?</h3>
+    <p>Items with a custom name show in italics by default. The generator adds italic false to the name unless you tick the italic box.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/motd/">MOTD Generator</a></li>
+        <li><a href="/commands/">Command Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script>
+var BFCmd = (function () {
+  var RANGES = [
+    { key: 'n1', syntax: 'snbt',   label: '1.21.5 and newer',  min: 12105, max: 99999, attr: 'minecraft:max_health',         numeric: false, infinite: true },
+    { key: 'c2', syntax: 'comp',   label: '1.21.2 to 1.21.4',  min: 12102, max: 12104, attr: 'minecraft:max_health',         numeric: false, infinite: true },
+    { key: 'c1', syntax: 'comp',   label: '1.20.5 to 1.21.1',  min: 12005, max: 12101, attr: 'minecraft:generic.max_health', numeric: false, infinite: true },
+    { key: 'l3', syntax: 'legacy', label: '1.20.2 to 1.20.4',  min: 12002, max: 12004, attr: 'generic.max_health',           numeric: false, infinite: true },
+    { key: 'l2', syntax: 'legacy', label: '1.19.4 to 1.20.1',  min: 11904, max: 12001, attr: 'generic.max_health',           numeric: true,  infinite: true },
+    { key: 'l1', syntax: 'legacy', label: '1.13 to 1.19.3',    min: 11300, max: 11903, attr: 'generic.max_health',           numeric: true,  infinite: false }
+  ];
+
+  var COLORS = ['black', 'dark_blue', 'dark_green', 'dark_aqua', 'dark_red', 'dark_purple', 'gold', 'gray', 'dark_gray', 'blue', 'green', 'aqua', 'red', 'light_purple', 'yellow', 'white'];
+
+  var AGE = 'age';
+  var BOOL = 'bool';
+
+  var ENTITIES = [
+    ['Hostile', [
+      ['zombie', 'Zombie', 11300, BOOL], ['husk', 'Husk', 11300, BOOL], ['drowned', 'Drowned', 11300, BOOL],
+      ['zombie_villager', 'Zombie Villager', 11300, BOOL], ['zombified_piglin', 'Zombified Piglin', 11600, BOOL],
+      ['skeleton', 'Skeleton', 11300], ['stray', 'Stray', 11300], ['wither_skeleton', 'Wither Skeleton', 11300],
+      ['creeper', 'Creeper', 11300], ['spider', 'Spider', 11300], ['cave_spider', 'Cave Spider', 11300],
+      ['enderman', 'Enderman', 11300], ['witch', 'Witch', 11300], ['slime', 'Slime', 11300], ['magma_cube', 'Magma Cube', 11300],
+      ['blaze', 'Blaze', 11300], ['ghast', 'Ghast', 11300], ['phantom', 'Phantom', 11300],
+      ['pillager', 'Pillager', 11400], ['vindicator', 'Vindicator', 11300], ['evoker', 'Evoker', 11300], ['ravager', 'Ravager', 11400],
+      ['vex', 'Vex', 11300], ['guardian', 'Guardian', 11300], ['elder_guardian', 'Elder Guardian', 11300],
+      ['shulker', 'Shulker', 11300], ['silverfish', 'Silverfish', 11300], ['endermite', 'Endermite', 11300],
+      ['piglin', 'Piglin', 11600, BOOL], ['piglin_brute', 'Piglin Brute', 11602], ['hoglin', 'Hoglin', 11600, AGE], ['zoglin', 'Zoglin', 11600, BOOL],
+      ['warden', 'Warden', 11900], ['breeze', 'Breeze', 12100], ['bogged', 'Bogged', 12100], ['creaking', 'Creaking', 12104],
+      ['wither', 'Wither', 11300], ['ender_dragon', 'Ender Dragon', 11300]
+    ]],
+    ['Passive and neutral', [
+      ['pig', 'Pig', 11300, AGE], ['cow', 'Cow', 11300, AGE], ['sheep', 'Sheep', 11300, AGE], ['chicken', 'Chicken', 11300, AGE],
+      ['mooshroom', 'Mooshroom', 11300, AGE], ['horse', 'Horse', 11300, AGE], ['donkey', 'Donkey', 11300, AGE], ['mule', 'Mule', 11300, AGE],
+      ['skeleton_horse', 'Skeleton Horse', 11300], ['zombie_horse', 'Zombie Horse', 11300],
+      ['llama', 'Llama', 11300, AGE], ['trader_llama', 'Trader Llama', 11300, AGE],
+      ['rabbit', 'Rabbit', 11300, AGE], ['wolf', 'Wolf', 11300, AGE], ['cat', 'Cat', 11400, AGE], ['ocelot', 'Ocelot', 11300, AGE],
+      ['fox', 'Fox', 11400, AGE], ['panda', 'Panda', 11400, AGE], ['polar_bear', 'Polar Bear', 11300, AGE], ['parrot', 'Parrot', 11300],
+      ['bee', 'Bee', 11500, AGE], ['villager', 'Villager', 11300, AGE], ['wandering_trader', 'Wandering Trader', 11400],
+      ['iron_golem', 'Iron Golem', 11300], ['snow_golem', 'Snow Golem', 11300],
+      ['turtle', 'Turtle', 11300, AGE], ['dolphin', 'Dolphin', 11300], ['axolotl', 'Axolotl', 11700, AGE], ['goat', 'Goat', 11700, AGE],
+      ['frog', 'Frog', 11900], ['allay', 'Allay', 11900], ['camel', 'Camel', 12000, AGE], ['sniffer', 'Sniffer', 12000, AGE],
+      ['armadillo', 'Armadillo', 12005, AGE], ['strider', 'Strider', 11600, AGE], ['happy_ghast', 'Happy Ghast', 12106, AGE],
+      ['bat', 'Bat', 11300], ['squid', 'Squid', 11300], ['glow_squid', 'Glow Squid', 11700],
+      ['cod', 'Cod', 11300], ['salmon', 'Salmon', 11300], ['tropical_fish', 'Tropical Fish', 11300], ['pufferfish', 'Pufferfish', 11300]
+    ]],
+    ['Utility', [
+      ['armor_stand', 'Armor Stand', 11300], ['marker', 'Marker', 11700], ['area_effect_cloud', 'Area Effect Cloud', 11300],
+      ['lightning_bolt', 'Lightning Bolt', 11300], ['tnt', 'Primed TNT', 11300], ['end_crystal', 'End Crystal', 11300],
+      ['experience_orb', 'Experience Orb', 11300], ['firework_rocket', 'Firework Rocket', 11300], ['minecart', 'Minecart', 11300]
+    ]]
+  ];
+
+  var EFFECTS = [
+    ['speed', 'Speed', 1, 11300], ['slowness', 'Slowness', 2, 11300], ['haste', 'Haste', 3, 11300], ['mining_fatigue', 'Mining Fatigue', 4, 11300],
+    ['strength', 'Strength', 5, 11300], ['instant_health', 'Instant Health', 6, 11300], ['instant_damage', 'Instant Damage', 7, 11300],
+    ['jump_boost', 'Jump Boost', 8, 11300], ['nausea', 'Nausea', 9, 11300], ['regeneration', 'Regeneration', 10, 11300],
+    ['resistance', 'Resistance', 11, 11300], ['fire_resistance', 'Fire Resistance', 12, 11300], ['water_breathing', 'Water Breathing', 13, 11300],
+    ['invisibility', 'Invisibility', 14, 11300], ['blindness', 'Blindness', 15, 11300], ['night_vision', 'Night Vision', 16, 11300],
+    ['hunger', 'Hunger', 17, 11300], ['weakness', 'Weakness', 18, 11300], ['poison', 'Poison', 19, 11300], ['wither', 'Wither', 20, 11300],
+    ['health_boost', 'Health Boost', 21, 11300], ['absorption', 'Absorption', 22, 11300], ['saturation', 'Saturation', 23, 11300],
+    ['glowing', 'Glowing', 24, 11300], ['levitation', 'Levitation', 25, 11300], ['luck', 'Luck', 26, 11300], ['unluck', 'Bad Luck', 27, 11300],
+    ['slow_falling', 'Slow Falling', 28, 11300], ['conduit_power', 'Conduit Power', 29, 11300], ['dolphins_grace', 'Dolphin\'s Grace', 30, 11300],
+    ['bad_omen', 'Bad Omen', 31, 11400], ['hero_of_the_village', 'Hero of the Village', 32, 11400], ['darkness', 'Darkness', 33, 11900],
+    ['trial_omen', 'Trial Omen', null, 12100], ['raid_omen', 'Raid Omen', null, 12100], ['wind_charged', 'Wind Charged', null, 12100],
+    ['weaving', 'Weaving', null, 12100], ['oozing', 'Oozing', null, 12100], ['infested', 'Infested', null, 12100]
+  ];
+
+  var POTIONS = [
+    ['water', 'Water', 11300], ['mundane', 'Mundane', 11300], ['thick', 'Thick', 11300], ['awkward', 'Awkward', 11300],
+    ['night_vision', 'Night Vision', 11300], ['long_night_vision', 'Night Vision (long)', 11300],
+    ['invisibility', 'Invisibility', 11300], ['long_invisibility', 'Invisibility (long)', 11300],
+    ['leaping', 'Leaping', 11300], ['long_leaping', 'Leaping (long)', 11300], ['strong_leaping', 'Leaping II', 11300],
+    ['fire_resistance', 'Fire Resistance', 11300], ['long_fire_resistance', 'Fire Resistance (long)', 11300],
+    ['swiftness', 'Swiftness', 11300], ['long_swiftness', 'Swiftness (long)', 11300], ['strong_swiftness', 'Swiftness II', 11300],
+    ['slowness', 'Slowness', 11300], ['long_slowness', 'Slowness (long)', 11300], ['strong_slowness', 'Slowness IV', 11300],
+    ['turtle_master', 'Turtle Master', 11300], ['long_turtle_master', 'Turtle Master (long)', 11300], ['strong_turtle_master', 'Turtle Master II', 11300],
+    ['water_breathing', 'Water Breathing', 11300], ['long_water_breathing', 'Water Breathing (long)', 11300],
+    ['healing', 'Healing', 11300], ['strong_healing', 'Healing II', 11300],
+    ['harming', 'Harming', 11300], ['strong_harming', 'Harming II', 11300],
+    ['poison', 'Poison', 11300], ['long_poison', 'Poison (long)', 11300], ['strong_poison', 'Poison II', 11300],
+    ['regeneration', 'Regeneration', 11300], ['long_regeneration', 'Regeneration (long)', 11300], ['strong_regeneration', 'Regeneration II', 11300],
+    ['strength', 'Strength', 11300], ['long_strength', 'Strength (long)', 11300], ['strong_strength', 'Strength II', 11300],
+    ['weakness', 'Weakness', 11300], ['long_weakness', 'Weakness (long)', 11300],
+    ['luck', 'Luck', 11300],
+    ['slow_falling', 'Slow Falling', 11300], ['long_slow_falling', 'Slow Falling (long)', 11300],
+    ['wind_charged', 'Wind Charged', 12100], ['weaving', 'Weaving', 12100], ['oozing', 'Oozing', 12100], ['infested', 'Infested', 12100]
+  ];
+
+  var ITEMS = [
+    ['potion', 'Potion'], ['splash_potion', 'Splash Potion'], ['lingering_potion', 'Lingering Potion'], ['tipped_arrow', 'Tipped Arrow']
+  ];
+
+  function verLabel(n) {
+    var minor = Math.floor((n - 10000) / 100);
+    var patch = n % 100;
+    return '1.' + minor + (patch ? '.' + patch : '');
+  }
+
+  function clean(s) {
+    return String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
+  }
+
+  function sq(s) {
+    return "'" + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+  }
+
+  function dq(s) {
+    return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  }
+
+  function clampInt(v, lo, hi, def) {
+    var n = Math.floor(Number(v));
+    if (!isFinite(n)) return def;
+    return Math.min(hi, Math.max(lo, n));
+  }
+
+  function textComp(r, t) {
+    var text = clean(t.text);
+    var hasItalic = t.italic !== undefined;
+    if (r.syntax === 'snbt') {
+      if (!t.color && !t.bold && !hasItalic) return dq(text);
+      var s = '{text:' + dq(text);
+      if (t.color) s += ',color:' + dq(t.color);
+      if (t.bold) s += ',bold:true';
+      if (hasItalic) s += ',italic:' + (t.italic ? 'true' : 'false');
+      return s + '}';
+    }
+    var o = { text: text };
+    if (t.color) o.color = t.color;
+    if (t.bold) o.bold = true;
+    if (hasItalic) o.italic = !!t.italic;
+    return sq(JSON.stringify(o));
+  }
+
+  function target(t) {
+    var s = clean(t);
+    return s || '@p';
+  }
+
+  function ampByte(n) {
+    return n > 127 ? String(n) : n + 'b';
+  }
+
+  function effectEntry(r, e) {
+    var amp = clampInt(e.level, 1, 255, 1) - 1;
+    var dur = e.infinite && r.infinite ? -1 : clampInt(e.seconds, 1, 1000000, 30) * 20;
+    if (r.syntax === 'legacy' && r.numeric) {
+      var a = '{Id:' + e.num + 'b,Amplifier:' + ampByte(amp) + ',Duration:' + dur;
+      if (e.hide) a += ',ShowParticles:0b';
+      return a + '}';
+    }
+    var b = '{id:' + dq('minecraft:' + e.id) + ',amplifier:' + (r.syntax === 'legacy' ? ampByte(amp) : amp) + ',duration:' + dur;
+    if (e.hide) b += ',show_particles:0b';
+    return b + '}';
+  }
+
+  function potionCmd(r, o) {
+    var item = 'minecraft:' + o.item;
+    var count = clampInt(o.count, 1, 999, 1);
+    var effs = [];
+    for (var i = 0; i < o.effects.length; i++) effs.push(effectEntry(r, o.effects[i]));
+    var name = clean(o.name && o.name.text);
+    var color = o.color == null ? null : clampInt(o.color, 0, 16777215, 0);
+    var data = [];
+    if (r.syntax === 'legacy') {
+      if (o.base) data.push('Potion:' + dq('minecraft:' + o.base));
+      if (effs.length) data.push((r.numeric ? 'CustomPotionEffects' : 'custom_potion_effects') + ':[' + effs.join(',') + ']');
+      if (color != null) data.push('CustomPotionColor:' + color);
+      if (name) data.push('display:{Name:' + textComp(r, o.name) + '}');
+      return 'give ' + target(o.target) + ' ' + item + (data.length ? '{' + data.join(',') + '}' : '') + ' ' + count;
+    }
+    var pc = [];
+    if (o.base) pc.push('potion:' + dq('minecraft:' + o.base));
+    if (color != null) pc.push('custom_color:' + color);
+    if (effs.length) pc.push('custom_effects:[' + effs.join(',') + ']');
+    if (pc.length) data.push('potion_contents={' + pc.join(',') + '}');
+    if (name) data.push('custom_name=' + textComp(r, o.name));
+    return 'give ' + target(o.target) + ' ' + item + (data.length ? '[' + data.join(',') + ']' : '') + ' ' + count;
+  }
+
+  function normPos(s) {
+    var parts = clean(s).split(/\s+/);
+    var ok = parts.length === 3;
+    if (ok) {
+      for (var i = 0; i < 3; i++) {
+        if (!/^[~^]?[-+]?(\d+\.?\d*|\.\d+)?$/.test(parts[i]) || parts[i] === '') ok = false;
+      }
+    }
+    return ok ? { pos: parts.join(' '), ok: true } : { pos: '~ ~ ~', ok: false };
+  }
+
+  function findEntity(id) {
+    for (var g = 0; g < ENTITIES.length; g++) {
+      for (var i = 0; i < ENTITIES[g][1].length; i++) {
+        if (ENTITIES[g][1][i][0] === id) return ENTITIES[g][1][i];
+      }
+    }
+    return null;
+  }
+
+  function summonCmd(r, o) {
+    var ent = findEntity(o.entity);
+    var tags = [];
+    var name = clean(o.name && o.name.text);
+    if (name) tags.push('CustomName:' + textComp(r, o.name));
+    if (o.nameVisible) tags.push('CustomNameVisible:1b');
+    if (o.noAI) tags.push('NoAI:1b');
+    if (o.silent) tags.push('Silent:1b');
+    if (o.invulnerable) tags.push('Invulnerable:1b');
+    if (o.glowing) tags.push('Glowing:1b');
+    if (o.persistent) tags.push('PersistenceRequired:1b');
+    if (o.noGravity) tags.push('NoGravity:1b');
+    if (o.health != null && o.health !== '') {
+      var hp = clampInt(o.health, 1, 1024, 20);
+      tags.push('Health:' + hp + 'f');
+      if (r.syntax === 'legacy') tags.push('Attributes:[{Name:' + dq(r.attr) + ',Base:' + hp + 'd}]');
+      else tags.push('attributes:[{id:' + dq(r.attr) + ',base:' + hp + 'd}]');
+    }
+    if (o.baby && ent && ent[3] === AGE) tags.push('Age:-24000');
+    if (o.baby && ent && ent[3] === BOOL) tags.push('IsBaby:1b');
+    if (o.passenger) tags.push('Passengers:[{id:' + dq('minecraft:' + o.passenger) + '}]');
+    return 'summon minecraft:' + o.entity + ' ' + normPos(o.pos).pos + (tags.length ? ' {' + tags.join(',') + '}' : '');
+  }
+
+  function effectGiveCmd(r, o) {
+    var dur = o.infinite && r.infinite ? 'infinite' : String(clampInt(o.seconds, 0, 1000000, 30));
+    var amp = clampInt(o.level, 1, 256, 1) - 1;
+    return 'effect give ' + target(o.target) + ' minecraft:' + o.effect + ' ' + dur + ' ' + amp + (o.hide ? ' true' : '');
+  }
+
+  function effectClearCmd(r, o) {
+    return 'effect clear ' + target(o.target) + (o.effect ? ' minecraft:' + o.effect : '');
+  }
+
+  function withSlash(cmd, slash) {
+    return slash ? '/' + cmd : cmd;
+  }
+
+  return {
+    RANGES: RANGES, COLORS: COLORS, ENTITIES: ENTITIES, EFFECTS: EFFECTS, POTIONS: POTIONS, ITEMS: ITEMS,
+    verLabel: verLabel, normPos: normPos, findEntity: findEntity, withSlash: withSlash,
+    potionCmd: potionCmd, summonCmd: summonCmd, effectGiveCmd: effectGiveCmd, effectClearCmd: effectClearCmd
+  };
+})();
+</script>
+<script>
+(function () {
+  var G = BFCmd;
+  var R = G.RANGES;
+  var state = { syntax: 'snbt', range: R[0], tab: 'summon' };
+
+  function $(id) { return document.getElementById(id); }
+
+  function titleCase(s) {
+    return s.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
+  function addOption(sel, value, label, disabled, parent) {
+    var o = document.createElement('option');
+    o.value = value;
+    o.textContent = label;
+    if (disabled) o.disabled = true;
+    (parent || sel).appendChild(o);
+    return o;
+  }
+
+  function sinceLabel(label, since) {
+    return since > state.range.min ? label + ' (' + G.verLabel(since) + '+)' : label;
+  }
+
+  function fillSelect(sel, groups, opts) {
+    var prev = sel.value;
+    sel.innerHTML = '';
+    if (opts && opts.blank) addOption(sel, '', opts.blank, false);
+    groups.forEach(function (g) {
+      var parent = sel;
+      if (g.name) {
+        parent = document.createElement('optgroup');
+        parent.label = g.name;
+        sel.appendChild(parent);
+      }
+      g.items.forEach(function (it) {
+        addOption(sel, it.id, sinceLabel(it.label, it.since), it.since > state.range.max, parent);
+      });
+    });
+    var ok = false;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === prev && !sel.options[i].disabled) ok = true;
+    }
+    if (ok) sel.value = prev;
+    else if (opts && opts.blank) sel.value = '';
+    else {
+      for (var j = 0; j < sel.options.length; j++) {
+        if (!sel.options[j].disabled) { sel.selectedIndex = j; break; }
+      }
+    }
+  }
+
+  function entityGroups() {
+    return G.ENTITIES.map(function (g) {
+      return { name: g[0], items: g[1].map(function (e) { return { id: e[0], label: e[1], since: e[2] }; }) };
+    });
+  }
+
+  function effectGroups(forPotion) {
+    var items = [];
+    G.EFFECTS.forEach(function (e) {
+      if (forPotion && state.range.numeric && e[2] == null) return;
+      items.push({ id: e[0], label: e[1], since: e[3] });
+    });
+    return [{ name: null, items: items }];
+  }
+
+  function colorOptions(sel) {
+    addOption(sel, '', 'Default', false);
+    G.COLORS.forEach(function (c) { addOption(sel, c, titleCase(c), false); });
+  }
+
+  function effectNum(id) {
+    for (var i = 0; i < G.EFFECTS.length; i++) if (G.EFFECTS[i][0] === id) return G.EFFECTS[i][2];
+    return null;
+  }
+
+  function rebuildLists() {
+    fillSelect($('s-entity'), entityGroups());
+    fillSelect($('s-pass'), entityGroups(), { blank: 'None' });
+    fillSelect($('p-base'), [{ name: null, items: G.POTIONS.map(function (p) { return { id: p[0], label: p[1], since: p[2] }; }) }], { blank: 'None' });
+    fillSelect($('e-effect'), effectGroups(false));
+    fillSelect($('e-clear-effect'), effectGroups(false), { blank: 'All effects' });
+    var rows = $('eff-list').querySelectorAll('.eff-row');
+    for (var i = 0; i < rows.length; i++) fillSelect(rows[i].querySelector('.r-effect'), effectGroups(true));
+  }
+
+  function updateInfiniteState() {
+    var ok = state.range.infinite;
+    var boxes = [$('e-inf')].concat([].slice.call(document.querySelectorAll('.r-inf')));
+    boxes.forEach(function (b) {
+      if (!ok) b.checked = false;
+      b.disabled = !ok;
+      b.parentNode.classList.toggle('is-off', !ok);
+    });
+    $('p-inf-hint').textContent = ok ? 'Infinite duration writes -1, which works on 1.19.4 and newer.' : 'Infinite duration needs Java 1.19.4 or newer. Pick a newer exact version to use it.';
+  }
+
+  function updateVersionUI() {
+    var btns = $('ver-btns').querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('is-active', btns[i].getAttribute('data-syn') === state.syntax);
+    var sel = $('ver-sel');
+    sel.innerHTML = '';
+    R.forEach(function (r) {
+      if (r.syntax === state.syntax) addOption(sel, r.key, r.label, false);
+    });
+    sel.value = state.range.key;
+    var hints = {
+      snbt: 'Text components are SNBT, like custom_name={text:"Hi"}.',
+      comp: 'Item components in brackets, names as JSON strings. Pick the exact version, the max health attribute id changed in 1.21.2.',
+      legacy: 'Old NBT tags. Effect ids are numbers up to 1.20.1 and names from 1.20.2. Mobs added after 1.13 only work from their own version.'
+    };
+    $('ver-hint').textContent = hints[state.syntax];
+    $('s-hp-hint').textContent = 'Sets the max health attribute (' + (state.range.attr.indexOf('generic') > -1 ? 'generic.max_health' : 'max_health') + ') and current health together. Hearts are half of this number.';
+  }
+
+  function setRange(r) {
+    state.range = r;
+    state.syntax = r.syntax;
+    updateVersionUI();
+    rebuildLists();
+    updateInfiniteState();
+    render();
+  }
+
+  function nameObj(textId, colorId, boldId, italicId) {
+    var o = { text: $(textId).value, color: $(colorId).value, bold: $(boldId).checked };
+    if (italicId) o.italic = $(italicId).checked;
+    return o;
+  }
+
+  function slash() { return $('opt-slash').checked; }
+
+  function setOut(id, cmd) {
+    var text = G.withSlash(cmd, slash());
+    $(id).textContent = text;
+    var cnt = $('cnt-' + id);
+    var warn = $('warn-' + id);
+    var over = text.length > 256;
+    cnt.textContent = text.length + ' characters';
+    cnt.classList.toggle('is-over', over);
+    warn.hidden = !over;
+    if (over) warn.textContent = 'That is over 256 characters, which is the chat box limit. Paste it into a command block instead' + (slash() ? ' and untick the leading slash.' : '.');
+  }
+
+  function renderSummon() {
+    var pos = G.normPos($('s-pos').value);
+    var hint = $('s-pos-hint');
+    hint.classList.toggle('is-bad', !pos.ok);
+    hint.textContent = pos.ok ? 'Three values. Use ~ for relative to where the command runs, or plain numbers like 100 64 -20.' : 'Could not read that position, using ~ ~ ~. Write three values like ~ ~1 ~ or 100 64 -20.';
+    var ent = G.findEntity($('s-entity').value);
+    var canBaby = !!(ent && ent[3]);
+    $('s-baby').disabled = !canBaby;
+    $('s-baby-wrap').classList.toggle('is-off', !canBaby);
+    if (!canBaby) $('s-baby').checked = false;
+    var entSince = ent ? ent[2] : 0;
+    var h = $('s-entity-hint');
+    h.textContent = entSince > state.range.min && entSince <= state.range.max ? 'This mob needs ' + G.verLabel(entSince) + ' or newer.' : '';
+    var cmd = G.summonCmd(state.range, {
+      entity: $('s-entity').value,
+      pos: $('s-pos').value,
+      name: nameObj('s-name', 's-color', 's-bold'),
+      nameVisible: $('s-vis').checked,
+      noAI: $('s-noai').checked,
+      silent: $('s-silent').checked,
+      invulnerable: $('s-invul').checked,
+      glowing: $('s-glow').checked,
+      persistent: $('s-persist').checked,
+      noGravity: $('s-nograv').checked,
+      health: $('s-hp').value,
+      baby: $('s-baby').checked,
+      passenger: $('s-pass').value
+    });
+    setOut('out-summon', cmd);
+  }
+
+  function readRows() {
+    var rows = $('eff-list').querySelectorAll('.eff-row');
+    var out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var id = rows[i].querySelector('.r-effect').value;
+      if (!id) continue;
+      out.push({
+        id: id,
+        num: effectNum(id),
+        level: rows[i].querySelector('.r-level').value,
+        seconds: rows[i].querySelector('.r-sec').value,
+        infinite: rows[i].querySelector('.r-inf').checked,
+        hide: rows[i].querySelector('.r-hide').checked
+      });
+    }
+    return out;
+  }
+
+  function renderPotion() {
+    var color = $('p-usecolor').checked ? parseInt($('p-color').value.slice(1), 16) : null;
+    var cmd = G.potionCmd(state.range, {
+      item: $('p-item').value,
+      base: $('p-base').value,
+      target: $('p-target').value,
+      count: $('p-count').value,
+      effects: readRows(),
+      color: color,
+      name: nameObj('p-name', 'p-ncolor', 'p-bold', 'p-italic')
+    });
+    setOut('out-potion', cmd);
+  }
+
+  function renderEffect() {
+    var base = {
+      target: $('e-target').value,
+      effect: $('e-effect').value,
+      seconds: $('e-seconds').value,
+      level: $('e-level').value,
+      infinite: $('e-inf').checked,
+      hide: $('e-hide').checked
+    };
+    $('e-seconds').disabled = base.infinite && state.range.infinite;
+    setOut('out-give', G.effectGiveCmd(state.range, base));
+    setOut('out-clear', G.effectClearCmd(state.range, { target: $('e-target').value, effect: $('e-clear-effect').value }));
+  }
+
+  function render() {
+    if (state.tab === 'summon') renderSummon();
+    else if (state.tab === 'potion') renderPotion();
+    else renderEffect();
+  }
+
+  function setTab(t) {
+    state.tab = t;
+    var btns = $('tabs').querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('is-active', btns[i].getAttribute('data-tab') === t);
+    ['summon', 'potion', 'effect'].forEach(function (n) {
+      $('panel-' + n).hidden = n !== t;
+      $('out-' + n + '-card').hidden = n !== t;
+    });
+    render();
+  }
+
+  function rowField(label, html) {
+    return '<div class="field"><label>' + label + '</label>' + html + '</div>';
+  }
+
+  function addRow(def) {
+    var row = document.createElement('div');
+    row.className = 'eff-row';
+    row.innerHTML =
+      rowField('Effect', '<select class="r-effect"></select>') +
+      '<div class="field-row">' +
+      rowField('Level (1 to 255)', '<input type="number" class="r-level" min="1" max="255" step="1" value="' + def.level + '">') +
+      rowField('Seconds', '<input type="number" class="r-sec" min="1" max="1000000" step="1" value="' + def.seconds + '">') +
+      '</div>' +
+      '<div class="eff-foot">' +
+      '<label class="inline-check"><input type="checkbox" class="r-inf"> Infinite</label>' +
+      '<label class="inline-check"><input type="checkbox" class="r-hide"> Hide particles</label>' +
+      '<span class="spacer"></span>' +
+      '<button type="button" class="btn btn-mini r-remove">Remove</button>' +
+      '</div>';
+    $('eff-list').appendChild(row);
+    var sel = row.querySelector('.r-effect');
+    fillSelect(sel, effectGroups(true));
+    sel.value = def.effect;
+    if (sel.selectedIndex < 0 || sel.options[sel.selectedIndex].disabled) fillSelect(sel, effectGroups(true));
+    updateInfiniteState();
+  }
+
+  function copyText(text, btn) {
+    function done() {
+      var old = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('is-copied');
+      setTimeout(function () { btn.textContent = old; btn.classList.remove('is-copied'); }, 1200);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Press Ctrl+C'; }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  colorOptions($('s-color'));
+  colorOptions($('p-ncolor'));
+  G.ITEMS.forEach(function (i) { addOption($('p-item'), i[0], i[1], false); });
+
+  $('ver-btns').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var syn = b.getAttribute('data-syn');
+    var first = null;
+    for (var i = 0; i < R.length; i++) if (R[i].syntax === syn) { first = R[i]; break; }
+    setRange(first);
+  });
+
+  $('ver-sel').addEventListener('change', function () {
+    for (var i = 0; i < R.length; i++) if (R[i].key === $('ver-sel').value) setRange(R[i]);
+  });
+
+  $('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (b) setTab(b.getAttribute('data-tab'));
+  });
+
+  $('eff-add').addEventListener('click', function () {
+    addRow({ effect: 'strength', level: 1, seconds: 180 });
+    render();
+  });
+
+  $('eff-list').addEventListener('click', function (e) {
+    var b = e.target.closest('.r-remove');
+    if (!b) return;
+    var row = b.closest('.eff-row');
+    row.parentNode.removeChild(row);
+    render();
+  });
+
+  document.querySelector('.tool-grid').addEventListener('input', render);
+  document.querySelector('.tool-grid').addEventListener('change', render);
+  $('opt-slash').addEventListener('change', render);
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copy]');
+    if (!b) return;
+    copyText($(b.getAttribute('data-copy')).textContent, b);
+  });
+
+  rebuildLists();
+  addRow({ effect: 'speed', level: 2, seconds: 180 });
+  updateVersionUI();
+  updateInfiniteState();
+  setTab('summon');
+})();
+</script>
+
+</body>
+</html>

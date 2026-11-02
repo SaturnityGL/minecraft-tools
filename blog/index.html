@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Blog: Guides and Straight Answers | BlockForge</title>
+  <meta name="description" content="Plain answers to the Minecraft questions people actually search: free versions, Eaglercraft, Java vs Bedrock, and how the tools on BlockForge fit in.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/blog/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/blog/">
+  <meta property="og:title" content="Minecraft Blog: Guides and Straight Answers | BlockForge">
+  <meta property="og:description" content="Plain answers to the Minecraft questions people actually search: free versions, Eaglercraft, Java vs Bedrock, and how the tools on BlockForge fit in.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Minecraft Blog: Guides and Straight Answers | BlockForge">
+  <meta name="twitter:description" content="Plain answers to the Minecraft questions people actually search: free versions, Eaglercraft, Java vs Bedrock, and how the tools on BlockForge fit in.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+  <style>
+    .post-meta { font-size: 0.85rem; color: var(--color-text-muted); margin: -4px 0 24px; }
+    .post-body h2 { margin-top: 36px; }
+    .post-body ul { margin: 0 0 18px 22px; line-height: 1.7; }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font-family: Consolas, 'Courier New', monospace; font-size: 0.9em; background: var(--color-bg-hover); border: 1px solid var(--color-border); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+    .snippet-box { background: var(--color-bg-hover); border: 1px solid var(--color-border); border-left: 4px solid var(--color-accent); border-radius: 8px; padding: 16px 20px; margin: 0 0 24px; }
+    .snippet-box p { margin: 0; }
+    .post-faq { margin-top: 40px; }
+    .post-faq .faq-item h3 { margin-top: 0; }
+    .post-list { display: grid; gap: 16px; margin-top: 24px; }
+    .post-card { display: block; border: 1px solid var(--color-border); border-radius: var(--card-radius); padding: 18px 20px; color: var(--color-text); text-decoration: none; background: var(--color-bg-hover); }
+    .post-card:hover { border-color: var(--color-accent); }
+    .post-card strong { display: block; font-size: 1.05rem; margin-bottom: 6px; }
+    .post-card span { color: var(--color-text-muted); font-size: 0.95rem; }
+  </style>
+
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+        <a href="/motd/">MOTD Generator</a>
+        <a href="/commands/">Command Generator</a>
+      </div>
+    </div>
+    <a href="/blog/" class="active">Blog</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main>
+  <h1>BlockForge Blog</h1>
+  <p class="lead">Straight answers to Minecraft questions, written by the person who builds the tools here.</p>
+  <div class="post-list">
+    <a class="post-card" href="/blog/minecraft-for-free/"><strong>You won&#x27;t find Minecraft for free (but here&#x27;s what people actually mean)</strong><span>What&#x27;s actually free, what cracked launchers really do, and why &quot;Failed to verify username&quot; keeps you off most servers.</span></a>
+    <a class="post-card" href="/blog/what-is-eaglercraft/"><strong>What is Eaglercraft, and why can&#x27;t it join normal servers?</strong><span>Minecraft 1.8 in a browser tab. What it is, why it can&#x27;t join Hypixel, and the deal with all the mirror sites.</span></a>
+    <a class="post-card" href="/blog/minecraft-java-vs-bedrock/"><strong>Minecraft Java vs Bedrock: which one should you actually play?</strong><span>Mods and big servers or crossplay with console friends. How to pick, plus the small differences that bite you later.</span></a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/motd/">MOTD Generator</a></li>
+        <li><a href="/commands/">Command Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+</body>
+</html>

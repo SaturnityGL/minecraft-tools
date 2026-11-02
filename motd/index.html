@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft MOTD Generator: Hex Colors &amp; Preview</title>
+  <meta name="description" content="Free Minecraft MOTD generator with color codes, hex colors, gradients and a live server list preview. Copy for server.properties, Paper, Spigot or MiniMessage.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/motd/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/motd/">
+  <meta property="og:title" content="Minecraft MOTD Generator: Hex Colors &amp; Preview">
+  <meta property="og:description" content="Build a colorful Minecraft server MOTD with hex colors and gradients, preview it like the server list, and copy it for server.properties, Paper or MiniMessage.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Minecraft MOTD Generator: Hex Colors &amp; Preview">
+  <meta name="twitter:description" content="Build a Minecraft server MOTD with hex colors and gradients and preview it like the in-game server list.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://blockforge.saturnitystools.com/motd/#motd-generator",
+    "name": "BlockForge MOTD Generator",
+    "url": "https://blockforge.saturnitystools.com/motd/",
+    "description": "Free browser tool for building Minecraft server MOTDs with color codes, hex colors and gradients, with a live server list preview and output for server.properties, Spigot and Paper configs, and MiniMessage.",
+    "applicationCategory": "UtilitiesApplication",
+    "applicationSubCategory": "Minecraft server MOTD generator",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Modern browser with JavaScript enabled",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@id": "https://saturnitystools.com/#organization" },
+    "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+    "isPartOf": { "@id": "https://blockforge.saturnitystools.com/#website" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I change my Minecraft server MOTD?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open server.properties in your server folder, find the line that starts with motd=, and replace it with the line from the server.properties tab on this page. Save the file and restart the server. The MOTD is only read on startup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why do my hex colors turn into plain colors in server.properties?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The vanilla server.properties MOTD only understands the 16 legacy colors, so this tool swaps each hex color for the closest legacy one in that output. Hex colors need software or a plugin that reads them, such as a MiniMessage based MOTD plugin or a proxy config. Use the MiniMessage or section sign tabs for those."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long can a Minecraft MOTD be?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A MOTD has two lines. The server list only shows roughly 270 GUI pixels per line, which is about 45 normal characters, and cuts off the rest. Narrow letters like i and l take less room and bold text takes more. The width meter on this page gives an approximate count."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I add a server icon?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Put a 64 by 64 pixel PNG named server-icon.png in the server folder, next to server.properties, and restart the server. The icon upload on this page is only a preview in your browser and nothing is sent anywhere."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What do the &k, &l and &r codes do?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "&k makes text obfuscated, which scrambles into random characters. &l is bold, &m is strikethrough, &n is underline, &o is italic, and &r resets everything back to plain. Picking a color code also clears any formatting that came before it, so add the format codes after the color."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will my MOTD look the same on Bedrock or through Geyser?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not exactly. Bedrock draws the server list differently and uses slightly different colors, and Geyser has its own MOTD settings in its config file. Treat the preview here as the Java Edition server list."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    main.mg-main {
+      flex: 1;
+      max-width: 1080px;
+      width: 100%;
+      margin: 32px auto 48px;
+      padding: 0 20px;
+    }
+    .mg-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .mg-header h1 {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--color-text);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .mg-header p {
+      color: var(--color-text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .mg-panel {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--card-radius, 12px);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+      min-width: 0;
+    }
+    .mg-panel h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      color: var(--color-text);
+      margin-bottom: 12px;
+    }
+    .mg-panel h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin: 16px 0 8px;
+    }
+
+    .mg-preview-wrap {
+      background: #1a1510;
+      border-radius: 8px;
+      padding: 14px;
+      overflow: hidden;
+    }
+    .mg-entry {
+      --fs: 16px;
+      font-size: var(--fs);
+      display: flex;
+      gap: 0.75em;
+      align-items: flex-start;
+      padding: 0.5em;
+      background: #000;
+      border: 2px solid #3b3b3b;
+      min-width: 0;
+      overflow: hidden;
+      font-family: var(--font-display);
+      line-height: 1.3;
+    }
+    .mg-icon {
+      flex: 0 0 auto;
+      width: 4em;
+      height: 4em;
+      background: linear-gradient(#6aa84f 0 28%, #7b5a3a 28% 100%);
+      overflow: hidden;
+    }
+    .mg-icon img {
+      width: 100%;
+      height: 100%;
+      display: none;
+      image-rendering: pixelated;
+    }
+    .mg-icon img[src] { display: block; }
+    .mg-body {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .mg-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5em;
+      color: #fff;
+      text-shadow: 0.125em 0.125em 0 #3f3f3f;
+    }
+    .mg-name {
+      white-space: nowrap;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .mg-side {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5em;
+      flex: 0 0 auto;
+      color: #aaa;
+      text-shadow: 0.125em 0.125em 0 #2a2a2a;
+    }
+    .mg-ping {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.0625em;
+      height: 1em;
+      margin-top: 0.0625em;
+    }
+    .mg-ping i {
+      display: block;
+      width: 0.25em;
+      background: #55ff55;
+    }
+    .mg-ping i:nth-child(1) { height: 0.2em; }
+    .mg-ping i:nth-child(2) { height: 0.4em; }
+    .mg-ping i:nth-child(3) { height: 0.6em; }
+    .mg-ping i:nth-child(4) { height: 0.8em; }
+    .mg-ping i:nth-child(5) { height: 1em; }
+    .mg-line {
+      white-space: pre;
+      overflow: hidden;
+      min-height: 1.3em;
+      color: #aaa;
+    }
+    .mg-line span {
+      display: inline;
+    }
+
+    .mg-meters {
+      margin-top: 12px;
+      display: grid;
+      gap: 6px;
+    }
+    .mg-meter {
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .mg-meter.is-over {
+      color: #a35a00;
+      font-weight: 600;
+    }
+
+    .mg-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 760px) {
+      .mg-grid { grid-template-columns: 1fr; gap: 0; }
+    }
+
+    .mg-field {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .mg-field > span {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    .mg-input {
+      appearance: none;
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      padding: 8px 10px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+      color: var(--color-text);
+    }
+    .mg-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px rgba(204,0,0,0.15);
+    }
+    .mg-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .mg-row .mg-input { width: auto; flex: 1 1 90px; min-width: 0; }
+
+    .mg-swatches {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+    .mg-swatch {
+      appearance: none;
+      border: 2px solid rgba(0,0,0,0.35);
+      border-radius: 4px;
+      padding: 0;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 2px #000, 0 0 2px #000;
+      transition: transform 0.08s;
+    }
+    .mg-swatch:hover { transform: scale(1.08); }
+    .mg-swatch:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+
+    .mg-btn {
+      appearance: none;
+      background: var(--color-bg-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      padding: 7px 12px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .mg-btn:hover { background: var(--color-border); }
+    .mg-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+    .mg-btn.is-primary {
+      background: var(--color-accent);
+      border-color: var(--color-accent-deep);
+      color: #fff;
+    }
+    .mg-btn.is-primary:hover { background: var(--color-accent-hover); }
+    .mg-btn.is-copied {
+      background: var(--color-mc-green);
+      border-color: var(--color-mc-green);
+      color: #fff;
+    }
+    .mg-fmt {
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    .mg-color-in {
+      appearance: none;
+      width: 44px;
+      height: 34px;
+      padding: 2px;
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .mg-note {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .mg-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .mg-tab {
+      appearance: none;
+      background: var(--color-bg-hover);
+      border: 1px solid var(--color-border);
+      border-radius: 5px;
+      padding: 8px 12px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+    .mg-tab[aria-selected="true"] {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+    .mg-out {
+      background: #1e1a14;
+      color: #e8e2d4;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 60px;
+      margin-bottom: 10px;
+    }
+    .mg-warn {
+      background: #fff9e6;
+      border: 1px solid #e0c97a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #6b4f00;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .mg-warn[hidden] { display: none; }
+
+    .mg-primer h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .mg-primer h3 {
+      font-size: 16px;
+      color: var(--color-text);
+      margin: 16px 0 6px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .mg-primer p,
+    .mg-primer li {
+      color: var(--color-text);
+      line-height: 1.65;
+    }
+    .mg-primer p { margin-bottom: 12px; }
+    .mg-primer ol,
+    .mg-primer ul { margin: 0 0 12px 22px; }
+    .mg-primer code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      padding: 1px 5px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      word-break: break-all;
+    }
+
+    @media (max-width: 480px) {
+      main.mg-main { padding: 0 16px; }
+      .mg-panel { padding: 16px; }
+      .mg-preview-wrap { padding: 8px; }
+      .mg-entry { --fs: 10px; }
+      .mg-header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+        <a href="/motd/">MOTD Generator</a>
+        <a href="/commands/">Command Generator</a>
+      </div>
+    </div>
+    <a href="/blog/">Blog</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="mg-main">
+
+  <div class="mg-header">
+    <h1>Minecraft MOTD Generator</h1>
+    <p>Type your two MOTD lines with &amp; color codes, click the palette to add colors and formatting, and watch it render like the real server list. Hex colors and gradients work too. Then copy it in the format your server needs.</p>
+  </div>
+
+  <div class="mg-panel">
+    <h2>Preview</h2>
+    <div class="mg-preview-wrap">
+      <div class="mg-entry" id="mg-entry">
+        <div class="mg-icon"><img id="mg-icon" alt="" width="64" height="64"></div>
+        <div class="mg-body">
+          <div class="mg-top">
+            <div class="mg-name" id="mg-name"></div>
+            <div class="mg-side">
+              <span id="mg-players"></span>
+              <span class="mg-ping" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+          </div>
+          <div class="mg-line" id="mg-line1"></div>
+          <div class="mg-line" id="mg-line2"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mg-meters">
+      <div class="mg-meter" id="mg-meter1"></div>
+      <div class="mg-meter" id="mg-meter2"></div>
+    </div>
+    <p class="mg-note">Widths are approximate. The in-game server list shows roughly 270 GUI pixels per line and cuts off anything longer. Long lines are clipped in the preview the same way.</p>
+  </div>
+
+  <div class="mg-grid">
+    <div class="mg-panel">
+      <h2>Your MOTD</h2>
+      <label class="mg-field">
+        <span>Line 1</span>
+        <input type="text" class="mg-input" id="mg-in1" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="mg-field">
+        <span>Line 2</span>
+        <input type="text" class="mg-input" id="mg-in2" autocomplete="off" spellcheck="false">
+      </label>
+      <p class="mg-note">Click a color or format below to insert it at the cursor in whichever line you last clicked. Hex colors look like <code>&amp;#FF8800</code>.</p>
+
+      <h3>Presets</h3>
+      <div class="mg-row" id="mg-presets"></div>
+    </div>
+
+    <div class="mg-panel">
+      <h2>Colors and formatting</h2>
+      <div class="mg-swatches" id="mg-swatches"></div>
+      <h3>Formatting</h3>
+      <div class="mg-row" id="mg-formats"></div>
+      <h3>Hex color</h3>
+      <div class="mg-row">
+        <input type="color" class="mg-color-in" id="mg-hex" value="#ff8800" aria-label="Hex color">
+        <button type="button" class="mg-btn" id="mg-hex-insert">Insert hex color</button>
+      </div>
+      <h3>Gradient</h3>
+      <div class="mg-row">
+        <input type="color" class="mg-color-in" id="mg-g1" value="#ff5f6d" aria-label="Gradient start color">
+        <input type="color" class="mg-color-in" id="mg-g2" value="#ffc371" aria-label="Gradient end color">
+        <button type="button" class="mg-btn" id="mg-grad">Apply to selection</button>
+      </div>
+      <p class="mg-note">Select some text in a line first and the gradient is applied to just that part. With nothing selected it covers the whole line. Existing colors in the range are replaced and formatting is kept.</p>
+    </div>
+  </div>
+
+  <div class="mg-grid">
+    <div class="mg-panel">
+      <h2>Server list entry</h2>
+      <label class="mg-field">
+        <span>Server name</span>
+        <input type="text" class="mg-input" id="mg-sname" value="My Minecraft Server" autocomplete="off">
+      </label>
+      <div class="mg-row">
+        <label class="mg-field" style="flex:1 1 90px;margin-bottom:0">
+          <span>Players online</span>
+          <input type="number" class="mg-input" id="mg-on" value="12" min="0" max="99999">
+        </label>
+        <label class="mg-field" style="flex:1 1 90px;margin-bottom:0">
+          <span>Max players</span>
+          <input type="number" class="mg-input" id="mg-max" value="100" min="0" max="99999">
+        </label>
+      </div>
+    </div>
+
+    <div class="mg-panel">
+      <h2>Server icon</h2>
+      <label class="mg-field">
+        <span>Preview a PNG as the icon</span>
+        <input type="file" class="mg-input" id="mg-file" accept="image/png">
+      </label>
+      <button type="button" class="mg-btn" id="mg-file-clear">Remove icon</button>
+      <div class="mg-warn" id="mg-icon-warn" hidden></div>
+      <p class="mg-note">This stays in your browser, nothing is uploaded. The real file has to be a 64x64 PNG named <code>server-icon.png</code>, in the same folder as server.properties.</p>
+    </div>
+  </div>
+
+  <div class="mg-panel">
+    <h2>Copy it</h2>
+    <div class="mg-tabs" role="tablist" id="mg-tabs">
+      <button type="button" class="mg-tab" role="tab" data-tab="props" aria-selected="true">server.properties</button>
+      <button type="button" class="mg-tab" role="tab" data-tab="amp" aria-selected="false">Spigot / Paper (&amp;)</button>
+      <button type="button" class="mg-tab" role="tab" data-tab="mini" aria-selected="false">MiniMessage</button>
+      <button type="button" class="mg-tab" role="tab" data-tab="raw" aria-selected="false">Section sign</button>
+    </div>
+    <div class="mg-warn" id="mg-out-warn" hidden></div>
+    <pre class="mg-out" id="mg-out" role="tabpanel"></pre>
+    <div class="mg-row">
+      <button type="button" class="mg-btn is-primary" id="mg-copy">Copy</button>
+    </div>
+    <p class="mg-note" id="mg-out-note"></p>
+  </div>
+
+  <div class="mg-panel mg-primer">
+    <h2>How to set your MOTD</h2>
+    <ol>
+      <li>Build your two lines above and pick the <strong>server.properties</strong> tab.</li>
+      <li>Stop your server and open <code>server.properties</code> in the server folder.</li>
+      <li>Replace the existing <code>motd=</code> line with the one you copied. Keep it on a single line.</li>
+      <li>Save the file and start the server again. The MOTD is only read at startup, so a reload is not enough.</li>
+    </ol>
+    <p>If you run a proxy like Velocity or BungeeCord, the MOTD the player sees comes from the proxy config, not from the backend server. Plugins that manage the MOTD have their own files too, so use the tab that matches what they expect.</p>
+    <p>Bedrock players joining through Geyser see a different layout, and Geyser has its own MOTD settings in its config. The preview here shows the Java Edition server list.</p>
+
+    <h2 style="margin-top:24px">MOTD questions</h2>
+    <h3>How do I change my Minecraft server MOTD?</h3>
+    <p>Edit the <code>motd=</code> line in server.properties, save, and restart. Paste the line from the server.properties tab.</p>
+    <h3>Why do my hex colors turn into plain colors in server.properties?</h3>
+    <p>The vanilla server.properties MOTD only understands the 16 legacy colors, so this tool swaps each hex color for the closest legacy one in that output. Hex colors need software or a plugin that reads them, such as a MiniMessage based MOTD plugin or a proxy config. Use the MiniMessage or section sign tabs for those.</p>
+    <h3>How long can a Minecraft MOTD be?</h3>
+    <p>A MOTD has two lines. The server list only shows roughly 270 GUI pixels per line, which is about 45 normal characters, and cuts off the rest. Narrow letters like i and l take less room and bold text takes more. The width meter on this page gives an approximate count.</p>
+    <h3>How do I add a server icon?</h3>
+    <p>Put a 64 by 64 pixel PNG named <code>server-icon.png</code> in the server folder, next to server.properties, and restart the server. The icon upload on this page is only a preview in your browser and nothing is sent anywhere.</p>
+    <h3>What do the &amp;k, &amp;l and &amp;r codes do?</h3>
+    <p><code>&amp;k</code> makes text obfuscated, which scrambles into random characters. <code>&amp;l</code> is bold, <code>&amp;m</code> is strikethrough, <code>&amp;n</code> is underline, <code>&amp;o</code> is italic, and <code>&amp;r</code> resets everything back to plain. Picking a color code also clears any formatting that came before it, so add the format codes after the color.</p>
+    <h3>Will my MOTD look the same on Bedrock or through Geyser?</h3>
+    <p>Not exactly. Bedrock draws the server list differently and uses slightly different colors, and Geyser has its own MOTD settings in its config file. Treat the preview here as the Java Edition server list.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/motd/">MOTD Generator</a></li>
+        <li><a href="/commands/">Command Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var SECTION = '§';
+  var DEFAULT_COLOR = 'aaaaaa';
+  var LIMIT = 270;
+
+  var LEGACY = [
+    ['0', 'black', '000000'],
+    ['1', 'dark_blue', '0000aa'],
+    ['2', 'dark_green', '00aa00'],
+    ['3', 'dark_aqua', '00aaaa'],
+    ['4', 'dark_red', 'aa0000'],
+    ['5', 'dark_purple', 'aa00aa'],
+    ['6', 'gold', 'ffaa00'],
+    ['7', 'gray', 'aaaaaa'],
+    ['8', 'dark_gray', '555555'],
+    ['9', 'blue', '5555ff'],
+    ['a', 'green', '55ff55'],
+    ['b', 'aqua', '55ffff'],
+    ['c', 'red', 'ff5555'],
+    ['d', 'light_purple', 'ff55ff'],
+    ['e', 'yellow', 'ffff55'],
+    ['f', 'white', 'ffffff']
+  ];
+  var FORMATS = [
+    ['k', 'obfuscated', 'Obfuscated'],
+    ['l', 'bold', 'Bold'],
+    ['m', 'strikethrough', 'Strike'],
+    ['n', 'underlined', 'Underline'],
+    ['o', 'italic', 'Italic']
+  ];
+  var FORMAT_ORDER = 'klmno';
+
+  var COLOR_BY_CODE = {};
+  var LEGACY_BY_HEX = {};
+  LEGACY.forEach(function (c) {
+    COLOR_BY_CODE[c[0]] = c[2];
+    LEGACY_BY_HEX[c[2]] = c;
+  });
+  var FORMAT_NAME = {};
+  FORMATS.forEach(function (f) { FORMAT_NAME[f[0]] = f[1]; });
+
+  var WIDTHS = {
+    ' ': 4, '!': 2, '"': 5, '\'': 3, '(': 5, ')': 5, '*': 5, ',': 2, '.': 2,
+    ':': 2, ';': 2, '<': 5, '>': 5, '@': 7, 'I': 4, '[': 4, ']': 4, '`': 3,
+    'f': 5, 'i': 2, 'k': 5, 'l': 3, 't': 4, '{': 5, '|': 2, '}': 5, '~': 7
+  };
+  var SAME_WIDTH = {};
+  (function () {
+    for (var c = 33; c < 127; c++) {
+      var ch = String.fromCharCode(c);
+      if (ch === '&') continue;
+      var w = WIDTHS[ch] || 6;
+      if (!SAME_WIDTH[w]) SAME_WIDTH[w] = [];
+      SAME_WIDTH[w].push(ch);
+    }
+  })();
+
+  function charWidth(ch) {
+    return WIDTHS[ch] || 6;
+  }
+
+  function sameStyle(a, b) {
+    if (a.c !== b.c) return false;
+    for (var i = 0; i < FORMAT_ORDER.length; i++) {
+      var k = FORMAT_ORDER[i];
+      if (!!a.f[k] !== !!b.f[k]) return false;
+    }
+    return true;
+  }
+
+  function copyFormats(f, extra) {
+    var out = {};
+    for (var k in f) { if (f[k]) out[k] = true; }
+    if (extra) out[extra] = true;
+    return out;
+  }
+
+  function normalize(segs) {
+    var out = [];
+    segs.forEach(function (s) {
+      if (!s.t) return;
+      var last = out[out.length - 1];
+      if (last && sameStyle(last, s)) {
+        last.t += s.t;
+      } else {
+        out.push({ t: s.t, c: s.c, f: copyFormats(s.f) });
+      }
+    });
+    return out;
+  }
+
+  function parse(line) {
+    var segs = [];
+    var st = { c: null, f: {} };
+    var buf = '';
+    function flush() {
+      if (buf) {
+        segs.push({ t: buf, c: st.c, f: copyFormats(st.f) });
+        buf = '';
+      }
+    }
+    var i = 0;
+    while (i < line.length) {
+      var ch = line.charAt(i);
+      if ((ch === '&' || ch === SECTION) && i + 1 < line.length) {
+        var n = line.charAt(i + 1);
+        if (n === '#') {
+          var hex = line.substr(i + 2, 6);
+          if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+            flush();
+            st = { c: hex.toLowerCase(), f: {} };
+            i += 8;
+            continue;
+          }
+        }
+        var k = n.toLowerCase();
+        if (COLOR_BY_CODE[k]) {
+          flush();
+          st = { c: COLOR_BY_CODE[k], f: {} };
+          i += 2;
+          continue;
+        }
+        if (FORMAT_ORDER.indexOf(k) >= 0) {
+          flush();
+          st = { c: st.c, f: copyFormats(st.f, k) };
+          i += 2;
+          continue;
+        }
+        if (k === 'r') {
+          flush();
+          st = { c: null, f: {} };
+          i += 2;
+          continue;
+        }
+      }
+      buf += ch;
+      i++;
+    }
+    flush();
+    return normalize(segs);
+  }
+
+  function measure(segs) {
+    var total = 0;
+    segs.forEach(function (s) {
+      var bold = s.f.l ? 1 : 0;
+      for (var i = 0; i < s.t.length; i++) {
+        total += charWidth(s.t.charAt(i)) + bold;
+      }
+    });
+    return Math.max(0, total - 1);
+  }
+
+  function hexToRgb(h) {
+    return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
+  }
+  function rgbToHex(r, g, b) {
+    function p(n) {
+      var s = Math.max(0, Math.min(255, Math.round(n))).toString(16);
+      return s.length < 2 ? '0' + s : s;
+    }
+    return p(r) + p(g) + p(b);
+  }
+
+  function nearestLegacy(hex) {
+    if (LEGACY_BY_HEX[hex]) return LEGACY_BY_HEX[hex];
+    var rgb = hexToRgb(hex);
+    var best = LEGACY[0];
+    var bestD = Infinity;
+    LEGACY.forEach(function (c) {
+      var o = hexToRgb(c[2]);
+      var d = Math.pow(rgb[0] - o[0], 2) + Math.pow(rgb[1] - o[1], 2) + Math.pow(rgb[2] - o[2], 2);
+      if (d < bestD) { bestD = d; best = c; }
+    });
+    return best;
+  }
+
+  function downgrade(segs) {
+    return normalize(segs.map(function (s) {
+      return { t: s.t, c: s.c ? nearestLegacy(s.c)[2] : null, f: s.f };
+    }));
+  }
+
+  function formatsOf(f) {
+    var out = [];
+    for (var i = 0; i < FORMAT_ORDER.length; i++) {
+      if (f[FORMAT_ORDER[i]]) out.push(FORMAT_ORDER[i]);
+    }
+    return out;
+  }
+
+  function isEmptyState(st) {
+    return !st.c && formatsOf(st.f).length === 0;
+  }
+
+  function emitLegacy(lines, prefix, hexStyle) {
+    var cur = { c: null, f: {} };
+    var out = [];
+    lines.forEach(function (segs, idx) {
+      var text = '';
+      if (idx > 0 && !isEmptyState(cur)) {
+        text += prefix + 'r';
+        cur = { c: null, f: {} };
+      }
+      segs.forEach(function (s) {
+        var curF = formatsOf(cur.f);
+        var tgtF = formatsOf(s.f);
+        var needsReset = curF.some(function (k) { return tgtF.indexOf(k) < 0; }) || (cur.c && !s.c);
+        if (needsReset) {
+          text += prefix + 'r';
+          cur = { c: null, f: {} };
+        }
+        if (s.c && s.c !== cur.c) {
+          var leg = LEGACY_BY_HEX[s.c];
+          if (leg) {
+            text += prefix + leg[0];
+          } else if (hexStyle === 'amp') {
+            text += '&#' + s.c;
+          } else {
+            text += prefix + 'x' + s.c.split('').map(function (d) { return prefix + d; }).join('');
+          }
+          cur = { c: s.c, f: {} };
+        }
+        formatsOf(s.f).forEach(function (k) {
+          if (!cur.f[k]) {
+            text += prefix + k;
+            cur.f[k] = true;
+          }
+        });
+        text += s.t;
+      });
+      out.push(text);
+    });
+    return out;
+  }
+
+  function escapeMini(t) {
+    return t.replace(/\\/g, '\\\\').replace(/</g, '\\<');
+  }
+
+  function emitMini(lines) {
+    var cur = { c: null, f: {} };
+    var out = [];
+    lines.forEach(function (segs, idx) {
+      var text = '';
+      if (idx > 0 && !isEmptyState(cur)) {
+        text += '<reset>';
+        cur = { c: null, f: {} };
+      }
+      segs.forEach(function (s) {
+        var curF = formatsOf(cur.f);
+        var tgtF = formatsOf(s.f);
+        var needsReset = curF.some(function (k) { return tgtF.indexOf(k) < 0; }) || (cur.c && !s.c);
+        if (needsReset) {
+          text += '<reset>';
+          cur = { c: null, f: {} };
+        }
+        if (s.c && s.c !== cur.c) {
+          var leg = LEGACY_BY_HEX[s.c];
+          text += leg ? '<' + leg[1] + '>' : '<color:#' + s.c + '>';
+          cur.c = s.c;
+        }
+        tgtF.forEach(function (k) {
+          if (!cur.f[k]) {
+            text += '<' + FORMAT_NAME[k] + '>';
+            cur.f[k] = true;
+          }
+        });
+        text += escapeMini(s.t);
+      });
+      out.push(text);
+    });
+    return out.join('<newline>');
+  }
+
+  function escapeProps(s) {
+    var out = '';
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i);
+      var code = s.charCodeAt(i);
+      if (ch === '\\') {
+        out += '\\\\';
+      } else if (code > 126 || code < 32) {
+        var h = code.toString(16).toUpperCase();
+        while (h.length < 4) h = '0' + h;
+        out += '\\u' + h;
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function yamlQuote(s) {
+    return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  }
+
+  var in1 = document.getElementById('mg-in1');
+  var in2 = document.getElementById('mg-in2');
+  var lineEls = [document.getElementById('mg-line1'), document.getElementById('mg-line2')];
+  var meterEls = [document.getElementById('mg-meter1'), document.getElementById('mg-meter2')];
+  var nameEl = document.getElementById('mg-name');
+  var playersEl = document.getElementById('mg-players');
+  var sname = document.getElementById('mg-sname');
+  var onEl = document.getElementById('mg-on');
+  var maxEl = document.getElementById('mg-max');
+  var iconEl = document.getElementById('mg-icon');
+  var fileEl = document.getElementById('mg-file');
+  var iconWarn = document.getElementById('mg-icon-warn');
+  var outEl = document.getElementById('mg-out');
+  var outWarn = document.getElementById('mg-out-warn');
+  var outNote = document.getElementById('mg-out-note');
+  var copyBtn = document.getElementById('mg-copy');
+
+  var lastInput = in1;
+  var activeTab = 'props';
+  var obfNodes = [];
+  var iconUrl = null;
+
+  function darken(hex) {
+    var rgb = hexToRgb(hex);
+    return '#' + rgbToHex(Math.floor(rgb[0] / 4), Math.floor(rgb[1] / 4), Math.floor(rgb[2] / 4));
+  }
+
+  function buildSpan(seg) {
+    var span = document.createElement('span');
+    var color = seg.c || DEFAULT_COLOR;
+    var shadow = darken(color);
+    span.style.color = '#' + color;
+    if (seg.f.l) {
+      span.style.textShadow = '0.125em 0 0 #' + color + ', 0.125em 0.125em 0 ' + shadow + ', 0.25em 0.125em 0 ' + shadow;
+      span.style.letterSpacing = '0.125em';
+    } else {
+      span.style.textShadow = '0.125em 0.125em 0 ' + shadow;
+    }
+    if (seg.f.o) span.style.fontStyle = 'italic';
+    var deco = [];
+    if (seg.f.n) deco.push('underline');
+    if (seg.f.m) deco.push('line-through');
+    if (deco.length) span.style.textDecoration = deco.join(' ');
+    span.textContent = seg.t;
+    if (seg.f.k) {
+      span.setAttribute('data-orig', seg.t);
+      obfNodes.push(span);
+    }
+    return span;
+  }
+
+  function renderLine(el, segs) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+    segs.forEach(function (s) { el.appendChild(buildSpan(s)); });
+  }
+
+  function scramble() {
+    obfNodes.forEach(function (span) {
+      var orig = span.getAttribute('data-orig');
+      var s = '';
+      for (var i = 0; i < orig.length; i++) {
+        var ch = orig.charAt(i);
+        var group = SAME_WIDTH[charWidth(ch)];
+        if (ch === ' ' || !group) {
+          s += ch;
+        } else {
+          s += group[Math.floor(Math.random() * group.length)];
+        }
+      }
+      span.textContent = s;
+    });
+  }
+
+  function renderServerRow() {
+    var name = sname.value || '';
+    nameEl.textContent = name;
+    var on = parseInt(onEl.value, 10);
+    var max = parseInt(maxEl.value, 10);
+    playersEl.textContent = (isFinite(on) ? on : 0) + '/' + (isFinite(max) ? max : 0);
+  }
+
+  function updateOutputs(lines) {
+    var tab = activeTab;
+    var text = '';
+    var warn = '';
+    var note = '';
+    if (tab === 'props') {
+      var hasHex = lines.some(function (segs) {
+        return segs.some(function (s) { return s.c && !LEGACY_BY_HEX[s.c]; });
+      });
+      var down = lines.map(downgrade);
+      var legacy = emitLegacy(down, SECTION, 'bungee');
+      text = 'motd=' + escapeProps(legacy.join('\n').replace(/\n/g, '\u0001')).replace(/\\u0001/g, '\\n');
+      if (hasHex) {
+        warn = 'Heads up: vanilla server.properties does not support hex colors. Your hex colors were swapped for the nearest of the 16 legacy colors in this output. Use the MiniMessage tab if your setup reads hex.';
+      }
+      note = 'Section signs are written as \\u00A7 and the two lines are joined with \\n, which is how the file stores them. Paste it over your existing motd= line.';
+    } else if (tab === 'amp') {
+      var typed = [in1.value, in2.value];
+      text = 'motd:\n' + typed.map(function (t) { return '  - ' + yamlQuote(t); }).join('\n');
+      note = 'Your text exactly as typed, wrapped as a quoted YAML list. Plugin configs differ, so copy just the quoted lines if your plugin wants another layout. The quotes matter because a leading & is special in YAML.';
+    } else if (tab === 'mini') {
+      text = emitMini(lines);
+      note = 'For Paper, Velocity and other software that parses MiniMessage. Colors use <color:#hex>, legacy colors use their names, and lines are joined with <newline>. Styles are reset at the start of line 2 if line 1 left any open.';
+    } else {
+      text = emitLegacy(lines, SECTION, 'bungee').join('\n');
+      note = 'Plain section sign text with a real line break. Hex colors use the §x§R§R§G§G§B§B form that Spigot and Paper understand. Vanilla ignores hex.';
+    }
+    outEl.textContent = text;
+    outWarn.textContent = warn;
+    outWarn.hidden = !warn;
+    outNote.textContent = note;
+  }
+
+  function update() {
+    obfNodes = [];
+    var segs1 = parse(in1.value);
+    var segs2 = parse(in2.value);
+    renderLine(lineEls[0], segs1);
+    renderLine(lineEls[1], segs2);
+    [segs1, segs2].forEach(function (segs, i) {
+      var w = measure(segs);
+      var el = meterEls[i];
+      if (w > LIMIT) {
+        el.textContent = 'Line ' + (i + 1) + ': about ' + w + ' of ' + LIMIT + ' px. Over by roughly ' + (w - LIMIT) + ' px, so the server list will cut it off.';
+        el.className = 'mg-meter is-over';
+      } else {
+        el.textContent = 'Line ' + (i + 1) + ': about ' + w + ' of ' + LIMIT + ' px. Fits.';
+        el.className = 'mg-meter';
+      }
+    });
+    renderServerRow();
+    updateOutputs([segs1, segs2]);
+    scramble();
+  }
+
+  function insertAt(code) {
+    var el = lastInput;
+    var pos = el.selectionStart;
+    if (typeof pos !== 'number') pos = el.value.length;
+    el.value = el.value.slice(0, pos) + code + el.value.slice(pos);
+    var np = pos + code.length;
+    el.focus();
+    el.setSelectionRange(np, np);
+    update();
+  }
+
+  function keepFocus(btn) {
+    btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  }
+
+  var swatchBox = document.getElementById('mg-swatches');
+  LEGACY.forEach(function (c) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-swatch';
+    b.style.background = '#' + c[2];
+    b.textContent = c[0];
+    b.title = '&' + c[0] + ' ' + c[1].replace('_', ' ');
+    b.setAttribute('aria-label', 'Insert &' + c[0] + ', ' + c[1].replace('_', ' '));
+    keepFocus(b);
+    b.addEventListener('click', function () { insertAt('&' + c[0]); });
+    swatchBox.appendChild(b);
+  });
+
+  var fmtBox = document.getElementById('mg-formats');
+  FORMATS.concat([['r', 'reset', 'Reset']]).forEach(function (f) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-btn mg-fmt';
+    b.textContent = '&' + f[0] + ' ' + f[2];
+    b.title = f[1];
+    keepFocus(b);
+    b.addEventListener('click', function () { insertAt('&' + f[0]); });
+    fmtBox.appendChild(b);
+  });
+
+  var hexPick = document.getElementById('mg-hex');
+  var hexBtn = document.getElementById('mg-hex-insert');
+  keepFocus(hexBtn);
+  hexBtn.addEventListener('click', function () {
+    insertAt('&#' + hexPick.value.slice(1).toLowerCase());
+  });
+
+  function lerpHex(a, b, t) {
+    var x = hexToRgb(a);
+    var y = hexToRgb(b);
+    return rgbToHex(x[0] + (y[0] - x[0]) * t, x[1] + (y[1] - x[1]) * t, x[2] + (y[2] - x[2]) * t);
+  }
+
+  function gradientText(text, c1, c2, extraFormats) {
+    var segs = parse(text);
+    var chars = [];
+    segs.forEach(function (s) {
+      for (var i = 0; i < s.t.length; i++) {
+        chars.push({ ch: s.t.charAt(i), f: s.f });
+      }
+    });
+    var visible = chars.filter(function (x) { return x.ch !== ' '; }).length;
+    var n = 0;
+    var out = '';
+    chars.forEach(function (x) {
+      if (x.ch === ' ') {
+        out += ' ';
+        return;
+      }
+      var t = visible > 1 ? n / (visible - 1) : 0;
+      n++;
+      out += '&#' + lerpHex(c1, c2, t);
+      var f = copyFormats(x.f);
+      (extraFormats || '').split('').forEach(function (k) { if (k) f[k] = true; });
+      formatsOf(f).forEach(function (k) { out += '&' + k; });
+      out += x.ch;
+    });
+    return out;
+  }
+
+  var gradBtn = document.getElementById('mg-grad');
+  keepFocus(gradBtn);
+  gradBtn.addEventListener('click', function () {
+    var el = lastInput;
+    var s = el.selectionStart;
+    var e = el.selectionEnd;
+    if (typeof s !== 'number' || s === e) {
+      s = 0;
+      e = el.value.length;
+    }
+    var c1 = document.getElementById('mg-g1').value.slice(1).toLowerCase();
+    var c2 = document.getElementById('mg-g2').value.slice(1).toLowerCase();
+    var piece = gradientText(el.value.slice(s, e), c1, c2, '');
+    el.value = el.value.slice(0, s) + piece + el.value.slice(e);
+    el.focus();
+    el.setSelectionRange(s, s + piece.length);
+    update();
+  });
+
+  var PRESETS = [
+    {
+      label: 'Survival',
+      l1: '&a&lSurvival &r&8| &e1.21 &8| &fFriendly community',
+      l2: '&6Join the adventure &8- &bNo grief, no lag',
+      name: 'Evergreen SMP', on: 12, max: 100
+    },
+    {
+      label: 'Minigame network',
+      l1: '&c&lMINI&6&lGAMES &r&8>> &fBedWars &7and &fSkyWars',
+      l2: '&e&oNew arena this week! &a&lPLAY NOW',
+      name: 'Blockparty Network', on: 842, max: 2000
+    },
+    {
+      label: 'Gradient name',
+      l1: function () { return gradientText('Aurora Realms', 'ff5f6d', 'ffc371', 'l'); },
+      l2: '&7Survival &8| &7Economy &8| &7Towns',
+      name: 'Aurora Realms', on: 37, max: 150
+    },
+    {
+      label: 'Clear',
+      l1: '',
+      l2: '',
+      name: 'A Minecraft Server', on: 0, max: 20
+    }
+  ];
+
+  var presetBox = document.getElementById('mg-presets');
+  PRESETS.forEach(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-btn';
+    b.textContent = p.label;
+    b.addEventListener('click', function () {
+      in1.value = typeof p.l1 === 'function' ? p.l1() : p.l1;
+      in2.value = typeof p.l2 === 'function' ? p.l2() : p.l2;
+      sname.value = p.name;
+      onEl.value = p.on;
+      maxEl.value = p.max;
+      update();
+    });
+    presetBox.appendChild(b);
+  });
+
+  var tabs = document.querySelectorAll('#mg-tabs .mg-tab');
+  Array.prototype.forEach.call(tabs, function (t) {
+    t.addEventListener('click', function () {
+      activeTab = t.getAttribute('data-tab');
+      Array.prototype.forEach.call(tabs, function (o) {
+        o.setAttribute('aria-selected', String(o === t));
+      });
+      update();
+    });
+  });
+
+  copyBtn.addEventListener('click', function () {
+    var txt = outEl.textContent;
+    function done(ok) {
+      var orig = 'Copy';
+      copyBtn.textContent = ok ? 'Copied' : 'Copy failed';
+      if (ok) copyBtn.classList.add('is-copied');
+      setTimeout(function () {
+        copyBtn.textContent = orig;
+        copyBtn.classList.remove('is-copied');
+      }, 1400);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { done(true); }, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  function clearIcon() {
+    if (iconUrl) URL.revokeObjectURL(iconUrl);
+    iconUrl = null;
+    iconEl.removeAttribute('src');
+    iconWarn.hidden = true;
+    fileEl.value = '';
+  }
+
+  fileEl.addEventListener('change', function () {
+    var f = fileEl.files && fileEl.files[0];
+    if (!f) return;
+    if (iconUrl) URL.revokeObjectURL(iconUrl);
+    iconUrl = URL.createObjectURL(f);
+    var probe = new Image();
+    probe.onload = function () {
+      if (probe.naturalWidth !== 64 || probe.naturalHeight !== 64) {
+        iconWarn.textContent = 'This image is ' + probe.naturalWidth + 'x' + probe.naturalHeight + '. The game only accepts a 64x64 PNG named server-icon.png, so resize it before using it on your server.';
+        iconWarn.hidden = false;
+      } else {
+        iconWarn.hidden = true;
+      }
+    };
+    probe.src = iconUrl;
+    iconEl.src = iconUrl;
+  });
+  document.getElementById('mg-file-clear').addEventListener('click', clearIcon);
+
+  in1.addEventListener('focus', function () { lastInput = in1; });
+  in2.addEventListener('focus', function () { lastInput = in2; });
+  in1.addEventListener('input', update);
+  in2.addEventListener('input', update);
+  sname.addEventListener('input', update);
+  onEl.addEventListener('input', update);
+  maxEl.addEventListener('input', update);
+
+  setInterval(scramble, 80);
+
+  in1.value = PRESETS[0].l1;
+  in2.value = PRESETS[0].l2;
+  sname.value = PRESETS[0].name;
+  onEl.value = PRESETS[0].on;
+  maxEl.value = PRESETS[0].max;
+  update();
+})();
+</script>
+
+</body>
+</html>
