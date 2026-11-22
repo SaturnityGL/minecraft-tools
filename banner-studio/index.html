@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Banner Maker: Animated Minecraft and Discord Banners</title>
+  <meta name="description" content="Free animated server banner maker for Minecraft and Discord servers. 3D blocks, player skins, the Minecraft font, particles and transitions. Export a looping GIF, APNG or WebP for Discord, server lists, YouTube and Twitch.">
+  <link rel="canonical" href="https://blockforge.saturnitystools.com/banner-studio/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blockforge.saturnitystools.com/banner-studio/">
+  <meta property="og:title" content="Server Banner Maker: Animated Minecraft and Discord Banners">
+  <meta property="og:description" content="Free animated server banner maker for Minecraft and Discord servers. 3D blocks, player skins, the Minecraft font, particles and transitions. Export a looping GIF, APNG or WebP for Discord, server lists, YouTube and Twitch.">
+  <meta property="og:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+  <meta property="og:site_name" content="BlockForge">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Server Banner Maker: Animated Minecraft and Discord Banners">
+  <meta name="twitter:description" content="Make a smooth looping animated banner for your Minecraft server, with 3D blocks, skins and the Minecraft font.">
+  <meta name="twitter:image" content="https://blockforge.saturnitystools.com/assets/img/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=2026-06-26b">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;family=Luckiest+Guy&amp;family=Bungee&amp;family=Titan+One&amp;family=Russo+One&amp;family=Bebas+Neue&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=Pixelify+Sans:wght@400;700&amp;family=Fredoka:wght@400;700&amp;family=Cinzel+Decorative:wght@400;700&amp;family=Inter:wght@400;700;900&amp;display=swap">
+  <link rel="preload" href="/assets/fonts/minecraft.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/bannerstudio.css?v=2026-11-21a">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "@id": "https://blockforge.saturnitystools.com/banner-studio/#banner-studio",
+  "name": "BlockForge Banner Studio",
+  "url": "https://blockforge.saturnitystools.com/banner-studio/",
+  "description": "Free browser tool for making animated Minecraft server banners with 3D blocks, items, player skins, particles, borders, scenes and transitions, exported as looping GIF, APNG, WebP or WebM.",
+  "applicationCategory": "DesignApplication",
+  "applicationSubCategory": "Animated banner maker",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Modern browser with JavaScript enabled",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "publisher": {
+    "@id": "https://saturnitystools.com/#organization"
+  },
+  "image": "https://blockforge.saturnitystools.com/assets/img/og-image.png",
+  "isPartOf": {
+    "@id": "https://blockforge.saturnitystools.com/#website"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What sizes can I make?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Presets cover the 468x60 server list banner, 728x90 leaderboard, Discord server banner (960x540), Discord profile banner (680x240), Discord invite splash (1920x1080), X header, YouTube channel art, forum signatures, Twitch panels and square icons. You can also type any custom size."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which export format should I pick?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GIF works almost everywhere, including Discord server banners and server list sites. APNG and WebP keep full color and soft transparency and are smaller, but not every site accepts them. WebM is a small video file for websites and video uploads."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use my own logo and fonts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Add an Image layer to upload a PNG, JPG, GIF or WebP logo, and pick Uploaded font in any text layer to use your own TTF, OTF or WOFF file. Everything stays in your browser, nothing is uploaded to a server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the banner loop smoothly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Every motion, particle and background effect is built to complete whole cycles per loop, so the last frame flows straight into the first with no jump."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it really free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. No account, no watermark and no paid tier. Projects autosave in your browser, and you can save them as a file to keep or share."
+      }
+    }
+  ]
+}
+  </script>
+  <style>
+    main.bs-main { max-width: 1500px; margin: 0 auto; padding: 0 20px 40px; }
+    .bs-pagehead { padding: 22px 0 14px; }
+    .bs-pagehead h1 { margin: 0 0 6px; }
+    .bs-pagehead p { margin: 0; max-width: 760px; }
+    .bs-guide { max-width: 900px; margin: 34px auto 0; background: var(--color-bg-surface); color: var(--color-text); border-radius: var(--card-radius); padding: 22px 26px; }
+    .bs-guide h2 { margin-top: 0; }
+    .bs-guide h3 { margin-bottom: 4px; }
+    .bs-guide p { margin-top: 0; }
+    @media (max-width: 560px) {
+      main.bs-main { padding: 0 10px 30px; }
+      .bs-guide { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="brand">BlockForge</a>
+  <nav>
+    <a href="/">Home</a>
+    <div class="nav-dropdown">
+      <button type="button" class="nav-btn active" id="tools-btn" aria-haspopup="true" aria-expanded="false">Tools &#9662;</button>
+      <div class="nav-dropdown-menu" id="tools-menu" hidden>
+        <a href="/app/">Pixel Art Generator</a>
+        <a href="/viewer/">Schematic Viewer</a>
+        <a href="/merger/">Schematic Merger</a>
+        <a href="/banner/">Banner Designer</a>
+        <a href="/banner-studio/">Banner Studio</a>
+        <a href="/portal/">Nether Portal Linker</a>
+        <a href="/skins/">Skin Editor</a>
+        <a href="/redstone/">Redstone Hub</a>
+        <a href="/redstone/rom/">Redstone ROM Builder</a>
+        <a href="/redstone/sequencer/">Redstone Sequencer</a>
+        <a href="/motd/">MOTD Generator</a>
+        <a href="/commands/">Command Generator</a>
+      </div>
+    </div>
+    <a href="/blog/">Blog</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <script>
+  (function(){
+    var btn = document.getElementById('tools-btn');
+    var menu = document.getElementById('tools-menu');
+    if(!btn||!menu) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = !menu.hidden;
+      menu.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function(){
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    });
+    menu.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+  </script>
+</header>
+
+<main class="bs-main">
+
+  <div class="bs-pagehead">
+    <h1>Server Banner Maker</h1>
+    <p>Make a smooth, looping animated banner for your Minecraft server: 3D blocks, items and player skins, the Minecraft font, particles, borders and scene transitions. Export a GIF for Discord or your server list. Free, no watermark, nothing leaves your browser.</p>
+  </div>
+
+  <div class="bs-app" id="bs-app">
+    <div class="bs-top">
+      <span class="bs-brand">Banner Studio</span>
+      <button type="button" class="bs-ib" id="bs-undo" title="Undo (Ctrl+Z)" aria-label="Undo" disabled></button>
+      <button type="button" class="bs-ib" id="bs-redo" title="Redo (Ctrl+Y)" aria-label="Redo" disabled></button>
+      <span class="bs-sep"></span>
+      <button type="button" class="bs-btn sm" id="bs-templates">Templates</button>
+      <button type="button" class="bs-btn sm ghost" id="bs-new">New</button>
+      <button type="button" class="bs-btn sm ghost" id="bs-open">Open</button>
+      <button type="button" class="bs-btn sm ghost" id="bs-save">Save project</button>
+      <span class="bs-spacer"></span>
+      <button type="button" class="bs-btn sm ghost" id="bs-settings">Banner settings</button>
+      <button type="button" class="bs-btn primary" id="bs-export">Export</button>
+    </div>
+    <div class="bs-grid">
+      <aside class="bs-side" aria-label="Layers">
+        <div class="bs-sidehead">Add layer</div>
+        <div class="bs-add" id="bs-add"></div>
+        <div class="bs-sidehead">Layers <span class="bs-small bs-muted" style="text-transform:none;letter-spacing:0;font-weight:400">top is in front</span></div>
+        <div class="bs-layers" id="bs-layers"></div>
+      </aside>
+      <section class="bs-stagecol" aria-label="Canvas">
+        <div class="bs-stagebar">
+          <span id="bs-sizelabel"></span>
+          <label class="bs-inline">Zoom
+            <select class="bs-input" id="bs-zoom">
+              <option value="fit" selected>Fit</option>
+              <option value="0.5">50%</option>
+              <option value="1">100%</option>
+              <option value="2">200%</option>
+              <option value="4">400%</option>
+            </select>
+          </label>
+          <label class="bs-check"><input type="checkbox" id="bs-guides" checked> Guides</label>
+          <span class="bs-small" style="margin-left:auto">Drag to move. Corners scale, the dot rotates. Hold Alt to skip snapping.</span>
+        </div>
+        <div class="bs-stage" id="bs-stage">
+          <div class="bs-canvaswrap" id="bs-canvaswrap">
+            <canvas id="bs-canvas" width="960" height="540" aria-label="Banner preview"></canvas>
+            <canvas id="bs-overlay" aria-hidden="true"></canvas>
+          </div>
+          <div class="bs-loading" id="bs-loading" hidden>Loading Minecraft textures</div>
+        </div>
+      </section>
+      <section class="bs-timeline" aria-label="Timeline">
+        <div class="bs-tl-row">
+          <button type="button" class="bs-ib" id="bs-prev" title="Previous frame (,)" aria-label="Previous frame"></button>
+          <button type="button" class="bs-ib big" id="bs-play" title="Pause (Space)" aria-label="Pause"></button>
+          <button type="button" class="bs-ib" id="bs-next" title="Next frame (.)" aria-label="Next frame"></button>
+          <input type="range" id="bs-scrub" min="0" max="1000" value="0" step="1" aria-label="Timeline position">
+          <span class="bs-time" id="bs-time"></span>
+        </div>
+        <div class="bs-scenes" id="bs-scenes"></div>
+        <div class="bs-scene-edit" id="bs-scene-edit"></div>
+      </section>
+      <aside class="bs-insp" aria-label="Properties">
+        <div class="bs-inspector" id="bs-inspector"></div>
+      </aside>
+    </div>
+  </div>
+
+  <noscript><p>Banner Studio needs JavaScript to run.</p></noscript>
+
+  <div class="bs-guide">
+    <h2>How it works</h2>
+    <p>A banner is a stack of layers played over a loop. The loop is split into scenes. Layers set to show in every scene stay up the whole time, and layers you assign to one scene slide or pop in when that scene starts and leave when it ends. That is how one banner can show your logo, then your IP, then your game modes.</p>
+    <h3>Make it move</h3>
+    <p>Open a layer's Animate tab to add motions like float, spin, bounce or rainbow. Each one finishes a whole number of times per loop, so the GIF never stutters at the seam. The Effects tab adds glow, outlines, shine sweeps and shadows.</p>
+    <h3>Minecraft pieces</h3>
+    <p>Block layers draw any block as a real 3D cube. Item layers use the actual item textures. Player layers fetch a skin by username and can show a head, bust or full waving body. Text supports &amp; color codes and hex colors like &amp;#ff8800, just like chat.</p>
+    <h3>What sizes can I make?</h3>
+    <p>Presets cover the 468x60 server list banner, 728x90 leaderboard, Discord server banner (960x540), Discord profile banner (680x240), Discord invite splash (1920x1080), X header, YouTube channel art, forum signatures, Twitch panels and square icons. You can also type any custom size.</p>
+    <h3>Which export format should I pick?</h3>
+    <p>GIF works almost everywhere, including Discord server banners and server list sites. APNG and WebP keep full color and soft transparency and are smaller, but not every site accepts them. WebM is a small video file for websites and video uploads.</p>
+    <h3>Can I use my own logo and fonts?</h3>
+    <p>Yes. Add an Image layer to upload a PNG, JPG, GIF or WebP logo, and pick Uploaded font in any text layer to use your own TTF, OTF or WOFF file. Everything stays in your browser, nothing is uploaded to a server.</p>
+    <h3>Does the banner loop smoothly?</h3>
+    <p>Yes. Every motion, particle and background effect is built to complete whole cycles per loop, so the last frame flows straight into the first with no jump.</p>
+    <h3>Is it really free?</h3>
+    <p>Yes. No account, no watermark and no paid tier. Projects autosave in your browser, and you can save them as a file to keep or share.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-cols">
+    <div>
+      <strong>BlockForge</strong>
+      <p>Free browser tools for Minecraft builders.</p>
+    </div>
+    <div>
+      <strong>Tools</strong>
+      <ul>
+        <li><a href="/app/">Pixel Art Generator</a></li>
+        <li><a href="/viewer/">Schematic Viewer</a></li>
+        <li><a href="/merger/">Schematic Merger</a></li>
+        <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/banner-studio/">Banner Studio</a></li>
+        <li><a href="/portal/">Nether Portal Linker</a></li>
+        <li><a href="/skins/">Skin Editor</a></li>
+        <li><a href="/redstone/">Redstone Hub</a></li>
+        <li><a href="/redstone/rom/">Redstone ROM Builder</a></li>
+        <li><a href="/redstone/sequencer/">Redstone Sequencer</a></li>
+        <li><a href="/motd/">MOTD Generator</a></li>
+        <li><a href="/commands/">Command Generator</a></li>
+        <li><a href="/guide/">How-to guide</a></li>
+        <li><a href="/blocks/">Block reference</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>From Saturnity</strong>
+      <ul>
+        <li>
+          <a href="https://saturnitystools.com/" rel="noopener" class="footer-parent-link">
+            <img src="/assets/img/SMTTitle.png" alt="Saturnity's Tools" width="200" height="14">
+            <span>saturnitystools.com</span>
+          </a>
+        </li>
+        <li><a href="https://saturnitystools.com/contact/" rel="noopener">Contact</a></li>
+        <li><a href="https://ko-fi.com/saturnity" rel="noopener">Support on Ko-Fi</a></li>
+      </ul>
+    </div>
+    <div>
+      <strong>Legal</strong>
+      <ul>
+        <li><a href="https://saturnitystools.com/privacy-policy/" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://saturnitystools.com/terms/" rel="noopener">Terms</a></li>
+        <li><button type="button" onclick="window.SatConsent && window.SatConsent.reset()">Reset cookie preferences</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-credit">
+    by <a href="https://saturnitystools.com/" rel="noopener">Saturnity</a>
+  </div>
+</footer>
+
+<script type="module">
+import { start } from '/assets/js/bannerstudio/ui.js?v=2026-11-21a';
+start();
+</script>
+
+</body>
+</html>

@@ -161,6 +161,43 @@
     ]
   }
   </script>
+  <style>
+    .motd-sample {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: #000;
+      border: 2px solid #3b3b3b;
+      padding: 6px;
+      margin-bottom: 6px;
+      font-family: var(--font-display);
+      font-size: 10px;
+      line-height: 1.5;
+      color: #aaa;
+      overflow-x: clip;
+    }
+    .motd-sample__icon {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(#6aa84f 0 28%, #7b5a3a 28% 100%);
+    }
+    .motd-sample__body { flex: 1; min-width: 0; }
+    .motd-sample__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      color: #fff;
+      text-shadow: 1px 1px 0 #3f3f3f;
+    }
+    .motd-sample__count { color: #aaa; text-shadow: 1px 1px 0 #2a2a2a; }
+    .motd-sample__line { white-space: nowrap; overflow-x: clip; text-shadow: 1px 1px 0 #2a2a2a; }
+    .motd-sample__hint {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+  </style>
 </head>
 <body>
 
@@ -175,6 +212,7 @@
         <a href="/viewer/">Schematic Viewer</a>
         <a href="/merger/">Schematic Merger</a>
         <a href="/banner/">Banner Designer</a>
+        <a href="/banner-studio/">Banner Studio</a>
         <a href="/portal/">Nether Portal Linker</a>
         <a href="/skins/">Skin Editor</a>
         <a href="/redstone/">Redstone Hub</a>
@@ -250,6 +288,12 @@
         <p class="tool-card__desc">Pick a base color, layer up to six patterns from the full vanilla palette, and copy a ready-to-paste /give command. Supports 1.20.5+ component syntax and legacy NBT.</p>
         <span class="tool-card__cta">Open the Banner Designer &rarr;</span>
       </a>
+      <a href="/banner-studio/" class="tool-card">
+        <div class="tool-card__label">Server Banner Maker</div>
+        <div class="tool-card__name">BlockForge Banner Studio</div>
+        <p class="tool-card__desc">Make an animated server banner for your Minecraft server, Discord server, server list, YouTube or Twitch. 3D blocks, player skins, the Minecraft font, particles and scene transitions. Export a looping GIF, APNG, WebP or a still PNG. Free, no watermark.</p>
+        <span class="tool-card__cta">Open Banner Studio &rarr;</span>
+      </a>
       <a href="/portal/" class="tool-card">
         <div class="tool-card__label">Nether Portal Linker</div>
         <div class="tool-card__name">BlockForge Portal</div>
@@ -265,7 +309,16 @@
       <a href="/motd/" class="tool-card">
         <div class="tool-card__label">MOTD Generator</div>
         <div class="tool-card__name">BlockForge MOTD</div>
-        <p class="tool-card__desc">Write a colorful server list message with a live preview. Gradients, hex colors, and output for server.properties, Spigot/Paper, and MiniMessage.</p>
+        <div class="motd-sample" aria-hidden="true">
+          <div class="motd-sample__icon"></div>
+          <div class="motd-sample__body">
+            <div class="motd-sample__top"><span>Evergreen SMP</span><span class="motd-sample__count">12/100</span></div>
+            <div class="motd-sample__line"><span style="color:#55ff55">Survival</span> <span style="color:#555">|</span> <span style="color:#ffff55">1.21</span> <span style="color:#555">|</span> <span style="color:#fff">Friendly community</span></div>
+            <div class="motd-sample__line"><span style="color:#ffaa00">Join the adventure</span> <span style="color:#55ffff">No grief</span></div>
+          </div>
+        </div>
+        <div class="motd-sample__hint">The two lines under your server's name in the multiplayer list.</div>
+        <p class="tool-card__desc">Style those lines with colors, gradients, and hex codes, preview them live, then copy for server.properties, Spigot/Paper, or MiniMessage.</p>
         <span class="tool-card__cta">Open the MOTD Generator &rarr;</span>
       </a>
       <a href="/commands/" class="tool-card">
@@ -301,6 +354,7 @@
         <li><a href="/viewer/">Schematic Viewer</a></li>
         <li><a href="/merger/">Schematic Merger</a></li>
         <li><a href="/banner/">Banner Designer</a></li>
+        <li><a href="/banner-studio/">Banner Studio</a></li>
         <li><a href="/portal/">Nether Portal Linker</a></li>
         <li><a href="/skins/">Skin Editor</a></li>
         <li><a href="/redstone/">Redstone Hub</a></li>
